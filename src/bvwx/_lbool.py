@@ -1,4 +1,4 @@
-"""Lifted Boolean Data Type and Operators."""
+"""Lifted Boolean Data Type and Operators"""
 
 type lbv = tuple[int, int]
 

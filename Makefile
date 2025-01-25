@@ -15,7 +15,7 @@ PYTEST := pytest
 
 .PHONY: lint
 lint:
-	@$(PYLINT) src/seqlogic tests
+	@$(PYLINT) src/bvwx tests
 	@$(FLAKE8)
 
 .PHONY: test
@@ -28,7 +28,7 @@ prof:
 
 .PHONY: cov
 cov:
-	@$(PYTEST) --doctest-modules --cov=src/seqlogic --cov-report=html
+	@$(PYTEST) --doctest-modules --cov=src/bvwx --cov-report=html
 
 .PHONY: build
 build:

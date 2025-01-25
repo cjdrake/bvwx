@@ -1,7 +1,5 @@
-"""SeqLogic Bits module.
+"""Bits Data Types
 
-Contains classes and functions that implement hardware-oriented ``bits`` data
-types and operators.
 """
 
 # PyLint is confused by my hacky classproperty implementation
@@ -13,7 +11,6 @@ types and operators.
 from __future__ import annotations
 
 import math
-import operator
 import random
 import re
 from collections.abc import Callable, Generator
@@ -160,13 +157,17 @@ class Bits(_SizedIf):
 
     Children::
 
-                      Bits
-                        |
-          +------+------+-----+------+-----+
-          |      |      |     |      |     |
-        Empty Scalar Vector Array Struct Union
-                        |
-                      Enum
+                                 Bits
+                                   |
+                   +---------------+---------------+
+                   |                               |
+                Shaped                         Composite
+                   |                               |
+          +--------+--------+-------+         +----+----+
+          |        |        |       |         |         |
+        Array > Vector > Scalar > Empty    Struct     Union
+                   |
+                 Enum
 
     Do **NOT** construct a Bits object directly.
     Use one of the factory functions:
@@ -423,25 +424,26 @@ class Bits(_SizedIf):
         return _cat(s, co)
 
     def __mul__(self, other: Bits | str) -> Vector:
-        return mul(self, other)
+        other = _expect_type(other, Bits)
+        return _mul(self, other)
 
     def __rmul__(self, other: Bits | str) -> Vector:
         other = _expect_type(other, Bits)
-        return mul(other, self)
+        return _mul(other, self)
 
     def __floordiv__(self, other: Bits | str) -> Bits:
-        return div(self, other)
+        other = _expect_type(other, Bits)
+        return _div(self, other)
 
     def __rfloordiv__(self, other: Bits | str) -> Bits:
         other = _expect_type(other, Bits)
-        return div(other, self)
+        return _div(other, self)
 
     def __mod__(self, other: Bits | str) -> Bits:
-        return mod(self, other)
-
-    def __rmod__(self, other: Bits | str) -> Bits:
         other = _expect_type(other, Bits)
-        return mod(other, self)
+        return _mod(self, other)
+
+    # Note: __rmod__ does not work b/c str implements % operator
 
     def to_uint(self) -> int:
         """Convert to unsigned integer.
@@ -552,233 +554,6 @@ class Bits(_SizedIf):
 
 
 type Key = int | slice | Bits | str
-
-
-class Empty(Bits, _ShapedIf):
-    """Null dimensional sequence of bits.
-
-    Degenerate form of a ``Vector`` resulting from an empty slice.
-
-    >>> from bvwx import Vec
-    >>> Vec[0] is Empty
-    True
-
-    To get a handle to an ``Empty`` instance:
-
-    >>> empty = bits()
-
-    ``Empty`` implements ``Vector`` methods,
-    but __getitem__ will always raise an exception:
-
-    >>> empty.size
-    0
-    >>> empty.shape
-    (0,)
-    >>> len(empty)
-    0
-    >>> empty[0]
-    Traceback (most recent call last):
-        ...
-    IndexError: Expected index in [0, 0), got 0
-    """
-
-    def __new__(cls, d0: int, d1: int):
-        assert d0 == d1 == 0
-        return _Empty
-
-    def __reversed__(self):
-        yield self
-
-    @classproperty
-    def size(cls) -> int:
-        return 0
-
-    @classproperty
-    def shape(cls) -> tuple[int, ...]:
-        return (0,)
-
-    def __repr__(self) -> str:
-        return "bits([])"
-
-    def __str__(self) -> str:
-        return "[]"
-
-    def __len__(self) -> int:
-        return 0
-
-    def __getitem__(self, key: Key) -> Empty:
-        # This will always raise an exception
-        _ = self._get_key(key)
-
-    def __iter__(self) -> Generator[Scalar, None, None]:
-        yield from ()
-
-
-_Empty = Empty._cast_data(0, 0)
-
-
-class Scalar(Bits, _ShapedIf):
-    """Zero dimensional (scalar) sequence of bits.
-
-    Degenerate form of a ``Vector`` resulting from a one bit slice.
-
-    >>> from bvwx import Vec
-    >>> Vec[1] is Scalar
-    True
-
-    To get a handle to a ``Scalar`` instance:
-
-    >>> f = bits("1b0")
-    >>> t = bits("1b1")
-    >>> x = bits("1bX")
-    >>> dc = bits("1b-")
-
-    For convenience, ``False`` and ``True`` also work:
-
-    >>> bits(False) is f and bits(True) is t
-    True
-
-    ``Scalar`` implements ``Vector`` methods,
-    including ``__getitem__``:
-
-    >>> t.size
-    1
-    >>> t.shape
-    (1,)
-    >>> len(t)
-    1
-    >>> t[0]
-    bits("1b1")
-    """
-
-    def __new__(cls, d0: int, d1: int):
-        return _scalars[(d0, d1)]
-
-    @classproperty
-    def size(cls) -> int:
-        return 1
-
-    @classproperty
-    def shape(cls) -> tuple[int, ...]:
-        return (1,)
-
-    def __repr__(self) -> str:
-        return f'bits("{self.__str__()}")'
-
-    def __str__(self) -> str:
-        return f"1b{to_char[self._data]}"
-
-    def __len__(self) -> int:
-        return 1
-
-    def __getitem__(self, key: Key) -> Scalar:
-        size, (d0, d1) = self._get_key(key)
-        return _vec_size(size)(d0, d1)
-
-    def __iter__(self) -> Generator[Scalar, None, None]:
-        yield self
-
-
-_ScalarX = Scalar._cast_data(*_X)
-_Scalar0 = Scalar._cast_data(*_0)
-_Scalar1 = Scalar._cast_data(*_1)
-_ScalarW = Scalar._cast_data(*_W)
-
-_scalars = {
-    _X: _ScalarX,
-    _0: _Scalar0,
-    _1: _Scalar1,
-    _W: _ScalarW,
-}
-_bool2scalar = (_Scalar0, _Scalar1)
-
-
-class Vector(Bits, _ShapedIf):
-    """One dimensional sequence of bits.
-
-    To create a ``Vector`` instance,
-    use binary, decimal, or hexadecimal string literals:
-
-    >>> bits("4b1010")
-    bits("4b1010")
-    >>> bits("4d10")
-    bits("4b1010")
-    >>> bits("4ha")
-    bits("4b1010")
-
-    ``Vector`` implements ``size`` and ``shape`` attributes,
-    as well as ``__len__`` and ``__getitem__`` methods:
-
-    >>> x = bits("8b1111_0000")
-    >>> x.size
-    8
-    >>> x.shape
-    (8,)
-    >>> len(x)
-    8
-    >>> x[3]
-    bits("1b0")
-    >>> x[4]
-    bits("1b1")
-    >>> x[2:6]
-    bits("4b1100")
-
-    A ``Vector`` may be converted into an equal-size multi-dimensional ``Array``
-    using the ``reshape`` method:
-
-    >>> x.reshape((2,4))
-    bits(["4b0000", "4b1111"])
-    """
-
-    def __class_getitem__(cls, size: int) -> type[Vector]:
-        if isinstance(size, int) and size >= 0:
-            return _vec_size(size)
-        raise TypeError(f"Invalid size parameter: {size}")
-
-    def __new__(cls, d0: int, d1: int) -> Vector:
-        return cls._cast_data(d0, d1)
-
-    @classproperty
-    def size(cls) -> int:
-        return cls._size
-
-    @classproperty
-    def shape(cls) -> tuple[int, ...]:
-        return (cls._size,)
-
-    def __repr__(self) -> str:
-        return f'bits("{self.__str__()}")'
-
-    def __str__(self) -> str:
-        prefix = f"{self.size}b"
-        chars = [to_char[self._get_index(0)]]
-        for i in range(1, self.size):
-            if i % 4 == 0:
-                chars.append("_")
-            chars.append(to_char[self._get_index(i)])
-        return prefix + "".join(reversed(chars))
-
-    def __len__(self) -> int:
-        return self._size
-
-    def __getitem__(self, key: Key) -> Vector:
-        size, (d0, d1) = self._get_key(key)
-        return _vec_size(size)(d0, d1)
-
-    def __iter__(self) -> Generator[Scalar, None, None]:
-        for i in range(self._size):
-            yield _scalars[self._get_index(i)]
-
-    def reshape(self, shape: tuple[int, ...]) -> Array:
-        if shape == self.shape:
-            return self
-        if math.prod(shape) != self.size:
-            s = f"Expected shape with size {self.size}, got {shape}"
-            raise ValueError(s)
-        return _get_array_shape(shape)(self._data[0], self._data[1])
-
-    def flatten(self) -> Vector:
-        return self
 
 
 class Array(Bits, _ShapedIf):
@@ -897,6 +672,233 @@ class Array(Bits, _ShapedIf):
         return tuple(f(n, key) for n, key in zip(cls._shape, keys))
 
 
+class Vector(Bits, _ShapedIf):
+    """One dimensional sequence of bits.
+
+    To create a ``Vector`` instance,
+    use binary, decimal, or hexadecimal string literals:
+
+    >>> bits("4b1010")
+    bits("4b1010")
+    >>> bits("4d10")
+    bits("4b1010")
+    >>> bits("4ha")
+    bits("4b1010")
+
+    ``Vector`` implements ``size`` and ``shape`` attributes,
+    as well as ``__len__`` and ``__getitem__`` methods:
+
+    >>> x = bits("8b1111_0000")
+    >>> x.size
+    8
+    >>> x.shape
+    (8,)
+    >>> len(x)
+    8
+    >>> x[3]
+    bits("1b0")
+    >>> x[4]
+    bits("1b1")
+    >>> x[2:6]
+    bits("4b1100")
+
+    A ``Vector`` may be converted into an equal-size multi-dimensional ``Array``
+    using the ``reshape`` method:
+
+    >>> x.reshape((2,4))
+    bits(["4b0000", "4b1111"])
+    """
+
+    def __class_getitem__(cls, size: int) -> type[Vector]:
+        if isinstance(size, int) and size >= 0:
+            return _vec_size(size)
+        raise TypeError(f"Invalid size parameter: {size}")
+
+    def __new__(cls, d0: int, d1: int) -> Vector:
+        return cls._cast_data(d0, d1)
+
+    @classproperty
+    def size(cls) -> int:
+        return cls._size
+
+    @classproperty
+    def shape(cls) -> tuple[int, ...]:
+        return (cls._size,)
+
+    def __repr__(self) -> str:
+        return f'bits("{self.__str__()}")'
+
+    def __str__(self) -> str:
+        prefix = f"{self.size}b"
+        chars = [to_char[self._get_index(0)]]
+        for i in range(1, self.size):
+            if i % 4 == 0:
+                chars.append("_")
+            chars.append(to_char[self._get_index(i)])
+        return prefix + "".join(reversed(chars))
+
+    def __len__(self) -> int:
+        return self._size
+
+    def __getitem__(self, key: Key) -> Vector:
+        size, (d0, d1) = self._get_key(key)
+        return _vec_size(size)(d0, d1)
+
+    def __iter__(self) -> Generator[Scalar, None, None]:
+        for i in range(self._size):
+            yield _scalars[self._get_index(i)]
+
+    def reshape(self, shape: tuple[int, ...]) -> Array:
+        if shape == self.shape:
+            return self
+        if math.prod(shape) != self.size:
+            s = f"Expected shape with size {self.size}, got {shape}"
+            raise ValueError(s)
+        return _get_array_shape(shape)(self._data[0], self._data[1])
+
+    def flatten(self) -> Vector:
+        return self
+
+
+class Scalar(Bits, _ShapedIf):
+    """Zero dimensional (scalar) sequence of bits.
+
+    Degenerate form of a ``Vector`` resulting from a one bit slice.
+
+    >>> from bvwx import Vec
+    >>> Vec[1] is Scalar
+    True
+
+    To get a handle to a ``Scalar`` instance:
+
+    >>> f = bits("1b0")
+    >>> t = bits("1b1")
+    >>> x = bits("1bX")
+    >>> dc = bits("1b-")
+
+    For convenience, ``False`` and ``True`` also work:
+
+    >>> bits(False) is f and bits(True) is t
+    True
+
+    ``Scalar`` implements ``Vector`` methods,
+    including ``__getitem__``:
+
+    >>> t.size
+    1
+    >>> t.shape
+    (1,)
+    >>> len(t)
+    1
+    >>> t[0]
+    bits("1b1")
+    """
+
+    def __new__(cls, d0: int, d1: int):
+        return _scalars[(d0, d1)]
+
+    @classproperty
+    def size(cls) -> int:
+        return 1
+
+    @classproperty
+    def shape(cls) -> tuple[int, ...]:
+        return (1,)
+
+    def __repr__(self) -> str:
+        return f'bits("{self.__str__()}")'
+
+    def __str__(self) -> str:
+        return f"1b{to_char[self._data]}"
+
+    def __len__(self) -> int:
+        return 1
+
+    def __getitem__(self, key: Key) -> Scalar:
+        size, (d0, d1) = self._get_key(key)
+        return _vec_size(size)(d0, d1)
+
+    def __iter__(self) -> Generator[Scalar, None, None]:
+        yield self
+
+
+_ScalarX = Scalar._cast_data(*_X)
+_Scalar0 = Scalar._cast_data(*_0)
+_Scalar1 = Scalar._cast_data(*_1)
+_ScalarW = Scalar._cast_data(*_W)
+
+_scalars = {
+    _X: _ScalarX,
+    _0: _Scalar0,
+    _1: _Scalar1,
+    _W: _ScalarW,
+}
+_bool2scalar = (_Scalar0, _Scalar1)
+
+
+class Empty(Bits, _ShapedIf):
+    """Null dimensional sequence of bits.
+
+    Degenerate form of a ``Vector`` resulting from an empty slice.
+
+    >>> from bvwx import Vec
+    >>> Vec[0] is Empty
+    True
+
+    To get a handle to an ``Empty`` instance:
+
+    >>> empty = bits()
+
+    ``Empty`` implements ``Vector`` methods,
+    but __getitem__ will always raise an exception:
+
+    >>> empty.size
+    0
+    >>> empty.shape
+    (0,)
+    >>> len(empty)
+    0
+    >>> empty[0]
+    Traceback (most recent call last):
+        ...
+    IndexError: Expected index in [0, 0), got 0
+    """
+
+    def __new__(cls, d0: int, d1: int):
+        assert d0 == d1 == 0
+        return _Empty
+
+    def __reversed__(self):
+        yield self
+
+    @classproperty
+    def size(cls) -> int:
+        return 0
+
+    @classproperty
+    def shape(cls) -> tuple[int, ...]:
+        return (0,)
+
+    def __repr__(self) -> str:
+        return "bits([])"
+
+    def __str__(self) -> str:
+        return "[]"
+
+    def __len__(self) -> int:
+        return 0
+
+    def __getitem__(self, key: Key) -> Empty:
+        # This will always raise an exception
+        _ = self._get_key(key)
+
+    def __iter__(self) -> Generator[Scalar, None, None]:
+        yield from ()
+
+
+_Empty = Empty._cast_data(0, 0)
+
+
 # Bitwise
 def _not_(x: Bits) -> Bits:
     d0, d1 = lnot(x.data)
@@ -927,395 +929,13 @@ def _xor_(x0: Bits, x1: Bits) -> Bits:
     return t._cast_data(d0, d1)
 
 
-def _impl(p: Bits, q: Bits) -> Bits:
+def _impl_(p: Bits, q: Bits) -> Bits:
     d0, d1 = limpl(p.data, q.data)
     t = _resolve_type(type(p), type(q))
     return t._cast_data(d0, d1)
 
 
-def not_(x: Bits | str) -> Bits:
-    """Unary bitwise logical NOT operator.
-
-    Perform logical negation on each bit of the input:
-
-    +-------+--------+
-    |   x   | NOT(x) |
-    +=======+========+
-    | ``0`` |  ``1`` |
-    +-------+--------+
-    | ``1`` |  ``0`` |
-    +-------+--------+
-    | ``X`` |  ``X`` |
-    +-------+--------+
-    | ``-`` |  ``-`` |
-    +-------+--------+
-
-    For example:
-
-    >>> not_("4b-10X")
-    bits("4b-01X")
-
-    In expressions, you can use the unary ``~`` operator:
-
-    >>> a = bits("4b-10X")
-    >>> ~a
-    bits("4b-01X")
-
-    Args:
-        x: ``Bits`` or string literal.
-
-    Returns:
-        ``Bits`` of same type and equal size
-
-    Raises:
-        TypeError: ``x0`` is not a valid ``Bits`` object.
-        ValueError: Error parsing string literal.
-    """
-    x = _expect_type(x, Bits)
-    return _not_(x)
-
-
-def nor(x0: Bits | str, *xs: Bits | str) -> Bits:
-    """N-ary bitwise logical NOR operator.
-
-    Perform logical NOR on each bit of the inputs:
-
-    +-------+-----------------------+-------------+-----------------------+
-    |   x0  |           x1          | NOR(x0, x1) |          Note         |
-    +=======+=======================+=============+=======================+
-    | ``0`` |                 ``0`` |       ``1`` |                       |
-    +-------+-----------------------+-------------+-----------------------+
-    | ``0`` |                 ``1`` |       ``0`` |                       |
-    +-------+-----------------------+-------------+-----------------------+
-    | ``1`` |                 ``0`` |       ``0`` |                       |
-    +-------+-----------------------+-------------+-----------------------+
-    | ``1`` |                 ``1`` |       ``0`` |                       |
-    +-------+-----------------------+-------------+-----------------------+
-    | ``X`` | {``0``, ``1``, ``-``} |       ``X`` |  ``X`` dominates all  |
-    +-------+-----------------------+-------------+-----------------------+
-    | ``1`` |                 ``-`` |       ``0`` | ``1`` dominates ``-`` |
-    +-------+-----------------------+-------------+-----------------------+
-    | ``-`` |        {``0``, ``-``} |       ``-`` | ``-`` dominates ``0`` |
-    +-------+-----------------------+-------------+-----------------------+
-
-    For example:
-
-    >>> nor("16b----_1111_0000_XXXX", "16b-10X_-10X_-10X_-10X")
-    bits("16b-0-X_000X_-01X_XXXX")
-
-    In expressions, you can use the unary ``~`` and binary ``|`` operators:
-
-    >>> a = bits("16b----_1111_0000_XXXX")
-    >>> b = bits("16b-10X_-10X_-10X_-10X")
-    >>> ~(a | b)
-    bits("16b-0-X_000X_-01X_XXXX")
-
-    Args:
-        x0: ``Bits`` or string literal.
-        xs: Sequence of ``Bits`` equal size to ``x0``.
-
-    Returns:
-        ``Bits`` equal size to ``x0``.
-
-    Raises:
-        TypeError: ``x0`` is not a valid ``Bits`` object,
-                   or ``xs[i]`` not equal size to ``x0``.
-        ValueError: Error parsing string literal.
-    """
-    return _not_(or_(x0, *xs))
-
-
-def or_(x0: Bits | str, *xs: Bits | str) -> Bits:
-    """N-ary bitwise logical OR operator.
-
-    Perform logical OR on each bit of the inputs:
-
-    +-------+-----------------------+------------+-----------------------+
-    |   x0  |           x1          | OR(x0, x1) |          Note         |
-    +=======+=======================+============+=======================+
-    | ``0`` |                 ``0`` |      ``0`` |                       |
-    +-------+-----------------------+------------+-----------------------+
-    | ``0`` |                 ``1`` |      ``1`` |                       |
-    +-------+-----------------------+------------+-----------------------+
-    | ``1`` |                 ``0`` |      ``1`` |                       |
-    +-------+-----------------------+------------+-----------------------+
-    | ``1`` |                 ``1`` |      ``1`` |                       |
-    +-------+-----------------------+------------+-----------------------+
-    | ``X`` | {``0``, ``1``, ``-``} |      ``X`` |  ``X`` dominates all  |
-    +-------+-----------------------+------------+-----------------------+
-    | ``1`` |                 ``-`` |      ``1`` | ``1`` dominates ``-`` |
-    +-------+-----------------------+------------+-----------------------+
-    | ``-`` |        {``0``, ``-``} |      ``-`` | ``-`` dominates ``0`` |
-    +-------+-----------------------+------------+-----------------------+
-
-    For example:
-
-    >>> or_("16b----_1111_0000_XXXX", "16b-10X_-10X_-10X_-10X")
-    bits("16b-1-X_111X_-10X_XXXX")
-
-    In expressions, you can use the binary ``|`` operator:
-
-    >>> a = bits("16b----_1111_0000_XXXX")
-    >>> b = bits("16b-10X_-10X_-10X_-10X")
-    >>> a | b
-    bits("16b-1-X_111X_-10X_XXXX")
-
-    Args:
-        x0: ``Bits`` or string literal.
-        xs: Sequence of ``Bits`` equal size to ``x0``.
-
-    Returns:
-        ``Bits`` equal size to ``x0``.
-
-    Raises:
-        TypeError: ``x0`` is not a valid ``Bits`` object,
-                   or ``xs[i]`` not equal size to ``x0``.
-        ValueError: Error parsing string literal.
-    """
-    x0 = _expect_type(x0, Bits)
-    y = x0
-    for x in xs:
-        x = _expect_size(x, x0.size)
-        y = _or_(y, x)
-    return y
-
-
-def nand(x0: Bits | str, *xs: Bits | str) -> Bits:
-    """N-ary bitwise logical NAND operator.
-
-    Perform logical NAND on each bit of the inputs:
-
-    +-------+-----------------------+--------------+-----------------------+
-    |   x0  |           x1          | NAND(x0, x1) |          Note         |
-    +=======+=======================+==============+=======================+
-    | ``0`` |                 ``0`` |        ``1`` |                       |
-    +-------+-----------------------+--------------+-----------------------+
-    | ``0`` |                 ``1`` |        ``1`` |                       |
-    +-------+-----------------------+--------------+-----------------------+
-    | ``1`` |                 ``0`` |        ``1`` |                       |
-    +-------+-----------------------+--------------+-----------------------+
-    | ``1`` |                 ``1`` |        ``0`` |                       |
-    +-------+-----------------------+--------------+-----------------------+
-    | ``X`` | {``0``, ``1``, ``-``} |        ``X`` |  ``X`` dominates all  |
-    +-------+-----------------------+--------------+-----------------------+
-    | ``0`` |                 ``-`` |        ``1`` | ``0`` dominates ``-`` |
-    +-------+-----------------------+--------------+-----------------------+
-    | ``-`` |        {``1``, ``-``} |        ``-`` | ``-`` dominates ``1`` |
-    +-------+-----------------------+--------------+-----------------------+
-
-    For example:
-
-    >>> nand("16b----_1111_0000_XXXX", "16b-10X_-10X_-10X_-10X")
-    bits("16b--1X_-01X_111X_XXXX")
-
-    In expressions, you can use the unary ``~`` and binary ``&`` operators:
-
-    >>> a = bits("16b----_1111_0000_XXXX")
-    >>> b = bits("16b-10X_-10X_-10X_-10X")
-    >>> ~(a & b)
-    bits("16b--1X_-01X_111X_XXXX")
-
-    Args:
-        x0: ``Bits`` or string literal.
-        xs: Sequence of ``Bits`` equal size to ``x0``.
-
-    Returns:
-        ``Bits`` equal size to ``x0``.
-
-    Raises:
-        TypeError: ``x0`` is not a valid ``Bits`` object,
-                   or ``xs[i]`` not equal size to ``x0``.
-        ValueError: Error parsing string literal.
-    """
-    return _not_(and_(x0, *xs))
-
-
-def and_(x0: Bits | str, *xs: Bits | str) -> Bits:
-    """N-ary bitwise logical AND operator.
-
-    Perform logical AND on each bit of the inputs:
-
-    +-------+-----------------------+-------------+-----------------------+
-    |   x0  |           x1          | AND(x0, x1) |          Note         |
-    +=======+=======================+=============+=======================+
-    | ``0`` |                 ``0`` |       ``0`` |                       |
-    +-------+-----------------------+-------------+-----------------------+
-    | ``0`` |                 ``1`` |       ``0`` |                       |
-    +-------+-----------------------+-------------+-----------------------+
-    | ``1`` |                 ``0`` |       ``0`` |                       |
-    +-------+-----------------------+-------------+-----------------------+
-    | ``1`` |                 ``1`` |       ``1`` |                       |
-    +-------+-----------------------+-------------+-----------------------+
-    | ``X`` | {``0``, ``1``, ``-``} |       ``X`` |  ``X`` dominates all  |
-    +-------+-----------------------+-------------+-----------------------+
-    | ``0`` |                 ``-`` |       ``0`` | ``0`` dominates ``-`` |
-    +-------+-----------------------+-------------+-----------------------+
-    | ``-`` |        {``1``, ``-``} |       ``-`` | ``-`` dominates ``1`` |
-    +-------+-----------------------+-------------+-----------------------+
-
-    For example:
-
-    >>> and_("16b----_1111_0000_XXXX", "16b-10X_-10X_-10X_-10X")
-    bits("16b--0X_-10X_000X_XXXX")
-
-    In expressions, you can use the binary ``&`` operator:
-
-    >>> a = bits("16b----_1111_0000_XXXX")
-    >>> b = bits("16b-10X_-10X_-10X_-10X")
-    >>> a & b
-    bits("16b--0X_-10X_000X_XXXX")
-
-    Args:
-        x0: ``Bits`` or string literal.
-        xs: Sequence of ``Bits`` equal size to ``x0``.
-
-    Returns:
-        ``Bits`` equal size to ``x0``.
-
-    Raises:
-        TypeError: ``x0`` is not a valid ``Bits`` object,
-                   or ``xs[i]`` not equal size to ``x0``.
-        ValueError: Error parsing string literal.
-    """
-    x0 = _expect_type(x0, Bits)
-    y = x0
-    for x in xs:
-        x = _expect_size(x, x0.size)
-        y = _and_(y, x)
-    return y
-
-
-def xnor(x0: Bits | str, *xs: Bits | str) -> Bits:
-    """N-ary bitwise logical XNOR operator.
-
-    Perform logical XNOR on each bit of the inputs:
-
-    +-------+-----------------------+--------------+-----------------------+
-    |   x0  |           x1          | XNOR(x0, x1) |          Note         |
-    +=======+=======================+==============+=======================+
-    | ``0`` |                 ``0`` |        ``1`` |                       |
-    +-------+-----------------------+--------------+-----------------------+
-    | ``0`` |                 ``1`` |        ``0`` |                       |
-    +-------+-----------------------+--------------+-----------------------+
-    | ``1`` |                 ``0`` |        ``0`` |                       |
-    +-------+-----------------------+--------------+-----------------------+
-    | ``1`` |                 ``1`` |        ``1`` |                       |
-    +-------+-----------------------+--------------+-----------------------+
-    | ``X`` | {``0``, ``1``, ``-``} |        ``X`` |  ``X`` dominates all  |
-    +-------+-----------------------+--------------+-----------------------+
-    | ``-`` | {``0``, ``1``. ``-``} |        ``-`` | ``-`` dominates known |
-    +-------+-----------------------+--------------+-----------------------+
-
-    For example:
-
-    >>> xnor("16b----_1111_0000_XXXX", "16b-10X_-10X_-10X_-10X")
-    bits("16b---X_-10X_-01X_XXXX")
-
-    In expressions, you can use the unary ``~`` and binary ``^`` operators:
-
-    >>> a = bits("16b----_1111_0000_XXXX")
-    >>> b = bits("16b-10X_-10X_-10X_-10X")
-    >>> ~(a ^ b)
-    bits("16b---X_-10X_-01X_XXXX")
-
-    Args:
-        x0: ``Bits`` or string literal.
-        xs: Sequence of ``Bits`` equal size to ``x0``.
-
-    Returns:
-        ``Bits`` equal size to ``x0``.
-
-    Raises:
-        TypeError: ``x0`` is not a valid ``Bits`` object,
-                   or ``xs[i]`` not equal size to ``x0``.
-        ValueError: Error parsing string literal.
-    """
-    return _not_(xor(x0, *xs))
-
-
-def xor(x0: Bits | str, *xs: Bits | str) -> Bits:
-    """N-ary bitwise logical XOR operator.
-
-    Perform logical XOR on each bit of the inputs:
-
-    +-------+-----------------------+-------------+-----------------------+
-    |   x0  |           x1          | XOR(x0, x1) |          Note         |
-    +=======+=======================+=============+=======================+
-    | ``0`` |                 ``0`` |       ``0`` |                       |
-    +-------+-----------------------+-------------+-----------------------+
-    | ``0`` |                 ``1`` |       ``1`` |                       |
-    +-------+-----------------------+-------------+-----------------------+
-    | ``1`` |                 ``0`` |       ``1`` |                       |
-    +-------+-----------------------+-------------+-----------------------+
-    | ``1`` |                 ``1`` |       ``0`` |                       |
-    +-------+-----------------------+-------------+-----------------------+
-    | ``X`` | {``0``, ``1``, ``-``} |       ``X`` |  ``X`` dominates all  |
-    +-------+-----------------------+-------------+-----------------------+
-    | ``-`` | {``0``, ``1``. ``-``} |       ``-`` | ``-`` dominates known |
-    +-------+-----------------------+-------------+-----------------------+
-
-    For example:
-
-    >>> xor("16b----_1111_0000_XXXX", "16b-10X_-10X_-10X_-10X")
-    bits("16b---X_-01X_-10X_XXXX")
-
-    In expressions, you can use the binary ``^`` operator:
-
-    >>> a = bits("16b----_1111_0000_XXXX")
-    >>> b = bits("16b-10X_-10X_-10X_-10X")
-    >>> a ^ b
-    bits("16b---X_-01X_-10X_XXXX")
-
-    Args:
-        x0: ``Bits`` or string literal.
-        xs: Sequence of ``Bits`` equal size to ``x0``.
-
-    Returns:
-        ``Bits`` equal size to ``x0``.
-
-    Raises:
-        TypeError: ``x0`` is not a valid ``Bits`` object,
-                   or ``xs[i]`` not equal size to ``x0``.
-        ValueError: Error parsing string literal.
-    """
-    x0 = _expect_type(x0, Bits)
-    y = x0
-    for x in xs:
-        x = _expect_size(x, x0.size)
-        y = _xor_(y, x)
-    return y
-
-
-def impl(p: Bits | str, q: Bits | str) -> Bits:
-    """Binary bitwise logical IMPL (implies) operator.
-
-    Perform logical IMPL on each bit of the inputs:
-
-    Functionally equivalent to ``~p | q``.
-
-    For example:
-
-    >>> impl("16b----_1111_0000_XXXX", "16b-10X_-10X_-10X_-10X")
-    bits("16b-1-X_-10X_111X_XXXX")
-
-    Args:
-        p: ``Bits`` or string literal.
-        q: ``Bits`` equal size to ``p``.
-
-    Returns:
-        ``Bits`` equal size to ``p``.
-
-    Raises:
-        TypeError: ``p`` is not a valid ``Bits`` object,
-                   or ``q`` not equal size to ``p``.
-        ValueError: Error parsing string literal.
-    """
-    p = _expect_type(p, Bits)
-    q = _expect_size(q, p.size)
-    return _impl(p, q)
-
-
-def _ite(s: Bits, x1: Bits, x0: Bits) -> Bits:
+def _ite_(s: Bits, x1: Bits, x0: Bits) -> Bits:
     s0 = mask(x1.size) * s.data[0]
     s1 = mask(x1.size) * s.data[1]
     d0, d1 = lite((s0, s1), x1.data, x0.data)
@@ -1323,134 +943,13 @@ def _ite(s: Bits, x1: Bits, x0: Bits) -> Bits:
     return t._cast_data(d0, d1)
 
 
-def ite(s: Bits | str, x1: Bits | str, x0: Bits | str) -> Bits:
-    """Ternary bitwise logical if-then-else (ITE) operator.
-
-    Perform logical ITE on each bit of the inputs:
-
-    +-------+-----------------------+-----------------------+----------------+
-    |   s   |           x1          |           x0          | ITE(s, x1, x0) |
-    +=======+=======================+=======================+================+
-    | ``1`` | {``0``, ``1``, ``-``} |                       |         ``x1`` |
-    +-------+-----------------------+-----------------------+----------------+
-    | ``0`` |                       | {``0``, ``1``, ``-``} |         ``x0`` |
-    +-------+-----------------------+-----------------------+----------------+
-    | ``X`` |                       |                       |          ``X`` |
-    +-------+-----------------------+-----------------------+----------------+
-    |       |                 ``X`` |                       |          ``X`` |
-    +-------+-----------------------+-----------------------+----------------+
-    |       |                       |                 ``X`` |          ``X`` |
-    +-------+-----------------------+-----------------------+----------------+
-    | ``-`` |                 ``0`` |                 ``0`` |          ``0`` |
-    +-------+-----------------------+-----------------------+----------------+
-    | ``-`` |                 ``0`` |        {``1``, ``-``} |          ``-`` |
-    +-------+-----------------------+-----------------------+----------------+
-    | ``-`` |                 ``1`` |                 ``1`` |          ``1`` |
-    +-------+-----------------------+-----------------------+----------------+
-    | ``-`` |                 ``1`` |        {``0``, ``-``} |          ``-`` |
-    +-------+-----------------------+-----------------------+----------------+
-    | ``-`` |                 ``-`` | {``0``, ``1``, ``-``} |          ``-`` |
-    +-------+-----------------------+-----------------------+----------------+
-
-    For example:
-
-    >>> ite("1b0", "16b----_1111_0000_XXXX", "16b-10X_-10X_-10X_-10X")
-    bits("16b-10X_-10X_-10X_XXXX")
-    >>> ite("1b1", "16b----_1111_0000_XXXX", "16b-10X_-10X_-10X_-10X")
-    bits("16b---X_111X_000X_XXXX")
-    >>> ite("1b-", "16b----_1111_0000_XXXX", "16b-10X_-10X_-10X_-10X")
-    bits("16b---X_-1-X_--0X_XXXX")
-
-    Args:
-        s: ``Bits`` select
-        x1: ``Bits`` or string literal.
-        x0: ``Bits`` or string literal equal size to ``x1``.
-
-    Returns:
-        ``Bits`` equal size to ``x1``.
-
-    Raises:
-        TypeError: ``s`` or ``x1`` are not valid ``Bits`` objects,
-                   or ``x0`` not equal size to ``x1``.
-        ValueError: Error parsing string literal.
-    """
-    s = _expect_size(s, 1)
-    x1 = _expect_type(x1, Bits)
-    x0 = _expect_size(x0, x1.size)
-    return _ite(s, x1, x0)
-
-
-def _mux(s: Bits, t: type[Bits], xs: dict[int, Bits]) -> Bits:
+def _mux_(s: Bits, t: type[Bits], xs: dict[int, Bits]) -> Bits:
     m = mask(t.size)
     si = (s._get_index(i) for i in range(s.size))
     s = tuple((m * d0, m * d1) for d0, d1 in si)
     dc = t.dcs()
     d0, d1 = lmux(s, {i: x.data for i, x in xs.items()}, dc.data)
     return t._cast_data(d0, d1)
-
-
-_MUX_XN_RE = re.compile(r"x(\d+)")
-
-
-def mux(s: Bits | str, **xs: Bits | str) -> Bits:
-    r"""Bitwise logical multiplex (mux) operator.
-
-    Args:
-        s: ``Bits`` select.
-        xs: ``Bits`` or string literal, all equal size.
-
-    Mux input names are in the form xN,
-    where N is a valid int.
-    Muxes require at least one input.
-    Any inputs not specified will default to "don't care".
-
-    For example:
-
-    >>> mux("2b00", x0="4b0001", x1="4b0010", x2="4b0100", x3="4b1000")
-    bits("4b0001")
-    >>> mux("2b10", x0="4b0001", x1="4b0010", x2="4b0100", x3="4b1000")
-    bits("4b0100")
-
-    Handles X and DC propagation:
-
-    >>> mux("2b1-", x0="4b0001", x1="4b0010", x2="4b0100", x3="4b1000")
-    bits("4b--00")
-    >>> mux("2b1X", x0="4b0001", x1="4b0010", x2="4b0100", x3="4b1000")
-    bits("4bXXXX")
-
-    Returns:
-        ``Bits`` equal size to ``xN`` inputs.
-
-    Raises:
-        TypeError: ``s`` or ``xN`` are not valid ``Bits`` objects,
-                   or ``xN`` mismatching size.
-        ValueError: Error parsing string literal.
-    """
-    s = _expect_type(s, Bits)
-    n = 1 << s.size
-
-    # Parse and check inputs
-    t = None
-    i2x = {}
-    for name, value in xs.items():
-        if m := _MUX_XN_RE.match(name):
-            i = int(m.group(1))
-            if not 0 <= i < n:
-                raise ValueError(f"Expected x in [x0, ..., x{n - 1}]; got {name}")
-            if t is None:
-                x = _expect_type(value, Bits)
-                t = type(x)
-            else:
-                x = _expect_size(value, t.size)
-                t = _resolve_type(t, type(x))
-            i2x[i] = x
-        else:
-            raise ValueError(f"Invalid input name: {name}")
-
-    if t is None:
-        raise ValueError("Expected at least one mux input")
-
-    return _mux(s, t, i2x)
 
 
 # Unary
@@ -1461,71 +960,11 @@ def _uor(x: Bits) -> Scalar:
     return Scalar(y[0], y[1])
 
 
-def uor(x: Bits | str) -> Scalar:
-    """Unary OR reduction operator.
-
-    The identity of OR is ``0``.
-    Compute an OR-sum over all the bits of ``x``.
-
-    For example:
-
-    >>> uor("4b1000")
-    bits("1b1")
-
-    Empty input returns identity:
-
-    >>> uor(bits())
-    bits("1b0")
-
-    Args:
-        x: ``Bits`` or string literal.
-
-    Returns:
-        ``Scalar``
-
-    Raises:
-        TypeError: ``x`` is not a valid ``Bits`` object.
-        ValueError: Error parsing string literal.
-    """
-    x = _expect_type(x, Bits)
-    return _uor(x)
-
-
 def _uand(x: Bits) -> Scalar:
     y = _1
     for i in range(x.size):
         y = land(y, x._get_index(i))
     return Scalar(y[0], y[1])
-
-
-def uand(x: Bits | str) -> Scalar:
-    """Unary AND reduction operator.
-
-    The identity of AND is ``1``.
-    Compute an AND-sum over all the bits of ``x``.
-
-    For example:
-
-    >>> uand("4b0111")
-    bits("1b0")
-
-    Empty input returns identity:
-
-    >>> uand(bits())
-    bits("1b1")
-
-    Args:
-        x: ``Bits`` or string literal.
-
-    Returns:
-        ``Scalar``
-
-    Raises:
-        TypeError: ``x`` is not a valid ``Bits`` object.
-        ValueError: Error parsing string literal.
-    """
-    x = _expect_type(x, Bits)
-    return _uand(x)
 
 
 def _uxnor(x: Bits) -> Scalar:
@@ -1535,36 +974,6 @@ def _uxnor(x: Bits) -> Scalar:
     return Scalar(y[0], y[1])
 
 
-def uxnor(x: Bits | str) -> Scalar:
-    """Unary XNOR reduction operator.
-
-    The identity of XOR is ``0``.
-    Compute an XNOR-sum (even parity) over all the bits of ``x``.
-
-    For example:
-
-    >>> uxnor("4b1010")
-    bits("1b1")
-
-    Empty input returns identity:
-
-    >>> uxnor(bits())
-    bits("1b1")
-
-    Args:
-        x: ``Bits`` or string literal.
-
-    Returns:
-        ``Scalar``
-
-    Raises:
-        TypeError: ``x`` is not a valid ``Bits`` object.
-        ValueError: Error parsing string literal.
-    """
-    x = _expect_type(x, Bits)
-    return _uxnor(x)
-
-
 def _uxor(x: Bits) -> Scalar:
     y = _0
     for i in range(x.size):
@@ -1572,180 +981,7 @@ def _uxor(x: Bits) -> Scalar:
     return Scalar(y[0], y[1])
 
 
-def uxor(x: Bits | str) -> Scalar:
-    """Unary XOR reduction operator.
-
-    The identity of XOR is ``0``.
-    Compute an XOR-sum (odd parity) over all the bits of ``x``.
-
-    For example:
-
-    >>> uxor("4b1010")
-    bits("1b0")
-
-    Empty input returns identity:
-
-    >>> uxor(bits())
-    bits("1b0")
-
-    Args:
-        x: ``Bits`` or string literal.
-
-    Returns:
-        ``Scalar``
-
-    Raises:
-        TypeError: ``x`` is not a valid ``Bits`` object.
-        ValueError: Error parsing string literal.
-    """
-    x = _expect_type(x, Bits)
-    return _uxor(x)
-
-
 # Arithmetic
-def decode(x: Bits | str) -> Vector:
-    """Decode dense encoding to sparse, one-hot encoding.
-
-    For example:
-
-    >>> decode("2b00")
-    bits("4b0001")
-    >>> decode("2b01")
-    bits("4b0010")
-    >>> decode("2b10")
-    bits("4b0100")
-    >>> decode("2b11")
-    bits("4b1000")
-
-    Empty input returns 1b1:
-
-    >>> decode(bits())
-    bits("1b1")
-
-    Args:
-        x: ``Bits`` or string literal.
-
-    Returns:
-        One hot ``Scalar`` or ``Vector`` w/ ``size`` = ``2**x.size``
-
-    Raises:
-        TypeError: ``x`` is not a valid ``Bits`` object.
-        ValueError: Error parsing string literal.
-    """
-    x = _expect_type(x, Bits)
-
-    # Output has 2^N bits
-    n = 1 << x.size
-    vec = _vec_size(n)
-
-    # X/DC propagation
-    if x.has_x():
-        return vec.xes()
-    if x.has_dc():
-        return vec.dcs()
-
-    d1 = 1 << x.to_uint()
-    return vec(d1 ^ mask(n), d1)
-
-
-def encode_onehot(x: Bits | str) -> Vector:
-    """Compress one-hot encoding to an index.
-
-    The index is the highest bit set in the input.
-
-    For example:
-
-    >>> encode_onehot("2b01")
-    bits("1b0")
-    >>> encode_onehot("2b10")
-    bits("1b1")
-    >>> encode_onehot("3b010")
-    bits("2b01")
-
-    Args:
-        x: ``Bits`` or string literal.
-
-    Returns:
-        ``Vector`` w/ ``size`` = ``clog2(x.size)``
-
-    Raises:
-        TypeError: ``x`` is not a valid ``Bits`` object.
-        ValueError: ``x`` is not one-hot encoded.
-    """
-    x = _expect_type(x, Bits)
-
-    n = clog2(x.size)
-    vec = Vector[n]
-
-    # X/DC propagation
-    if x.has_x():
-        return vec.xes()
-    if x.has_dc():
-        return vec.dcs()
-
-    d1 = x.data[1]
-    is_onehot = d1 != 0 and d1 & (d1 - 1) == 0
-    if not is_onehot:
-        raise ValueError(f"Expected x to be one-hot encoded, got {x}")
-
-    y = clog2(d1)
-    return vec(y ^ mask(n), y)
-
-
-def encode_priority(x: Bits | str) -> tuple[Vector, Scalar]:
-    """Compress priority encoding to (index, valid) tuple.
-
-    The index is the highest bit set in the input.
-
-    For example:
-
-    >>> encode_priority("2b01")
-    (bits("1b0"), bits("1b1"))
-    >>> encode_priority("2b10")
-    (bits("1b1"), bits("1b1"))
-    >>> encode_priority("3b1--")
-    (bits("2b10"), bits("1b1"))
-
-    Args:
-        x: ``Bits`` or string literal.
-
-    Returns:
-        Tuple of ``Vector`` and ``Scalar``:
-            ``Vector`` w/ ``size`` = ``clog2(x.size)``
-            ``Scalar`` valid bit
-
-    Raises:
-        TypeError: ``x`` is not a valid ``Bits`` object.
-    """
-    x = _expect_type(x, Bits)
-
-    n = clog2(x.size)
-    vec = Vector[n]
-
-    # X propagation
-    if x.has_x():
-        return vec.xes(), _ScalarX
-
-    # Handle DC
-    if x.has_dc():
-        for i in range(x.size - 1, -1, -1):
-            x_i = x._get_index(i)
-            # 0*1{0,1,-}*
-            if x_i == _1:
-                return vec(i ^ mask(n), i), _Scalar1
-            # 0*-{0,1,-}* => DC
-            if x_i == _W:
-                return vec.dcs(), _ScalarW
-
-    d1 = x.data[1]
-
-    if d1 == 0:
-        return vec.dcs(), _Scalar0
-
-    y = clog2(d1 + 1) - 1
-    return vec(y ^ mask(n), y), _Scalar1
-
-
 def _add(a: Bits, b: Bits, ci: Scalar) -> tuple[Bits, Scalar]:
     if a.size == b.size:
         t = _resolve_type(type(a), type(b))
@@ -1781,155 +1017,12 @@ def _inc(a: Bits) -> tuple[Bits, Scalar]:
     return a._cast_data(s ^ dmax, s), co
 
 
-def add(a: Bits | str, b: Bits | str, ci: Scalar | str | None = None) -> Bits:
-    """Addition with carry-in, but NO carry-out.
-
-    For example:
-
-    >>> add("4d2", "4d2")
-    bits("4b0100")
-
-    >>> add("2d2", "2d2")
-    bits("2b00")
-
-    Args:
-        a: ``Bits`` or string literal
-        b: ``Bits`` or string literal
-        ci: ``Scalar`` carry-in, or ``None``.
-            ``None`` defaults to carry-in ``0``.
-
-    Returns:
-        ``Bits`` sum w/ size equal to ``max(a.size, b.size)``.
-
-    Raises:
-        TypeError: ``a``, ``b``, or ``ci`` are not valid ``Bits`` objects.
-        ValueError: Error parsing string literal.
-    """
-    a = _expect_type(a, Bits)
-    b = _expect_type(b, Bits)
-    ci = _Scalar0 if ci is None else _expect_type(ci, Scalar)
-    s, _ = _add(a, b, ci)
-    return s
-
-
-def adc(a: Bits | str, b: Bits | str, ci: Scalar | str | None = None) -> Vector:
-    """Addition with carry-in, and carry-out.
-
-    For example:
-
-    >>> adc("4d2", "4d2")
-    bits("5b0_0100")
-
-    >>> adc("2d2", "2d2")
-    bits("3b100")
-
-    Args:
-        a: ``Bits`` or string literal
-        b: ``Bits`` or string literal
-        ci: ``Scalar`` carry-in, or ``None``.
-            ``None`` defaults to carry-in ``0``.
-
-    Returns:
-        ``Vector`` sum w/ size equal to ``max(a.size, b.size) + 1``.
-        The most significant bit is the carry-out.
-
-    Raises:
-        TypeError: ``a``, ``b``, or ``ci`` are not valid ``Bits`` objects.
-        ValueError: Error parsing string literal.
-    """
-    a = _expect_type(a, Bits)
-    b = _expect_type(b, Bits)
-    ci = _Scalar0 if ci is None else _expect_type(ci, Scalar)
-    s, co = _add(a, b, ci)
-    return cat(s, co)
-
-
 def _sub(a: Bits, b: Bits) -> tuple[Bits, Scalar]:
     return _add(a, _not_(b), ci=_Scalar1)
 
 
-def sub(a: Bits | str, b: Bits | str) -> Bits:
-    """Twos complement subtraction, with NO carry-out.
-
-    Args:
-        a: ``Bits`` or string literal
-        b: ``Bits`` or string literal equal size to ``a``.
-
-    Returns:
-        ``Bits`` sum equal size to ``a`` and ``b``.
-
-    Raises:
-        TypeError: ``a``, or ``b`` are not valid ``Bits`` objects,
-                   or ``a`` not equal size to ``b``.
-        ValueError: Error parsing string literal.
-    """
-    a = _expect_type(a, Bits)
-    b = _expect_size(b, a.size)
-    s, _ = _sub(a, b)
-    return s
-
-
-def sbc(a: Bits | str, b: Bits | str) -> Vector:
-    """Twos complement subtraction, with carry-out.
-
-    Args:
-        a: ``Bits`` or string literal
-        b: ``Bits`` or string literal equal size to ``a``.
-
-    Returns:
-        ``Bits`` sum w/ size one larger than ``a`` and ``b``.
-        The most significant bit is the carry-out.
-
-    Raises:
-        TypeError: ``a``, or ``b`` are not valid ``Bits`` objects,
-                   or ``a`` not equal size to ``b``.
-        ValueError: Error parsing string literal.
-    """
-    a = _expect_type(a, Bits)
-    b = _expect_size(b, a.size)
-    s, co = _sub(a, b)
-    return cat(s, co)
-
-
 def _neg(x: Bits) -> tuple[Bits, Scalar]:
     return _inc(_not_(x))
-
-
-def neg(x: Bits | str) -> Bits:
-    """Twos complement negation, with NO carry-out.
-
-    Args:
-        x: ``Bits`` or string literal
-
-    Returns:
-        ``Bits`` equal size to ``x``.
-
-    Raises:
-        TypeError: ``x`` is not a valid ``Bits`` object.
-        ValueError: Error parsing string literal.
-    """
-    x = _expect_type(x, Bits)
-    s, _ = _neg(x)
-    return s
-
-
-def ngc(x: Bits | str) -> Vector:
-    """Twos complement negation, with carry-out.
-
-    Args:
-        x: ``Bits`` or string literal
-
-    Returns:
-        ``Bits`` w/ size one larger than ``x``.
-        The most significant bit is the carry-out.
-
-    Raises:
-        TypeError: ``x`` is not a valid ``Bits`` object.
-        ValueError: Error parsing string literal.
-    """
-    x = _expect_type(x, Bits)
-    s, co = _neg(x)
-    return cat(s, co)
 
 
 def _mul(a: Bits, b: Bits) -> Vector:
@@ -1947,33 +1040,6 @@ def _mul(a: Bits, b: Bits) -> Vector:
     return t(p ^ dmax, p)
 
 
-def mul(a: Bits | str, b: Bits | str) -> Vector:
-    """Unsigned multiply.
-
-    For example:
-
-    >>> mul("4d2", "4d2")
-    bits("8b0000_0100")
-
-    >>> add("2d2", "2d2")
-    bits("2b00")
-
-    Args:
-        a: ``Bits`` or string literal
-        b: ``Bits`` or string literal
-
-    Returns:
-        ``Vector`` product w/ size ``a.size + b.size``
-
-    Raises:
-        TypeError: ``a`` or ``b`` are not valid ``Bits`` objects.
-        ValueError: Error parsing string literal.
-    """
-    a = _expect_type(a, Bits)
-    b = _expect_type(b, Bits)
-    return _mul(a, b)
-
-
 def _div(a: Bits, b: Bits) -> Bits:
     # X/DC propagation
     if a.has_x() or b.has_x():
@@ -1987,27 +1053,6 @@ def _div(a: Bits, b: Bits) -> Bits:
     return a._cast_data(q ^ dmax, q)
 
 
-def div(a: Bits | str, b: Bits | str) -> Bits:
-    """Unsigned divide.
-
-    Args:
-        a: ``Bits`` or string literal
-        b: ``Bits`` or string literal
-
-    Returns:
-        ``Vector`` quotient w/ size ``a.size``
-
-    Raises:
-        TypeError: ``a`` or ``b`` are not valid ``Bits`` objects.
-        ValueError: Error parsing string literal.
-    """
-    a = _expect_type(a, Bits)
-    b = _expect_type(b, Bits)
-    if not a.size >= b.size > 0:
-        raise ValueError("Expected a.size ≥ b.size > 0")
-    return _div(a, b)
-
-
 def _mod(a: Bits, b: Bits) -> Bits:
     # X/DC propagation
     if a.has_x() or b.has_x():
@@ -2019,27 +1064,6 @@ def _mod(a: Bits, b: Bits) -> Bits:
     r = a.data[1] % b.data[1]
 
     return b._cast_data(r ^ dmax, r)
-
-
-def mod(a: Bits | str, b: Bits | str) -> Bits:
-    """Unsigned modulo.
-
-    Args:
-        a: ``Bits`` or string literal
-        b: ``Bits`` or string literal
-
-    Returns:
-        ``Vector`` remainder w/ size ``b.size``
-
-    Raises:
-        TypeError: ``a`` or ``b`` are not valid ``Bits`` objects.
-        ValueError: Error parsing string literal.
-    """
-    a = _expect_type(a, Bits)
-    b = _expect_type(b, Bits)
-    if not a.size >= b.size > 0:
-        raise ValueError("Expected a.size ≥ b.size > 0")
-    return _mod(a, b)
 
 
 def _lsh(x: Bits, n: Bits) -> Bits:
@@ -2062,35 +1086,6 @@ def _lsh(x: Bits, n: Bits) -> Bits:
     return y
 
 
-def lsh(x: Bits | str, n: Bits | str | int) -> Bits:
-    """Logical left shift by n bits.
-
-    Fill bits with zeros.
-
-    For example:
-
-    >>> lsh("4b1011", 2)
-    bits("4b1100")
-
-    Args:
-        x: ``Bits`` or string literal.
-        n: ``Bits``, string literal, or ``int``
-           Non-negative bit shift count.
-
-    Returns:
-        ``Bits`` left-shifted by n bits.
-
-    Raises:
-        TypeError: ``x`` is not a valid ``Bits`` object,
-                   or ``n`` is not a valid bit shift count.
-        ValueError: Error parsing string literal,
-                    or negative shift amount.
-    """
-    x = _expect_type(x, Bits)
-    n = _expect_shift(n, x.size)
-    return _lsh(x, n)
-
-
 def _rsh(x: Bits, n: Bits) -> Bits:
     if n.has_x():
         return x.xes()
@@ -2109,35 +1104,6 @@ def _rsh(x: Bits, n: Bits) -> Bits:
     y = x._cast_data(d0, d1)
 
     return y
-
-
-def rsh(x: Bits | str, n: Bits | str | int) -> Bits:
-    """Logical right shift by n bits.
-
-    Fill bits with zeros.
-
-    For example:
-
-    >>> rsh("4b1101", 2)
-    bits("4b0011")
-
-    Args:
-        x: ``Bits`` or string literal.
-        n: ``Bits``, string literal, or ``int``
-           Non-negative bit shift count.
-
-    Returns:
-        ``Bits`` right-shifted by n bits.
-
-    Raises:
-        TypeError: ``x`` is not a valid ``Bits`` object,
-                   or ``n`` is not a valid bit shift count.
-        ValueError: Error parsing string literal,
-                    or negative shift amount.
-    """
-    x = _expect_type(x, Bits)
-    n = _expect_shift(n, x.size)
-    return _rsh(x, n)
 
 
 def _srsh(x: Bits, n: Bits) -> Bits:
@@ -2163,72 +1129,12 @@ def _srsh(x: Bits, n: Bits) -> Bits:
     return y
 
 
-def srsh(x: Bits | str, n: Bits | str | int) -> Bits:
-    """Arithmetic (signed) right shift by n bits.
-
-    Fill bits with most significant bit (sign).
-
-    For example:
-
-    >>> srsh("4b1101", 2)
-    bits("4b1111")
-
-    Args:
-        x: ``Bits`` or string literal.
-        n: ``Bits``, string literal, or ``int``
-           Non-negative bit shift count.
-
-    Returns:
-        ``Bits`` right-shifted by n bits.
-
-    Raises:
-        TypeError: ``x`` is not a valid ``Bits`` object,
-                   or ``n`` is not a valid bit shift count.
-        ValueError: Error parsing string literal,
-                    or negative shift amount.
-    """
-    x = _expect_type(x, Bits)
-    n = _expect_shift(n, x.size)
-    return _srsh(x, n)
-
-
-# Word operations
+# Word
 def _xt(x: Bits, n: int) -> Vector:
     ext0 = mask(n)
     d0 = x.data[0] | ext0 << x.size
     d1 = x.data[1]
     return _vec_size(x.size + n)(d0, d1)
-
-
-def xt(x: Bits | str, n: int) -> Bits:
-    """Unsigned extend by n bits.
-
-    Fill high order bits with zero.
-
-    For example:
-
-    >>> xt("2b11", 2)
-    bits("4b0011")
-
-    Args:
-        x: ``Bits`` or string literal.
-        n: Non-negative number of bits.
-
-    Returns:
-        ``Bits`` zero-extended by n bits.
-
-    Raises:
-        TypeError: ``x`` is not a valid ``Bits`` object.
-        ValueError: If n is negative.
-    """
-    x = _expect_type(x, Bits)
-
-    if n < 0:
-        raise ValueError(f"Expected n ≥ 0, got {n}")
-    if n == 0:
-        return x
-
-    return _xt(x, n)
 
 
 def _sxt(x: Bits, n: int) -> Vector:
@@ -2238,37 +1144,6 @@ def _sxt(x: Bits, n: int) -> Vector:
     d0 = x.data[0] | ext0 << x.size
     d1 = x.data[1] | ext1 << x.size
     return _vec_size(x.size + n)(d0, d1)
-
-
-def sxt(x: Bits | str, n: int) -> Bits:
-    """Sign extend by n bits.
-
-    Fill high order bits with sign.
-
-    For example:
-
-    >>> sxt("2b11", 2)
-    bits("4b1111")
-
-    Args:
-        x: ``Bits`` or string literal.
-        n: Non-negative number of bits.
-
-    Returns:
-        ``Bits`` sign-extended by n bits.
-
-    Raises:
-        TypeError: ``x`` is not a valid ``Bits`` object.
-        ValueError: If n is negative.
-    """
-    x = _expect_type(x, Bits)
-
-    if n < 0:
-        raise ValueError(f"Expected n ≥ 0, got {n}")
-    if n == 0:
-        return x
-
-    return _sxt(x, n)
 
 
 def _lrot(x: Bits, n: Bits) -> Bits:
@@ -2290,33 +1165,6 @@ def _lrot(x: Bits, n: Bits) -> Bits:
     return x._cast_data(d0, d1)
 
 
-def lrot(x: Bits | str, n: Bits | str | int) -> Bits:
-    """Rotate left by n bits.
-
-    For example:
-
-    >>> lrot("4b1011", 2)
-    bits("4b1110")
-
-    Args:
-        x: ``Bits`` or string literal.
-        n: ``Bits``, string literal, or ``int``
-           Non-negative bit rotate count.
-
-    Returns:
-        ``Bits`` left-rotated by n bits.
-
-    Raises:
-        TypeError: ``x`` is not a valid ``Bits`` object,
-                   or ``n`` is not a valid bit rotate count.
-        ValueError: Error parsing string literal,
-                    or negative rotate amount.
-    """
-    x = _expect_type(x, Bits)
-    n = _expect_shift(n, x.size)
-    return _lrot(x, n)
-
-
 def _rrot(x: Bits, n: Bits) -> Bits:
     if n.has_x():
         return x.xes()
@@ -2336,33 +1184,6 @@ def _rrot(x: Bits, n: Bits) -> Bits:
     return x._cast_data(d0, d1)
 
 
-def rrot(x: Bits | str, n: Bits | str | int) -> Bits:
-    """Rotate right by n bits.
-
-    For example:
-
-    >>> rrot("4b1101", 2)
-    bits("4b0111")
-
-    Args:
-        x: ``Bits`` or string literal.
-        n: ``Bits``, string literal, or ``int``
-           Non-negative bit rotate count.
-
-    Returns:
-        ``Bits`` right-rotated by n bits.
-
-    Raises:
-        TypeError: ``x`` is not a valid ``Bits`` object,
-                   or ``n`` is not a valid bit rotate count.
-        ValueError: Error parsing string literal,
-                    or negative rotate amount.
-    """
-    x = _expect_type(x, Bits)
-    n = _expect_shift(n, x.size)
-    return _rrot(x, n)
-
-
 def _cat(*xs: Bits) -> Vector:
     if len(xs) == 0:
         return _Empty
@@ -2378,50 +1199,13 @@ def _cat(*xs: Bits) -> Vector:
     return _vec_size(size)(d0, d1)
 
 
-def cat(*objs: Bits | int | str) -> Vector:
-    """Concatenate a sequence of Vectors.
-
-    Args:
-        objs: a sequence of vec/bool/lit objects.
-
-    Returns:
-        A Vec instance.
-
-    Raises:
-        TypeError: If input obj is invalid.
-    """
-    # Convert inputs
-    xs = []
-    for obj in objs:
-        if isinstance(obj, Bits):
-            xs.append(obj)
-        elif obj in (0, 1):
-            xs.append(_bool2scalar[obj])
-        elif isinstance(obj, str):
-            x = _lit2bv(obj)
-            xs.append(x)
-        else:
-            raise TypeError(f"Invalid input: {obj}")
-    return _cat(*xs)
-
-
-def rep(obj: Bits | int | str, n: int) -> Vector:
-    """Repeat a Vector n times."""
-    objs = [obj] * n
-    return cat(*objs)
-
-
 def _pack(x: Bits, n: int) -> Bits:
     if x.size == 0:
         return x
 
     m = mask(n)
-
     xd0, xd1 = x.data
-
-    d0 = xd0 & m
-    d1 = xd1 & m
-
+    d0, d1 = xd0 & m, xd1 & m
     for _ in range(n, x.size, n):
         xd0 >>= n
         xd1 >>= n
@@ -2431,128 +1215,13 @@ def _pack(x: Bits, n: int) -> Bits:
     return x._cast_data(d0, d1)
 
 
-def pack(x: Bits | str, n: int = 1) -> Bits:
-    """Pack n-bit blocks in right to left order."""
-    if n < 1:
-        raise ValueError(f"Expected n < 1, got {n}")
-
-    x = _expect_type(x, Bits)
-    if x.size % n != 0:
-        raise ValueError("Expected x.size to be a multiple of n")
-
-    return _pack(x, n)
-
-
-def match(x0: Bits | str, x1: Bits | str) -> Scalar:
-    """Pattern match operator.
-
-    Similar to ``eq`` operator, but with support for ``-`` wildcards.
-
-    For example:
-
-    >>> match("2b01", "2b0-")
-    bits("1b1")
-    >>> match("2b--", "2b10")
-    bits("1b1")
-    >>> match("2b01", "2b10")
-    bits("1b0")
-
-    Args:
-        x0: ``Bits`` or string literal.
-        x1: ``Bits`` or string literal equal size to ``x0``.
-
-    Returns:
-        ``Scalar``
-
-    Raises:
-        TypeError: ``x0`` or ``x1`` is not a valid ``Bits`` object,
-                   or ``x0`` not equal size to ``x1``.
-        ValueError: Error parsing string literal.
-    """
-    x0 = _expect_type(x0, Bits)
-    x1 = _expect_size(x1, x0.size)
-
-    # Propagate X
-    if x0.has_x() or x1.has_x():
-        return _ScalarX
-
-    for i in range(x0.size):
-        a0, a1 = x0._get_index(i)
-        b0, b1 = x1._get_index(i)
-        if a0 ^ b0 and a1 ^ b1:
-            return _Scalar0
-    return _Scalar1
-
-
 # Predicates over bitvectors
 def _eq(x0: Bits, x1: Bits) -> Scalar:
     return _uand(_xnor_(x0, x1))
 
 
-def eq(x0: Bits | str, x1: Bits | str) -> Scalar:
-    """Binary logical Equal (==) reduction operator.
-
-    Equivalent to ``uand(xnor(x0, x1))``.
-
-    For example:
-
-    >>> eq("2b01", "2b00")
-    bits("1b0")
-    >>> eq("2b01", "2b01")
-    bits("1b1")
-    >>> eq("2b01", "2b10")
-    bits("1b0")
-
-    Args:
-        x0: ``Bits`` or string literal.
-        x1: ``Bits`` or string literal equal size to ``x0``.
-
-    Returns:
-        ``Scalar``
-
-    Raises:
-        TypeError: ``x0`` or ``x1`` is not a valid ``Bits`` object,
-                   or ``x0`` not equal size to ``x1``.
-        ValueError: Error parsing string literal.
-    """
-    x0 = _expect_type(x0, Bits)
-    x1 = _expect_size(x1, x0.size)
-    return _eq(x0, x1)
-
-
 def _ne(x0: Bits, x1: Bits) -> Scalar:
     return _uor(_xor_(x0, x1))
-
-
-def ne(x0: Bits | str, x1: Bits | str) -> Scalar:
-    """Binary logical NotEqual (!=) reduction operator.
-
-    Equivalent to ``uor(xor(x0, x1))``.
-
-    For example:
-
-    >>> ne("2b01", "2b00")
-    bits("1b1")
-    >>> ne("2b01", "2b01")
-    bits("1b0")
-    >>> ne("2b01", "2b10")
-    bits("1b1")
-
-    Args:
-        x0: ``Bits`` or string literal.
-        x1: ``Bits`` or string literal equal size to ``x0``.
-
-    Returns:
-        ``Scalar``
-
-    Raises:
-        TypeError: ``x0`` or ``x1`` is not a valid ``Bits`` object,
-                   or ``x0`` not equal size to ``x1``.
-        ValueError: Error parsing string literal.
-    """
-    x0 = _expect_type(x0, Bits)
-    x1 = _expect_size(x1, x0.size)
-    return _ne(x0, x1)
 
 
 def _cmp(op: Callable, x0: Bits, x1: Bits) -> Scalar:
@@ -2564,138 +1233,6 @@ def _cmp(op: Callable, x0: Bits, x1: Bits) -> Scalar:
     return _bool2scalar[op(x0.to_uint(), x1.to_uint())]
 
 
-def lt(x0: Bits | str, x1: Bits | str) -> Scalar:
-    """Binary logical Unsigned LessThan (<) reduction operator.
-
-    Returns ``Scalar`` result of ``x0.to_uint() < x1.to_uint()``.
-    For performance reasons, use simple ``X``/``-`` propagation:
-    ``X`` dominates {``-``, known}, and ``-`` dominates known.
-
-    For example:
-
-    >>> lt("2b01", "2b00")
-    bits("1b0")
-    >>> lt("2b01", "2b01")
-    bits("1b0")
-    >>> lt("2b01", "2b10")
-    bits("1b1")
-
-    Args:
-        x0: ``Bits`` or string literal.
-        x1: ``Bits`` or string literal equal size to ``x0``.
-
-    Returns:
-        ``Scalar``
-
-    Raises:
-        TypeError: ``x0`` or ``x1`` is not a valid ``Bits`` object,
-                   or ``x0`` not equal size to ``x1``.
-        ValueError: Error parsing string literal.
-    """
-    x0 = _expect_type(x0, Bits)
-    x1 = _expect_size(x1, x0.size)
-    return _cmp(operator.lt, x0, x1)
-
-
-def le(x0: Bits | str, x1: Bits | str) -> Scalar:
-    """Binary logical Unsigned LessThanOrEqual (≤) reduction operator.
-
-    Returns ``Scalar`` result of ``x0.to_uint() <= x1.to_uint()``.
-    For performance reasons, use simple ``X``/``-`` propagation:
-    ``X`` dominates {``-``, known}, and ``-`` dominates known.
-
-    For example:
-
-    >>> le("2b01", "2b00")
-    bits("1b0")
-    >>> le("2b01", "2b01")
-    bits("1b1")
-    >>> le("2b01", "2b10")
-    bits("1b1")
-
-    Args:
-        x0: ``Bits`` or string literal.
-        x1: ``Bits`` or string literal equal size to ``x0``.
-
-    Returns:
-        ``Scalar``
-
-    Raises:
-        TypeError: ``x0`` or ``x1`` is not a valid ``Bits`` object,
-                   or ``x0`` not equal size to ``x1``.
-        ValueError: Error parsing string literal.
-    """
-    x0 = _expect_type(x0, Bits)
-    x1 = _expect_size(x1, x0.size)
-    return _cmp(operator.le, x0, x1)
-
-
-def gt(x0: Bits | str, x1: Bits | str) -> Scalar:
-    """Binary logical Unsigned GreaterThan (>) reduction operator.
-
-    Returns ``Scalar`` result of ``x0.to_uint() > x1.to_uint()``.
-    For performance reasons, use simple ``X``/``-`` propagation:
-    ``X`` dominates {``-``, known}, and ``-`` dominates known.
-
-    For example:
-
-    >>> gt("2b01", "2b00")
-    bits("1b1")
-    >>> gt("2b01", "2b01")
-    bits("1b0")
-    >>> gt("2b01", "2b10")
-    bits("1b0")
-
-    Args:
-        x0: ``Bits`` or string literal.
-        x1: ``Bits`` or string literal equal size to ``x0``.
-
-    Returns:
-        ``Scalar``
-
-    Raises:
-        TypeError: ``x0`` or ``x1`` is not a valid ``Bits`` object,
-                   or ``x0`` not equal size to ``x1``.
-        ValueError: Error parsing string literal.
-    """
-    x0 = _expect_type(x0, Bits)
-    x1 = _expect_size(x1, x0.size)
-    return _cmp(operator.gt, x0, x1)
-
-
-def ge(x0: Bits | str, x1: Bits | str) -> Scalar:
-    """Binary logical Unsigned GreaterThanOrEqual (≥) reduction operator.
-
-    Returns ``Scalar`` result of ``x0.to_uint() >= x1.to_uint()``.
-    For performance reasons, use simple ``X``/``-`` propagation:
-    ``X`` dominates {``-``, known}, and ``-`` dominates known.
-
-    For example:
-
-    >>> ge("2b01", "2b00")
-    bits("1b1")
-    >>> ge("2b01", "2b01")
-    bits("1b1")
-    >>> ge("2b01", "2b10")
-    bits("1b0")
-
-    Args:
-        x0: ``Bits`` or string literal.
-        x1: ``Bits`` or string literal equal size to ``x0``.
-
-    Returns:
-        ``Scalar``
-
-    Raises:
-        TypeError: ``x0`` or ``x1`` is not a valid ``Bits`` object,
-                   or ``x0`` not equal size to ``x1``.
-        ValueError: Error parsing string literal.
-    """
-    x0 = _expect_type(x0, Bits)
-    x1 = _expect_size(x1, x0.size)
-    return _cmp(operator.ge, x0, x1)
-
-
 def _scmp(op: Callable, x0: Bits, x1: Bits) -> Scalar:
     # X/DC propagation
     if x0.has_x() or x1.has_x():
@@ -2705,136 +1242,17 @@ def _scmp(op: Callable, x0: Bits, x1: Bits) -> Scalar:
     return _bool2scalar[op(x0.to_int(), x1.to_int())]
 
 
-def slt(x0: Bits | str, x1: Bits | str) -> Scalar:
-    """Binary logical Signed LessThan (<) reduction operator.
+def _match(x0: Bits, x1: Bits) -> Scalar:
+    # Propagate X
+    if x0.has_x() or x1.has_x():
+        return _ScalarX
 
-    Returns ``Scalar`` result of ``x0.to_int() < x1.to_int()``.
-    For performance reasons, use simple ``X``/``-`` propagation:
-    ``X`` dominates {``-``, known}, and ``-`` dominates known.
-
-    For example:
-
-    >>> slt("2b00", "2b11")
-    bits("1b0")
-    >>> slt("2b00", "2b00")
-    bits("1b0")
-    >>> slt("2b00", "2b01")
-    bits("1b1")
-
-    Args:
-        x0: ``Bits`` or string literal.
-        x1: ``Bits`` or string literal equal size to ``x0``.
-
-    Returns:
-        ``Scalar``
-
-    Raises:
-        TypeError: ``x0`` or ``x1`` is not a valid ``Bits`` object,
-                   or ``x0`` not equal size to ``x1``.
-        ValueError: Error parsing string literal.
-    """
-    x0 = _expect_type(x0, Bits)
-    x1 = _expect_size(x1, x0.size)
-    return _scmp(operator.lt, x0, x1)
-
-
-def sle(x0: Bits | str, x1: Bits | str) -> Scalar:
-    """Binary logical Signed LessThanOrEqual (≤) reduction operator.
-
-    Returns ``Scalar`` result of ``x0.to_int() <= x1.to_int()``.
-    For performance reasons, use simple ``X``/``-`` propagation:
-    ``X`` dominates {``-``, known}, and ``-`` dominates known.
-
-    For example:
-
-    >>> sle("2b00", "2b11")
-    bits("1b0")
-    >>> sle("2b00", "2b00")
-    bits("1b1")
-    >>> sle("2b00", "2b01")
-    bits("1b1")
-
-    Args:
-        x0: ``Bits`` or string literal.
-        x1: ``Bits`` or string literal equal size to ``x0``.
-
-    Returns:
-        ``Scalar``
-
-    Raises:
-        TypeError: ``x0`` or ``x1`` is not a valid ``Bits`` object,
-                   or ``x0`` not equal size to ``x1``.
-        ValueError: Error parsing string literal.
-    """
-    x0 = _expect_type(x0, Bits)
-    x1 = _expect_size(x1, x0.size)
-    return _scmp(operator.le, x0, x1)
-
-
-def sgt(x0: Bits | str, x1: Bits | str) -> Scalar:
-    """Binary logical Signed GreaterThan (>) reduction operator.
-
-    Returns ``Scalar`` result of ``x0.to_int() > x1.to_int()``.
-    For performance reasons, use simple ``X``/``-`` propagation:
-    ``X`` dominates {``-``, known}, and ``-`` dominates known.
-
-    For example:
-
-    >>> sgt("2b00", "2b11")
-    bits("1b1")
-    >>> sgt("2b00", "2b00")
-    bits("1b0")
-    >>> sgt("2b00", "2b01")
-    bits("1b0")
-
-    Args:
-        x0: ``Bits`` or string literal.
-        x1: ``Bits`` or string literal equal size to ``x0``.
-
-    Returns:
-        ``Scalar``
-
-    Raises:
-        TypeError: ``x0`` or ``x1`` is not a valid ``Bits`` object,
-                   or ``x0`` not equal size to ``x1``.
-        ValueError: Error parsing string literal.
-    """
-    x0 = _expect_type(x0, Bits)
-    x1 = _expect_size(x1, x0.size)
-    return _scmp(operator.gt, x0, x1)
-
-
-def sge(x0: Bits | str, x1: Bits | str) -> Scalar:
-    """Binary logical Signed GreaterThanOrEqual (≥) reduction operator.
-
-    Returns ``Scalar`` result of ``x0.to_int() >= x1.to_int()``.
-    For performance reasons, use simple ``X``/``-`` propagation:
-    ``X`` dominates {``-``, known}, and ``-`` dominates known.
-
-    For example:
-
-    >>> sge("2b00", "2b11")
-    bits("1b1")
-    >>> sge("2b00", "2b00")
-    bits("1b1")
-    >>> sge("2b00", "2b01")
-    bits("1b0")
-
-    Args:
-        x0: ``Bits`` or string literal.
-        x1: ``Bits`` or string literal equal size to ``x0``.
-
-    Returns:
-        ``Scalar``
-
-    Raises:
-        TypeError: ``x0`` or ``x1`` is not a valid ``Bits`` object,
-                   or ``x0`` not equal size to ``x1``.
-        ValueError: Error parsing string literal.
-    """
-    x0 = _expect_type(x0, Bits)
-    x1 = _expect_size(x1, x0.size)
-    return _scmp(operator.ge, x0, x1)
+    for i in range(x0.size):
+        a0, a1 = x0._get_index(i)
+        b0, b1 = x1._get_index(i)
+        if a0 ^ b0 and a1 ^ b1:
+            return _Scalar0
+    return _Scalar1
 
 
 _LIT_PREFIX_RE = re.compile(r"(?P<Size>[1-9][0-9]*)(?P<Base>[bdh])")
@@ -2989,9 +1407,40 @@ def bits(obj=None) -> Array:
         case [Vector() as x, *rst]:
             return _rank2(x, *rst)
         case [*objs]:
-            return stack(*[bits(obj) for obj in objs])
+            return _stack(*[bits(obj) for obj in objs])
         case _:
             raise TypeError(f"Invalid input: {obj}")
+
+
+def _stack(*xs: Array) -> Array:
+    if len(xs) == 0:
+        return _Empty
+    if len(xs) == 1:
+        return xs[0]
+
+    fst, rst = xs[0], xs[1:]
+
+    size = fst.size
+    d0, d1 = fst.data
+    for x in rst:
+        if x.shape != fst.shape:
+            s = f"Expected shape {fst.shape}, got {x.shape}"
+            raise TypeError(s)
+        d0 |= x.data[0] << size
+        d1 |= x.data[1] << size
+        size += x.size
+
+    # {Empty, Empty, ...} => Empty
+    if fst.shape == (0,):
+        return _Empty
+    # {Scalar, Scalar, ...} => Vector[K]
+    if fst.shape == (1,):
+        size = len(xs)
+        return _vec_size(size)(d0, d1)
+    # {Vector[K], Vector[K], ...} => Array[J,K]
+    # {Array[J,K], Array[J,K], ...} => Array[I,J,K]
+    shape = (len(xs),) + fst.shape
+    return _get_array_shape(shape)(d0, d1)
 
 
 def stack(*objs: Array | int | str) -> Array:
@@ -3025,9 +1474,6 @@ def stack(*objs: Array | int | str) -> Array:
     Raises:
         TypeError: If input obj is invalid.
     """
-    if len(objs) == 0:
-        return _Empty
-
     # Convert inputs
     xs = []
     for obj in objs:
@@ -3041,32 +1487,7 @@ def stack(*objs: Array | int | str) -> Array:
         else:
             raise TypeError(f"Invalid input: {obj}")
 
-    if len(xs) == 1:
-        return xs[0]
-
-    fst, rst = xs[0], xs[1:]
-
-    size = fst.size
-    d0, d1 = fst.data
-    for x in rst:
-        if x.shape != fst.shape:
-            s = f"Expected shape {fst.shape}, got {x.shape}"
-            raise TypeError(s)
-        d0 |= x.data[0] << size
-        d1 |= x.data[1] << size
-        size += x.size
-
-    # {Empty, Empty, ...} => Empty
-    if fst.shape == (0,):
-        return _Empty
-    # {Scalar, Scalar, ...} => Vector[K]
-    if fst.shape == (1,):
-        size = len(xs)
-        return _vec_size(size)(d0, d1)
-    # {Vector[K], Vector[K], ...} => Array[J,K]
-    # {Array[J,K], Array[J,K], ...} => Array[I,J,K]
-    shape = (len(xs),) + fst.shape
-    return _get_array_shape(shape)(d0, d1)
+    return _stack(*xs)
 
 
 def u2bv(n: int, size: int | None = None) -> Vector:
@@ -3170,18 +1591,18 @@ def _sel(x: Array, key: tuple[tuple[int, int], ...]) -> Array:
             for i in range(start, stop):
                 d0, d1 = _chunk(x.data, vec.size * i, vec.size)
                 xs.append(vec(d0, d1))
-            return stack(*[_sel(x, key_r) for x in xs])
+            return _stack(*[_sel(x, key_r) for x in xs])
 
         array = _get_array_shape(x.shape[1:])
         xs = []
         for i in range(start, stop):
             d0, d1 = _chunk(x.data, array.size * i, array.size)
             xs.append(array(d0, d1))
-        return stack(*[_sel(x, key_r) for x in xs])
+        return _stack(*[_sel(x, key_r) for x in xs])
 
     # Full select 0:n
     if key_r:
-        return stack(*[_sel(xx, key_r) for xx in x])
+        return _stack(*[_sel(xx, key_r) for xx in x])
 
     return x
 

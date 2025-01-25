@@ -1,7 +1,8 @@
-"""Test seqlogic.bits.Struct class."""
+"""Test bvwx Struct"""
 
 # For error testing
 # pylint: disable=unused-variable
+# pylint: disable=unsubscriptable-object
 
 import pytest
 
@@ -15,36 +16,46 @@ def test_empty():
             pass
 
 
-S1 = """\
-Simple(
-    a=2b00,
-    b=3b000,
-    c=4b0000,
-)"""
-
-R1 = """\
-Simple(
-    a=bits("2b00"),
-    b=bits("3b000"),
-    c=bits("4b0000"),
-)"""
-
-
 class Simple(Struct):
     a: Vector[2]
     b: Vector[3]
     c: Vector[4]
 
 
-def test_simple():
-    s = Simple(a="2b00", b="3b000", c="4b0000")
+S1 = """\
+Simple(
+    a=2b10,
+    b=3b011,
+    c=4b0100,
+)"""
 
-    assert str(s.a) == "2b00"
-    assert str(s.b) == "3b000"
-    assert str(s.c) == "4b0000"
+R1 = """\
+Simple(
+    a=bits("2b10"),
+    b=bits("3b011"),
+    c=bits("4b0100"),
+)"""
+
+
+def test_simple():
+    s = Simple(a="2b10", b="3b011", c="4b0100")
+
+    assert str(s.a) == "2b10"
+    assert str(s.b) == "3b011"
+    assert str(s.c) == "4b0100"
 
     assert str(s) == S1
     assert repr(s) == R1
+
+    assert s[0] == s.a[0]
+    assert s[1] == s.a[1]
+    assert s[2] == s.b[0]
+    assert s[3] == s.b[1]
+    assert s[4] == s.b[2]
+    assert s[5] == s.c[0]
+    assert s[6] == s.c[1]
+    assert s[7] == s.c[2]
+    assert s[8] == s.c[3]
 
 
 def test_init():

@@ -1,67 +1,15 @@
-"""Bit Vectors With Xes."""
+"""Bit Vectors With Xes"""
 
+from ._arithmetic import adc, add, div, lsh, mod, mul, neg, ngc, rsh, sbc, srsh, sub
+from ._bits import Array, Bits, Empty, Scalar, Vector, bits, i2bv, stack, u2bv
+from ._bitwise import and_, impl, ite, mux, nand, nor, not_, or_, xnor, xor
+from ._code import decode, encode_onehot, encode_priority
 from ._enum import Enum
+from ._predicate import eq, ge, gt, le, lt, match, ne, sge, sgt, sle, slt
 from ._struct import Struct
+from ._unary import uand, uor, uxnor, uxor
 from ._union import Union
-from ._bits import (
-    Array,
-    Bits,
-    Empty,
-    Scalar,
-    Vector,
-    adc,
-    add,
-    and_,
-    bits,
-    cat,
-    decode,
-    div,
-    encode_onehot,
-    encode_priority,
-    eq,
-    ge,
-    gt,
-    i2bv,
-    impl,
-    ite,
-    le,
-    lrot,
-    lsh,
-    lt,
-    match,
-    mod,
-    mul,
-    mux,
-    nand,
-    ne,
-    neg,
-    ngc,
-    nor,
-    not_,
-    or_,
-    pack,
-    rep,
-    rrot,
-    rsh,
-    sbc,
-    sge,
-    sgt,
-    sle,
-    slt,
-    srsh,
-    stack,
-    sub,
-    sxt,
-    u2bv,
-    uand,
-    uor,
-    uxnor,
-    uxor,
-    xnor,
-    xor,
-    xt,
-)
-
+from ._word import cat, lrot, pack, rep, rrot, sxt, xt
 
 # Alias Vector to Vec for brevity
 Vec = Vector
@@ -77,7 +25,7 @@ __all__ = [
     "Enum",
     "Struct",
     "Union",
-    # bits: bitwise
+    # bitwise
     "not_",
     "nor",
     "or_",
@@ -88,15 +36,16 @@ __all__ = [
     "impl",
     "ite",
     "mux",
-    # bits: unary
+    # unary
     "uor",
     "uand",
     "uxnor",
     "uxor",
-    # bits: arithmetic
-    "decode",
+    # encode/decode
     "encode_onehot",
     "encode_priority",
+    "decode",
+    # arithmetic
     "add",
     "adc",
     "sub",
@@ -109,7 +58,7 @@ __all__ = [
     "lsh",
     "rsh",
     "srsh",
-    # bits: word
+    # word
     "xt",
     "sxt",
     "lrot",
@@ -117,7 +66,7 @@ __all__ = [
     "cat",
     "rep",
     "pack",
-    # bits: predicate
+    # predicate
     "match",
     "eq",
     "ne",
@@ -129,7 +78,7 @@ __all__ = [
     "sle",
     "sgt",
     "sge",
-    # bits: factory
+    # factory
     "bits",
     "stack",
     "u2bv",
