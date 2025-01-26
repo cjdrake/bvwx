@@ -398,12 +398,12 @@ class Bits(_SizedIf):
 
     # Note: Keep carry-out
     def __add__(self, other: Bits | str) -> Vector:
-        other = _expect_size(other, self.size)
+        other = _expect_type(other, Bits)
         s, co = _add(self, other, _Scalar0)
         return _cat(s, co)
 
     def __radd__(self, other: Bits | str) -> Vector:
-        other = _expect_size(other, self.size)
+        other = _expect_type(other, Bits)
         s, co = _add(other, self, _Scalar0)
         return _cat(s, co)
 

@@ -51,6 +51,9 @@ ADD_VALS = [
     ("2b0-", "2b00", F, "2b--", W),
     ("2b00", "2b0-", F, "2b--", W),
     ("2b00", "2b00", W, "2b--", W),
+    # Mismatched sizes
+    ("2b01", "3b001", F, "3b010", F),
+    ("3b001", "2b01", F, "3b010", F),
 ]
 
 
@@ -62,6 +65,11 @@ def test_add():
         if ci == F:
             assert bits(a) + b == cat(s, co)
             assert a + bits(b) == cat(s, co)
+
+
+def test_inc_unknown():
+    assert -bits("1bX") == bits("2bXX")
+    assert -bits("1b-") == bits("2b--")
 
 
 def test_array_add():
@@ -250,6 +258,8 @@ def test_lsh():
     assert lsh(v, 2) == "4b1100"
     assert v << 2 == "4b1100"
     assert "4b1111" << bits("2b10") == "4b1100"
+    assert bits("4b1111") << "2b10" == "4b1100"
+    assert bits("4b1111") << bits("2b10") == "4b1100"
     assert lsh(v, 3) == "4b1000"
     assert lsh(v, 4) == "4b0000"
 
@@ -278,6 +288,8 @@ def test_rsh():
     assert rsh(v, 2) == "4b0011"
     assert v >> 2 == "4b0011"
     assert "4b1111" >> bits("2b10") == "4b0011"
+    assert bits("4b1111") >> "2b10" == "4b0011"
+    assert bits("4b1111") >> bits("2b10") == "4b0011"
     assert rsh(v, 3) == "4b0001"
     assert rsh(v, 4) == "4b0000"
 

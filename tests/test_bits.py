@@ -2,14 +2,17 @@
 
 # For error testing
 # pylint: disable=pointless-statement
+# pylint: disable=unidiomatic-typecheck
 
 import pytest
 
-from bvwx import Array, Vec, bits, i2bv, stack, u2bv
+from bvwx import Array, Empty, Enum, Scalar, Vec, bits, u2bv
 
 E = bits()
-T = bits(True)
 F = bits(False)
+T = bits(True)
+W = bits("1b-")
+X = bits("1bX")
 
 
 def test_const():
@@ -26,9 +29,54 @@ def test_const():
 
 def test_xprop():
     assert Vec[4].xprop(bits("1bX")) == "4bXXXX"
-    assert Vec[4].xprop(bits("1b1")) == "4b----"
-    assert Vec[4].xprop(bits("1b0")) == "4b----"
     assert Vec[4].xprop(bits("1b-")) == "4b----"
+
+
+def test_type_resolution():
+    class Color(Enum):
+        RED = "2b00"
+        GREEN = "2b01"
+        BLUE = "2b10"
+
+    # Downgrade Enum to Vec
+    y = bits("2b00") | Color.RED
+    assert type(y) is Vec[2]
+
+    # Downgrade Array to Vec
+    y = Array[4, 4].rand() | Vec[16].rand()
+    assert type(y) is Vec[16]
+
+
+def test_type_cast():
+    x1 = bits("4b1001")
+    x2 = bits(["2b01", "2b10"])
+
+    x3 = Vec[4].cast(x2)
+    assert type(x3) is Vec[4]
+    assert x3 == x1
+
+    with pytest.raises(TypeError):
+        Vec[3].cast(x1)
+
+
+def test_bool():
+    assert not bool(E)
+    assert not bool(F)
+    assert bool(T)
+    assert not bool(bits("4b0000"))
+    assert bool(bits("4b0001"))
+    assert bool(bits("4b0010"))
+    assert bool(bits("4b0100"))
+    assert bool(bits("4b1000"))
+
+    with pytest.raises(ValueError):
+        _ = bool(W)
+    with pytest.raises(ValueError):
+        _ = bool(X)
+    with pytest.raises(ValueError):
+        _ = bool(bits("3b10X"))
+    with pytest.raises(ValueError):
+        _ = bool(bits("3b10-"))
 
 
 def test_hash():
@@ -43,9 +91,151 @@ def test_hash():
     assert len(s) == 4
 
 
+X0 = bits([])
+X1 = bits("1b0")
+X2 = bits("4b-10X")
+X3 = bits(["4b-10X", "4b-10X"])
+
+X4 = bits([["4b-10X", "4b-10X"], ["4b-10X", "4b-10X"]])
+
+X4_REPR = """\
+bits([["4b-10X", "4b-10X"],
+      ["4b-10X", "4b-10X"]])"""
+
+X4_STR = """\
+[[4b-10X, 4b-10X],
+ [4b-10X, 4b-10X]]"""
+
+X5 = bits(
+    [
+        [["4b-10X", "4b-10X"], ["4b-10X", "4b-10X"]],
+        [["4b-10X", "4b-10X"], ["4b-10X", "4b-10X"]],
+    ]
+)
+
+X5_REPR = """\
+bits([[["4b-10X", "4b-10X"],
+       ["4b-10X", "4b-10X"]],
+
+      [["4b-10X", "4b-10X"],
+       ["4b-10X", "4b-10X"]]])"""
+
+X5_STR = """\
+[[[4b-10X, 4b-10X],
+  [4b-10X, 4b-10X]],
+
+ [[4b-10X, 4b-10X],
+  [4b-10X, 4b-10X]]]"""
+
+
+def test_repr():
+    assert repr(X0) == "bits([])"
+    assert repr(X1) == 'bits("1b0")'
+    assert repr(X2) == 'bits("4b-10X")'
+    assert repr(X3) == 'bits(["4b-10X", "4b-10X"])'
+    assert repr(X4) == X4_REPR
+    assert repr(X5) == X5_REPR
+
+
+def test_str():
+    assert str(X0) == "[]"
+    assert str(X1) == "1b0"
+    assert str(X2) == "4b-10X"
+    assert str(X3) == "[4b-10X, 4b-10X]"
+    assert str(X4) == X4_STR
+    assert str(X5) == X5_STR
+
+
+def test_vec_getitem():
+    assert X1[0] == "1b0"
+
+    assert X2[3] == "1b-"
+    assert X2[2] == "1b1"
+    assert X2[1] == "1b0"
+    assert X2[0] == "1bX"
+
+    assert X2[bits("2b11")] == "1b-"
+    assert X2[bits("2b10")] == "1b1"
+    assert X2[bits("2b01")] == "1b0"
+    assert X2[bits("2b00")] == "1bX"
+
+    assert X2[-1] == "1b-"
+    assert X2[-2] == "1b1"
+    assert X2[-3] == "1b0"
+    assert X2[-4] == "1bX"
+
+    assert X2[0:1] == "1bX"
+    assert X2[0:2] == "2b0X"
+    assert X2[0:3] == "3b10X"
+    assert X2[0:4] == "4b-10X"
+
+    assert X2[:-3] == "1bX"
+    assert X2[:-2] == "2b0X"
+    assert X2[:-1] == "3b10X"
+
+    assert X2[1:2] == "1b0"
+    assert X2[1:3] == "2b10"
+    assert X2[1:4] == "3b-10"
+
+    assert X2[-3:2] == "1b0"
+    assert X2[-3:3] == "2b10"
+    assert X2[-3:4] == "3b-10"
+
+    assert X2[2:3] == "1b1"
+    assert X2[2:4] == "2b-1"
+
+    assert X2[3:4] == "1b-"
+
+    # Invalid index
+    with pytest.raises(IndexError):
+        _ = X2[4]
+    # Slice step not supported
+    with pytest.raises(ValueError):
+        _ = X2[0:4:1]
+    # Invalid index type
+    with pytest.raises(TypeError):
+        _ = X2[1.0e42]
+
+
+def test_array_class_getitem():
+    assert Array[0] is Empty
+    assert Array[1] is Scalar
+    assert Array[2] is Vec[2]
+    assert Array[2, 2].shape == (2, 2)
+    with pytest.raises(TypeError):
+        _ = Array["invalid"]
+
+
+def test_vec_class_getitem():
+    assert Vec[0] is Empty
+    assert Vec[1] is Scalar
+    assert Vec[2].shape == (2,)
+    with pytest.raises(TypeError):
+        _ = Vec["invalid"]
+
+
+def test_vec_iter():
+    x = bits("4b-10X")
+    assert list(x) == ["1bX", "1b0", "1b1", "1b-"]
+    assert list(reversed(x)) == ["1b-", "1b1", "1b0", "1bX"]
+
+
+def test_scalar_iter():
+    x = bits("1b0")
+    assert list(x) == ["1b0"]
+    assert list(reversed(x)) == ["1b0"]
+
+
+def test_empty():
+    assert not list(E)
+    assert list(reversed(E)) == [E]
+    with pytest.raises(IndexError):
+        E[0]
+
+
 def test_slicing():
     """Test bits slicing behavior."""
-    b = bits(
+    x = bits(
         [
             ["4b0000", "4b0001", "4b0010", "4b0011"],
             ["4b0100", "4b0101", "4b0110", "4b0111"],
@@ -54,63 +244,114 @@ def test_slicing():
         ]
     )
 
-    assert b.shape == (4, 4, 4)
+    assert x.shape == (4, 4, 4)
 
     with pytest.raises(IndexError):
-        b[-5]
+        x[-5]
     with pytest.raises(ValueError):
-        b["invalid"]
+        x["invalid"]
     # Slice step not supported
     with pytest.raises(ValueError):
-        b[0:4:1]
+        x[0:4:1]
+    # Invalid dimension
+    with pytest.raises(ValueError):
+        x[0, 0, 0, 0]
+    # Invalid slice type
+    with pytest.raises(TypeError):
+        x[42.0]
 
-    assert b == b[:]
-    assert b == b[0:4]
-    assert b == b[-4:]
-    assert b == b[-5:]
-    assert b == b[:, :]
-    assert b == b[:, :, :]
+    assert x == x[:]
+    assert x == x[0:4]
+    assert x == x[-4:]
+    assert x == x[-5:]
+    assert x == x[:, :]
+    assert x == x[:, :, :]
 
-    assert b[0] == b[0, :]
-    assert b[0] == b[0, 0:4]
-    assert b[0] == b[0, -4:]
-    assert b[0] == b[0, -5:]
-    assert b[0] == b[0, :, :]
+    assert x[0] == x[0, :]
+    assert x[0] == x[0, 0:4]
+    assert x[0] == x[0, -4:]
+    assert x[0] == x[0, -5:]
+    assert x[0] == x[0, :, :]
 
-    assert b[0] == bits(["4b0000", "4b0001", "4b0010", "4b0011"])
-    assert b[1] == bits(["4b0100", "4b0101", "4b0110", "4b0111"])
-    assert b[2] == bits(["4b1000", "4b1001", "4b1010", "4b1011"])
-    assert b[3] == bits(["4b1100", "4b1101", "4b1110", "4b1111"])
+    assert x[0] == bits(["4b0000", "4b0001", "4b0010", "4b0011"])
+    assert x[1] == bits(["4b0100", "4b0101", "4b0110", "4b0111"])
+    assert x[2] == bits(["4b1000", "4b1001", "4b1010", "4b1011"])
+    assert x[3] == bits(["4b1100", "4b1101", "4b1110", "4b1111"])
 
-    assert b[0, 0] == b[0, 0, :]
-    assert b[0, 0] == b[0, 0, 0:4]
-    assert b[0, 0] == b[0, 0, -4:]
-    assert b[0, 0] == b[0, 0, -5:]
+    assert x[0, 0] == x[0, 0, :]
+    assert x[0, 0] == x[0, 0, 0:4]
+    assert x[0, 0] == x[0, 0, -4:]
+    assert x[0, 0] == x[0, 0, -5:]
 
-    assert b[0, 0] == bits("4b0000")
-    assert b[1, 1] == bits("4b0101")
-    assert b[2, 2] == bits("4b1010")
-    assert b[3, 3] == bits("4b1111")
+    assert x[0, 0] == bits("4b0000")
+    assert x[1, 1] == bits("4b0101")
+    assert x[2, 2] == bits("4b1010")
+    assert x[3, 3] == bits("4b1111")
 
-    assert b[0, :, 0] == bits("4b1010")
-    assert b[1, :, 1] == bits("4b1100")
-    assert b[2, :, 2] == bits("4b0000")
-    assert b[3, :, 3] == bits("4b1111")
+    assert x[0, :, 0] == bits("4b1010")
+    assert x[1, :, 1] == bits("4b1100")
+    assert x[2, :, 2] == bits("4b0000")
+    assert x[3, :, 3] == bits("4b1111")
 
-    assert b[0, 0, :-1] == bits("3b000")
-    assert b[0, 0, :-2] == bits("2b00")
-    assert b[0, 0, :-3] == bits("1b0")
-    assert b[0, 0, :-4] == bits()
+    assert x[0, 0, :-1] == bits("3b000")
+    assert x[0, 0, :-2] == bits("2b00")
+    assert x[0, 0, :-3] == bits("1b0")
+    assert x[0, 0, :-4] == bits()
 
-    assert b[0, 0, 0] == F
-    # assert b[0, bits("2b00"), 0] == F
-    assert b[-4, -4, -4] == F
-    assert b[3, 3, 3] == T
-    # assert b[3, bits("2b11"), 3] == T
-    assert b[-1, -1, -1] == T
+    assert x[0, 0, 0] == F
+    assert x["1b0", "1b0", "1b0"] == F
+    assert x[-4, -4, -4] == F
+    assert x[3, 3, 3] == T
+    assert x[-1, -1, -1] == T
+
+
+def test_array_reshape():
+    a = Array[2, 3, 4]
+    v = Vec[24]
+    x = a(0, 0)
+    assert x.shape == (2, 3, 4)
+    assert x.size == 24
+
+    y = x.reshape((2, 3, 4))
+    assert type(y) is a
+    assert y == x
+
+    y = x.reshape((4, 3, 2))
+    assert type(y) is Array[4, 3, 2]
+    assert y == x
+
+    y = x.reshape((24,))
+    assert type(y) is v
+    assert y == x
+
+    y = x.flatten()
+    assert type(y) is v
+    assert y == x
 
     with pytest.raises(ValueError):
-        b[0, 0, 0, 0]
+        x.reshape((4, 4, 4))
+
+
+def test_vec_reshape():
+    v = Vec[24]
+    x = v(0, 0)
+    assert x.shape == (24,)
+    assert x.size == 24
+
+    y = x.reshape((2, 3, 4))
+    assert type(y) is Array[2, 3, 4]
+    assert y == x
+
+    y = x.reshape((24,))
+    assert type(y) is v
+    assert y == x
+
+    y = x.flatten()
+    assert type(y) is v
+    assert y == x
+
+    with pytest.raises(ValueError):
+        x.reshape((4, 4, 4))
 
 
 def test_vcd():
@@ -119,12 +360,12 @@ def test_vcd():
 
 
 def test_count():
-    v = bits("8b-10X_-10X")
-    assert v.count_xes() == 2
-    assert v.count_zeros() == 2
-    assert v.count_ones() == 2
-    assert v.count_dcs() == 2
-    assert v.count_unknown() == 4
+    x = bits("8b-10X_-10X")
+    assert x.count_xes() == 2
+    assert x.count_zeros() == 2
+    assert x.count_ones() == 2
+    assert x.count_dcs() == 2
+    assert x.count_unknown() == 4
 
     assert not bits("4b0000").onehot()
     assert bits("4b1000").onehot()
@@ -144,369 +385,3 @@ def test_count():
     assert not bits("4b0000").has_unknown()
     assert bits("4b00X0").has_unknown()
     assert bits("4b00-0").has_unknown()
-
-
-BIN_LITS = {
-    "1b0": (1, 0b0),
-    "1b1": (1, 0b1),
-    "2b00": (2, 0b00),
-    "2b01": (2, 0b01),
-    "2b10": (2, 0b10),
-    "2b11": (2, 0b11),
-    "3b100": (3, 0b100),
-    "3b101": (3, 0b101),
-    "3b110": (3, 0b110),
-    "3b111": (3, 0b111),
-    "4b1000": (4, 0b1000),
-    "4b1001": (4, 0b1001),
-    "4b1010": (4, 0b1010),
-    "4b1011": (4, 0b1011),
-    "4b1100": (4, 0b1100),
-    "4b1101": (4, 0b1101),
-    "4b1110": (4, 0b1110),
-    "4b1111": (4, 0b1111),
-    "5b1_0000": (5, 0b1_0000),
-    "5b1_1111": (5, 0b1_1111),
-    "6b10_0000": (6, 0b10_0000),
-    "6b11_1111": (6, 0b11_1111),
-    "7b100_0000": (7, 0b100_0000),
-    "7b111_1111": (7, 0b111_1111),
-    "8b1000_0000": (8, 0b1000_0000),
-    "8b1111_1111": (8, 0b1111_1111),
-    "9b1_0000_0000": (9, 0b1_0000_0000),
-    "9b1_1111_1111": (9, 0b1_1111_1111),
-}
-
-
-def test_lit_bin():
-    # Valid inputs w/o X
-    for lit, (n, d1) in BIN_LITS.items():
-        v = bits(lit)
-        assert len(v) == n and v.data[1] == d1
-
-    # Valid inputs w/ X
-    v = bits("4b-1_0X")
-    assert len(v) == 4 and v.data == (0b1010, 0b1100)
-    v = bits("4bX01-")
-    assert len(v) == 4 and v.data == (0b0101, 0b0011)
-
-    # Not a literal
-    with pytest.raises(ValueError):
-        bits("invalid")
-
-    # Size cannot be zero
-    with pytest.raises(ValueError):
-        bits("0b0")
-    # Contains illegal characters
-    with pytest.raises(ValueError):
-        bits("4b1XW0")
-
-    # Size is too big
-    with pytest.raises(ValueError):
-        bits("8b1010")
-
-    # Size is too small
-    with pytest.raises(ValueError):
-        bits("4b1010_1010")
-
-
-DEC_LITS = {
-    "1d0": (1, 0),
-    "1d1": (1, 1),
-    "2d0": (2, 0),
-    "2d1": (2, 1),
-    "2d2": (2, 2),
-    "2d3": (2, 3),
-    "3d4": (3, 4),
-    "3d5": (3, 5),
-    "3d6": (3, 6),
-    "3d7": (3, 7),
-    "4d8": (4, 8),
-    "4d9": (4, 9),
-    "4d10": (4, 10),
-    "4d11": (4, 11),
-    "4d12": (4, 12),
-    "4d13": (4, 13),
-    "4d14": (4, 14),
-    "4d15": (4, 15),
-    "5d16": (5, 16),
-    "5d31": (5, 31),
-    "6d32": (6, 32),
-    "6d63": (6, 63),
-    "7d64": (7, 64),
-    "7d127": (7, 127),
-    "8d128": (8, 128),
-    "8d255": (8, 255),
-    "9d256": (9, 256),
-    "9d511": (9, 511),
-}
-
-
-def test_lit2bv_dec():
-    # Valid inputs
-    for lit, (n, d1) in DEC_LITS.items():
-        v = bits(lit)
-        assert len(v) == n and v.data[1] == d1
-
-    # Not a literal
-    with pytest.raises(ValueError):
-        bits("invalid")
-
-    # Size cannot be zero
-    with pytest.raises(ValueError):
-        bits("0d0")
-    # Contains illegal characters
-    with pytest.raises(ValueError):
-        bits("8hd3@d_b33f")
-
-    # Size is too small
-    with pytest.raises(ValueError):
-        bits("8d256")
-
-
-HEX_LITS = {
-    "1h0": (1, 0x0),
-    "1h1": (1, 0x1),
-    "2h0": (2, 0x0),
-    "2h1": (2, 0x1),
-    "2h2": (2, 0x2),
-    "2h3": (2, 0x3),
-    "3h4": (3, 0x4),
-    "3h5": (3, 0x5),
-    "3h6": (3, 0x6),
-    "3h7": (3, 0x7),
-    "4h8": (4, 0x8),
-    "4h9": (4, 0x9),
-    "4hA": (4, 0xA),
-    "4hB": (4, 0xB),
-    "4hC": (4, 0xC),
-    "4hD": (4, 0xD),
-    "4hE": (4, 0xE),
-    "4hF": (4, 0xF),
-    "5h10": (5, 0x10),
-    "5h1F": (5, 0x1F),
-    "6h20": (6, 0x20),
-    "6h3F": (6, 0x3F),
-    "7h40": (7, 0x40),
-    "7h7F": (7, 0x7F),
-    "8h80": (8, 0x80),
-    "8hFF": (8, 0xFF),
-    "9h100": (9, 0x100),
-    "9h1FF": (9, 0x1FF),
-}
-
-
-def test_lit2bv_hex():
-    # Valid inputs
-    for lit, (n, d1) in HEX_LITS.items():
-        v = bits(lit)
-        assert len(v) == n and v.data[1] == d1
-
-    # Not a literal
-    with pytest.raises(ValueError):
-        bits("invalid")
-
-    # Size cannot be zero
-    with pytest.raises(ValueError):
-        bits("0h0")
-    # Contains illegal characters
-    with pytest.raises(ValueError):
-        bits("8hd3@d_b33f")
-
-    # Size is too small
-    with pytest.raises(ValueError):
-        bits("8hdead")
-
-    # Invalid characters
-    with pytest.raises(ValueError):
-        bits("3h8")  # Only 0..7 is legal
-    with pytest.raises(ValueError):
-        bits("5h20")  # Only 0..1F is legal
-
-
-U2BV_VALS = {
-    0: "[]",
-    1: "1b1",
-    2: "2b10",
-    3: "2b11",
-    4: "3b100",
-    5: "3b101",
-    6: "3b110",
-    7: "3b111",
-    8: "4b1000",
-}
-
-U2BV_N_VALS = {
-    (0, 0): "[]",
-    (0, 1): "1b0",
-    (0, 2): "2b00",
-    (1, 1): "1b1",
-    (1, 2): "2b01",
-    (1, 3): "3b001",
-    (1, 4): "4b0001",
-    (2, 2): "2b10",
-    (2, 3): "3b010",
-    (2, 4): "4b0010",
-    (3, 2): "2b11",
-    (3, 3): "3b011",
-    (3, 4): "4b0011",
-    (4, 3): "3b100",
-    (4, 4): "4b0100",
-    (4, 5): "5b0_0100",
-}
-
-
-def test_u2bv():
-    # Negative inputs are invalid
-    with pytest.raises(ValueError):
-        u2bv(-1)
-
-    for i, s in U2BV_VALS.items():
-        v = u2bv(i)
-        assert str(v) == s
-        assert v.to_uint() == i
-
-    for (i, n), s in U2BV_N_VALS.items():
-        v = u2bv(i, n)
-        assert str(v) == s
-        assert v.to_uint() == i
-
-    # Overflows
-    with pytest.raises(ValueError):
-        u2bv(1, 0)
-    with pytest.raises(ValueError):
-        u2bv(2, 0)
-    with pytest.raises(ValueError):
-        u2bv(2, 1)
-    with pytest.raises(ValueError):
-        u2bv(3, 0)
-    with pytest.raises(ValueError):
-        u2bv(3, 1)
-
-    with pytest.raises(ValueError):
-        bits("4b-10X").to_uint()
-
-
-I2BV_VALS = {
-    -8: "4b1000",
-    -7: "4b1001",
-    -6: "4b1010",
-    -5: "4b1011",
-    -4: "3b100",
-    -3: "3b101",
-    -2: "2b10",
-    -1: "1b1",
-    0: "1b0",
-    1: "2b01",
-    2: "3b010",
-    3: "3b011",
-    4: "4b0100",
-    5: "4b0101",
-    6: "4b0110",
-    7: "4b0111",
-    8: "5b0_1000",
-}
-
-I2BV_N_VALS = {
-    (-5, 4): "4b1011",
-    (-5, 5): "5b1_1011",
-    (-5, 6): "6b11_1011",
-    (-4, 3): "3b100",
-    (-4, 4): "4b1100",
-    (-4, 5): "5b1_1100",
-    (-3, 3): "3b101",
-    (-3, 4): "4b1101",
-    (-3, 5): "5b1_1101",
-    (-2, 2): "2b10",
-    (-2, 3): "3b110",
-    (-2, 4): "4b1110",
-    (-1, 1): "1b1",
-    (-1, 2): "2b11",
-    (-1, 3): "3b111",
-    (0, 1): "1b0",
-    (0, 2): "2b00",
-    (0, 3): "3b000",
-    (1, 2): "2b01",
-    (1, 3): "3b001",
-    (1, 4): "4b0001",
-    (2, 3): "3b010",
-    (2, 4): "4b0010",
-    (2, 5): "5b0_0010",
-    (3, 3): "3b011",
-    (3, 4): "4b0011",
-    (3, 5): "5b0_0011",
-    (4, 4): "4b0100",
-    (4, 5): "5b0_0100",
-    (4, 6): "6b00_0100",
-}
-
-
-def test_i2bv():
-    for i, s in I2BV_VALS.items():
-        v = i2bv(i)
-        assert str(v) == s
-        assert v.to_int() == i
-        assert int(v) == i
-
-    for (i, n), s in I2BV_N_VALS.items():
-        v = i2bv(i, n)
-        assert str(v) == s
-        assert v.to_int() == i
-        assert int(v) == i
-
-    assert E.to_int() == 0
-    assert int(E) == 0
-
-    # Overflows
-    with pytest.raises(ValueError):
-        i2bv(-5, 3)
-    with pytest.raises(ValueError):
-        i2bv(-4, 2)
-    with pytest.raises(ValueError):
-        i2bv(-3, 2)
-    with pytest.raises(ValueError):
-        i2bv(-2, 1)
-    with pytest.raises(ValueError):
-        i2bv(-1, 0)
-    with pytest.raises(ValueError):
-        i2bv(0, 0)
-    with pytest.raises(ValueError):
-        i2bv(1, 1)
-    with pytest.raises(ValueError):
-        i2bv(2, 2)
-    with pytest.raises(ValueError):
-        i2bv(3, 2)
-    with pytest.raises(ValueError):
-        i2bv(4, 3)
-
-    with pytest.raises(ValueError):
-        bits("4b-10X").to_int()
-
-
-def test_bits():
-    assert bits() == E
-    assert bits(False) == "1b0"
-    assert bits([0, 1, 0, 1]) == "4b1010"
-    assert bits(["1b0", "1b1", "1b0", "1b1"]) == "4b1010"
-    assert bits(["2b00", "2b01", "2b10", "2b11"]) == "8b11100100"
-    assert bits([bits("2b00"), "2b01", "2b10", "2b11"]) == "8b11100100"
-
-    with pytest.raises(TypeError):
-        bits(42)
-    with pytest.raises(TypeError):
-        stack(["2b00", "1b0"])
-    with pytest.raises(TypeError):
-        stack([0, 0, 0, 42])
-
-
-def test_stack():
-    assert stack() == E
-    assert stack(False) == "1b0"
-    assert stack(0, 1, 0, 1) == "4b1010"
-    assert stack("2b00", "2b01", "2b10", "2b11") == "8b11100100"
-    assert stack(bits("2b00"), "2b01", "2b10", "2b11") == "8b11100100"
-
-    with pytest.raises(TypeError):
-        stack(42)
-    with pytest.raises(TypeError):
-        stack("2b00", "1b0")
