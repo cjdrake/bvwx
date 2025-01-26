@@ -78,9 +78,6 @@ Unary
 Arithmetic
 ----------
 
-.. autofunction:: bvwx.decode
-.. autofunction:: bvwx.encode_onehot
-.. autofunction:: bvwx.encode_priority
 .. autofunction:: bvwx.add
 .. autofunction:: bvwx.adc
 .. autofunction:: bvwx.sub
@@ -93,6 +90,13 @@ Arithmetic
 .. autofunction:: bvwx.lsh
 .. autofunction:: bvwx.rsh
 .. autofunction:: bvwx.srsh
+
+Encode / Decode
+---------------
+
+.. autofunction:: bvwx.encode_onehot
+.. autofunction:: bvwx.encode_priority
+.. autofunction:: bvwx.decode
 
 Word
 ----
