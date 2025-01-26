@@ -1,6 +1,7 @@
 """Test Bits methods"""
 
 # For error testing
+# pylint: disable=comparison-with-callable
 # pylint: disable=pointless-statement
 # pylint: disable=unidiomatic-typecheck
 
