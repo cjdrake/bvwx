@@ -59,12 +59,14 @@ Color.RED
 ...     r: Vec[8]
 ...     g: Vec[8]
 ...     b: Vec[8]
-
->>> Pixel(r="8h01", g="8h15", b="8h3E")  # navy blue
+...
+>>> maize = Pixel(r="8hFF", g="8hCB", b="8h05")
+>>> blue = Pixel(r="8h00", g="8h27", b="8h4C")
+>>> maize & blue
 Pixel(
-    r=bits("8b0000_0001"),
-    g=bits("8b0001_0101"),
-    b=bits("8b0011_1110"),
+    r=bits("8b0000_0000"),
+    g=bits("8b0000_0011"),
+    b=bits("8b0000_0100"),
 )
 
 >>> # And much more ...
