@@ -3,8 +3,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+    :maxdepth: 2
+    :caption: Contents:
 
-   release_notes
-   reference
+    installation
+    release_notes
+    reference
