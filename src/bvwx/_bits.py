@@ -967,13 +967,6 @@ def _uand(x: Bits) -> Scalar:
     return Scalar(y[0], y[1])
 
 
-def _uxnor(x: Bits) -> Scalar:
-    y = _1
-    for i in range(x.size):
-        y = lxnor(y, x._get_index(i))
-    return Scalar(y[0], y[1])
-
-
 def _uxor(x: Bits) -> Scalar:
     y = _0
     for i in range(x.size):

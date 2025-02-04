@@ -72,7 +72,6 @@ Unary
 
 .. autofunction:: bvwx.uor
 .. autofunction:: bvwx.uand
-.. autofunction:: bvwx.uxnor
 .. autofunction:: bvwx.uxor
 
 Arithmetic

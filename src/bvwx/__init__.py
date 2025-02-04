@@ -7,7 +7,7 @@ from ._code import decode, encode_onehot, encode_priority
 from ._enum import Enum
 from ._predicate import eq, ge, gt, le, lt, match, ne, sge, sgt, sle, slt
 from ._struct import Struct
-from ._unary import uand, uor, uxnor, uxor
+from ._unary import uand, uor, uxor
 from ._union import Union
 from ._word import cat, lrot, pack, rep, rrot, sxt, xt
 
@@ -39,7 +39,6 @@ __all__ = [
     # unary
     "uor",
     "uand",
-    "uxnor",
     "uxor",
     # encode/decode
     "encode_onehot",
