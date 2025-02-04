@@ -67,6 +67,13 @@ Bitwise
 .. autofunction:: bvwx.ite
 .. autofunction:: bvwx.mux
 
+Logical
+-------
+
+.. autofunction:: bvwx.lor
+.. autofunction:: bvwx.land
+.. autofunction:: bvwx.lxor
+
 Unary
 -----
 

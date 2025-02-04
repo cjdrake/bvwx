@@ -31,12 +31,12 @@ to_vcd_char: dict[lbv, str] = {
 }
 
 
-def lnot(a: lbv) -> lbv:
+def not_(a: lbv) -> lbv:
     """Lifted NOT."""
     return a[1], a[0]
 
 
-def lor(a: lbv, b: lbv) -> lbv:
+def or_(a: lbv, b: lbv) -> lbv:
     r"""Lifted OR.
 
     Karnaugh Map::
@@ -59,7 +59,7 @@ def lor(a: lbv, b: lbv) -> lbv:
     )
 
 
-def land(a: lbv, b: lbv) -> lbv:
+def and_(a: lbv, b: lbv) -> lbv:
     r"""Lifted AND.
 
     Karnaugh Map::
@@ -82,7 +82,7 @@ def land(a: lbv, b: lbv) -> lbv:
     )
 
 
-def lxnor(a: lbv, b: lbv) -> lbv:
+def xnor(a: lbv, b: lbv) -> lbv:
     r"""Lifted XNOR.
 
     Karnaugh Map::
@@ -105,7 +105,7 @@ def lxnor(a: lbv, b: lbv) -> lbv:
     )
 
 
-def lxor(a: lbv, b: lbv) -> lbv:
+def xor(a: lbv, b: lbv) -> lbv:
     r"""Lifted XOR.
 
     Karnaugh Map::
@@ -128,7 +128,7 @@ def lxor(a: lbv, b: lbv) -> lbv:
     )
 
 
-def limpl(p: lbv, q: lbv) -> lbv:
+def impl(p: lbv, q: lbv) -> lbv:
     r"""Lifted IMPL.
 
     Karnaugh Map::
@@ -151,7 +151,7 @@ def limpl(p: lbv, q: lbv) -> lbv:
     )
 
 
-def lite(s: lbv, a: lbv, b: lbv) -> lbv:
+def ite(s: lbv, a: lbv, b: lbv) -> lbv:
     r"""Lifted If-Then-Else.
 
     Karnaugh Map::
@@ -188,7 +188,7 @@ def lite(s: lbv, a: lbv, b: lbv) -> lbv:
     )
 
 
-def _lmux(s: lbv, x0: lbv, x1: lbv) -> lbv:
+def _mux(s: lbv, x0: lbv, x1: lbv) -> lbv:
     """Lifted 2:1 Mux."""
     x0_01 = x0[0] | x0[1]
     x1_01 = x1[0] | x1[1]
@@ -198,7 +198,7 @@ def _lmux(s: lbv, x0: lbv, x1: lbv) -> lbv:
     )
 
 
-def lmux(s: tuple[lbv, ...], xs: dict[int, lbv], default: lbv) -> lbv:
+def mux(s: tuple[lbv, ...], xs: dict[int, lbv], default: lbv) -> lbv:
     """Lifted N:1 Mux."""
     n = 1 << len(s)
 
@@ -219,7 +219,7 @@ def lmux(s: tuple[lbv, ...], xs: dict[int, lbv], default: lbv) -> lbv:
                 x1 = x
             else:
                 x0 = x
-        return _lmux(s[0], x0, x1)
+        return _mux(s[0], x0, x1)
 
     mask0 = (n >> 1) - 1
     xs_0, xs_1 = {}, {}
@@ -230,7 +230,7 @@ def lmux(s: tuple[lbv, ...], xs: dict[int, lbv], default: lbv) -> lbv:
         else:
             xs_0[i] = x
     if xs_0:
-        x0 = lmux(s[:-1], xs_0, default)
+        x0 = mux(s[:-1], xs_0, default)
     if xs_1:
-        x1 = lmux(s[:-1], xs_1, default)
-    return _lmux(s[-1], x0, x1)
+        x1 = mux(s[:-1], xs_1, default)
+    return _mux(s[-1], x0, x1)

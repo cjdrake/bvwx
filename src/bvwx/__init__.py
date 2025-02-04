@@ -5,6 +5,7 @@ from ._bits import Array, Bits, Empty, Scalar, Vector, bits, i2bv, stack, u2bv
 from ._bitwise import and_, impl, ite, mux, nand, nor, not_, or_, xnor, xor
 from ._code import decode, encode_onehot, encode_priority
 from ._enum import Enum
+from ._logical import land, lor, lxor
 from ._predicate import eq, ge, gt, le, lt, match, ne, sge, sgt, sle, slt
 from ._struct import Struct
 from ._unary import uand, uor, uxor
@@ -36,6 +37,10 @@ __all__ = [
     "impl",
     "ite",
     "mux",
+    # logical
+    "lor",
+    "land",
+    "lxor",
     # unary
     "uor",
     "uand",

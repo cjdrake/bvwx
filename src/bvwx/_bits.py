@@ -16,24 +16,8 @@ import re
 from collections.abc import Callable, Generator
 from functools import partial
 
-from ._lbool import (
-    _W,
-    _X,
-    _0,
-    _1,
-    from_char,
-    land,
-    lbv,
-    limpl,
-    lite,
-    lmux,
-    lnot,
-    lor,
-    lxnor,
-    lxor,
-    to_char,
-    to_vcd_char,
-)
+from . import _lbool as lb
+from ._lbool import lbv
 from ._util import classproperty, clog2, mask
 
 _VectorSize: dict[int, type[Vector]] = {}
@@ -470,7 +454,7 @@ class Bits(_SizedIf):
         if self.size == 0:
             return 0
         sign = self._get_index(self.size - 1)
-        if sign == _1:
+        if sign == lb._1:
             return -(_not_(self).to_uint() + 1)
         return self.to_uint()
 
@@ -525,7 +509,7 @@ class Bits(_SizedIf):
 
     def vcd_val(self) -> str:
         """Return VCD variable value."""
-        return "".join(to_vcd_char[self._get_index(i)] for i in range(self.size - 1, -1, -1))
+        return "".join(lb.to_vcd_char[self._get_index(i)] for i in range(self.size - 1, -1, -1))
 
     def _get_index(self, i: int) -> lbv:
         d0 = (self._data[0] >> i) & 1
@@ -730,11 +714,11 @@ class Vector(Bits, _ShapedIf):
 
     def __str__(self) -> str:
         prefix = f"{self.size}b"
-        chars = [to_char[self._get_index(0)]]
+        chars = [lb.to_char[self._get_index(0)]]
         for i in range(1, self.size):
             if i % 4 == 0:
                 chars.append("_")
-            chars.append(to_char[self._get_index(i)])
+            chars.append(lb.to_char[self._get_index(i)])
         return prefix + "".join(reversed(chars))
 
     def __len__(self) -> int:
@@ -809,7 +793,7 @@ class Scalar(Bits, _ShapedIf):
         return f'bits("{self.__str__()}")'
 
     def __str__(self) -> str:
-        return f"1b{to_char[self._data]}"
+        return f"1b{lb.to_char[self._data]}"
 
     def __len__(self) -> int:
         return 1
@@ -822,16 +806,16 @@ class Scalar(Bits, _ShapedIf):
         yield self
 
 
-_ScalarX = Scalar._cast_data(*_X)
-_Scalar0 = Scalar._cast_data(*_0)
-_Scalar1 = Scalar._cast_data(*_1)
-_ScalarW = Scalar._cast_data(*_W)
+_ScalarX = Scalar._cast_data(*lb._X)
+_Scalar0 = Scalar._cast_data(*lb._0)
+_Scalar1 = Scalar._cast_data(*lb._1)
+_ScalarW = Scalar._cast_data(*lb._W)
 
 _scalars = {
-    _X: _ScalarX,
-    _0: _Scalar0,
-    _1: _Scalar1,
-    _W: _ScalarW,
+    lb._X: _ScalarX,
+    lb._0: _Scalar0,
+    lb._1: _Scalar1,
+    lb._W: _ScalarW,
 }
 _bool2scalar = (_Scalar0, _Scalar1)
 
@@ -901,36 +885,36 @@ _Empty = Empty._cast_data(0, 0)
 
 # Bitwise
 def _not_(x: Bits) -> Bits:
-    d0, d1 = lnot(x.data)
+    d0, d1 = lb.not_(x.data)
     return x._cast_data(d0, d1)
 
 
 def _or_(x0: Bits, x1: Bits) -> Bits:
-    d0, d1 = lor(x0.data, x1.data)
+    d0, d1 = lb.or_(x0.data, x1.data)
     t = _resolve_type(type(x0), type(x1))
     return t._cast_data(d0, d1)
 
 
 def _and_(x0: Bits, x1: Bits) -> Bits:
-    d0, d1 = land(x0.data, x1.data)
+    d0, d1 = lb.and_(x0.data, x1.data)
     t = _resolve_type(type(x0), type(x1))
     return t._cast_data(d0, d1)
 
 
 def _xnor_(x0: Bits, x1: Bits) -> Bits:
-    d0, d1 = lxnor(x0.data, x1.data)
+    d0, d1 = lb.xnor(x0.data, x1.data)
     t = _resolve_type(type(x0), type(x1))
     return t._cast_data(d0, d1)
 
 
 def _xor_(x0: Bits, x1: Bits) -> Bits:
-    d0, d1 = lxor(x0.data, x1.data)
+    d0, d1 = lb.xor(x0.data, x1.data)
     t = _resolve_type(type(x0), type(x1))
     return t._cast_data(d0, d1)
 
 
 def _impl_(p: Bits, q: Bits) -> Bits:
-    d0, d1 = limpl(p.data, q.data)
+    d0, d1 = lb.impl(p.data, q.data)
     t = _resolve_type(type(p), type(q))
     return t._cast_data(d0, d1)
 
@@ -938,7 +922,7 @@ def _impl_(p: Bits, q: Bits) -> Bits:
 def _ite_(s: Bits, x1: Bits, x0: Bits) -> Bits:
     s0 = mask(x1.size) * s.data[0]
     s1 = mask(x1.size) * s.data[1]
-    d0, d1 = lite((s0, s1), x1.data, x0.data)
+    d0, d1 = lb.ite((s0, s1), x1.data, x0.data)
     t = _resolve_type(type(x0), type(x1))
     return t._cast_data(d0, d1)
 
@@ -948,29 +932,51 @@ def _mux_(s: Bits, t: type[Bits], xs: dict[int, Bits]) -> Bits:
     si = (s._get_index(i) for i in range(s.size))
     s = tuple((m * d0, m * d1) for d0, d1 in si)
     dc = t.dcs()
-    d0, d1 = lmux(s, {i: x.data for i, x in xs.items()}, dc.data)
+    d0, d1 = lb.mux(s, {i: x.data for i, x in xs.items()}, dc.data)
     return t._cast_data(d0, d1)
+
+
+# Logical
+def _lor_(*xs: Scalar) -> Scalar:
+    y = lb._0
+    for x in xs:
+        y = lb.or_(y, x.data)
+    return Scalar(y[0], y[1])
+
+
+def _land_(*xs: Scalar) -> Scalar:
+    y = lb._1
+    for x in xs:
+        y = lb.and_(y, x.data)
+    return Scalar(y[0], y[1])
+
+
+def _lxor_(*xs: Scalar) -> Scalar:
+    y = lb._0
+    for x in xs:
+        y = lb.xor(y, x.data)
+    return Scalar(y[0], y[1])
 
 
 # Unary
 def _uor(x: Bits) -> Scalar:
-    y = _0
+    y = lb._0
     for i in range(x.size):
-        y = lor(y, x._get_index(i))
+        y = lb.or_(y, x._get_index(i))
     return Scalar(y[0], y[1])
 
 
 def _uand(x: Bits) -> Scalar:
-    y = _1
+    y = lb._1
     for i in range(x.size):
-        y = land(y, x._get_index(i))
+        y = lb.and_(y, x._get_index(i))
     return Scalar(y[0], y[1])
 
 
 def _uxor(x: Bits) -> Scalar:
-    y = _0
+    y = lb._0
     for i in range(x.size):
-        y = lxor(y, x._get_index(i))
+        y = lb.xor(y, x._get_index(i))
     return Scalar(y[0], y[1])
 
 
@@ -1266,7 +1272,7 @@ def _parse_lit(lit: str) -> tuple[int, lbv]:
             d0, d1 = 0, 0
             for i, c in enumerate(reversed(digits)):
                 try:
-                    x = from_char[c]
+                    x = lb.from_char[c]
                 except KeyError as e:
                     raise ValueError(f"Invalid lit: {lit}") from e
                 d0 |= x[0] << i
