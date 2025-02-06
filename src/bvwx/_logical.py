@@ -3,7 +3,7 @@
 from ._bits import Scalar, _bool2scalar, _land_, _lit2bv, _lor_, _lxor_
 
 
-def _expect_scalar(arg) -> Scalar:
+def _expect_scalar(arg: Scalar | str | bool) -> Scalar:
     if arg in (0, 1):
         x = _bool2scalar[arg]
     elif isinstance(arg, str):
@@ -15,7 +15,7 @@ def _expect_scalar(arg) -> Scalar:
     return x
 
 
-def lor(*xs: Scalar | str) -> Scalar:
+def lor(*xs: Scalar | str | bool) -> Scalar:
     """N-ary logical OR operator.
 
     The identity of OR is ``0``.
@@ -43,7 +43,7 @@ def lor(*xs: Scalar | str) -> Scalar:
     return _lor_(*[_expect_scalar(x) for x in xs])
 
 
-def land(*xs: Scalar | str) -> Scalar:
+def land(*xs: Scalar | str | bool) -> Scalar:
     """N-ary logical AND operator.
 
     The identity of AND is ``1``.
@@ -71,7 +71,7 @@ def land(*xs: Scalar | str) -> Scalar:
     return _land_(*[_expect_scalar(x) for x in xs])
 
 
-def lxor(*xs: Scalar | str) -> Scalar:
+def lxor(*xs: Scalar | str | bool) -> Scalar:
     """N-ary logical XOR operator.
 
     The identity of XOR is ``0``.
