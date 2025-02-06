@@ -74,6 +74,13 @@ def _expect_type(arg, t: type[Bits]):
     return x
 
 
+def _expect_size(arg, size: int) -> Bits:
+    x = _expect_type(arg, Bits)
+    if x.size != size:
+        raise TypeError(f"Expected size {size}, got {x.size}")
+    return x
+
+
 def _expect_shift(arg, size: int) -> Bits:
     if isinstance(arg, int):
         return u2bv(arg, size)
@@ -84,10 +91,15 @@ def _expect_shift(arg, size: int) -> Bits:
     raise TypeError("Expected arg to be Bits, str literal, or int")
 
 
-def _expect_size(arg, size: int) -> Bits:
-    x = _expect_type(arg, Bits)
-    if x.size != size:
-        raise TypeError(f"Expected size {size}, got {x.size}")
+def _expect_scalar(arg: Scalar | str | bool) -> Scalar:
+    if arg in (0, 1):
+        x = _bool2scalar[arg]
+    elif isinstance(arg, str):
+        x = _lit2bv(arg)
+    else:
+        x = arg
+    if not isinstance(x, Scalar):
+        raise TypeError("Expected arg to be Scalar, str literal, or bool")
     return x
 
 
