@@ -4,9 +4,12 @@ import re
 
 from ._bits import (
     Bits,
+    BitsLike,
+    ScalarLike,
     _and_,
-    _expect_size,
-    _expect_type,
+    _expect_bits,
+    _expect_bits_size,
+    _expect_scalar,
     _impl_,
     _ite_,
     _mux_,
@@ -17,7 +20,7 @@ from ._bits import (
 )
 
 
-def not_(x: Bits | str) -> Bits:
+def not_(x: BitsLike) -> Bits:
     """Unary bitwise logical NOT operator.
 
     Perform logical negation on each bit of the input:
@@ -56,11 +59,11 @@ def not_(x: Bits | str) -> Bits:
         TypeError: ``x0`` is not a valid ``Bits`` object.
         ValueError: Error parsing string literal.
     """
-    x = _expect_type(x, Bits)
+    x = _expect_bits(x)
     return _not_(x)
 
 
-def nor(x0: Bits | str, *xs: Bits | str) -> Bits:
+def nor(x0: BitsLike, *xs: BitsLike) -> Bits:
     """N-ary bitwise logical NOR operator.
 
     Perform logical NOR on each bit of the inputs:
@@ -111,7 +114,7 @@ def nor(x0: Bits | str, *xs: Bits | str) -> Bits:
     return _not_(or_(x0, *xs))
 
 
-def or_(x0: Bits | str, *xs: Bits | str) -> Bits:
+def or_(x0: BitsLike, *xs: BitsLike) -> Bits:
     """N-ary bitwise logical OR operator.
 
     Perform logical OR on each bit of the inputs:
@@ -159,15 +162,15 @@ def or_(x0: Bits | str, *xs: Bits | str) -> Bits:
                    or ``xs[i]`` not equal size to ``x0``.
         ValueError: Error parsing string literal.
     """
-    x0 = _expect_type(x0, Bits)
+    x0 = _expect_bits(x0)
     y = x0
     for x in xs:
-        x = _expect_size(x, x0.size)
+        x = _expect_bits_size(x, x0.size)
         y = _or_(y, x)
     return y
 
 
-def nand(x0: Bits | str, *xs: Bits | str) -> Bits:
+def nand(x0: BitsLike, *xs: BitsLike) -> Bits:
     """N-ary bitwise logical NAND operator.
 
     Perform logical NAND on each bit of the inputs:
@@ -218,7 +221,7 @@ def nand(x0: Bits | str, *xs: Bits | str) -> Bits:
     return _not_(and_(x0, *xs))
 
 
-def and_(x0: Bits | str, *xs: Bits | str) -> Bits:
+def and_(x0: BitsLike, *xs: BitsLike) -> Bits:
     """N-ary bitwise logical AND operator.
 
     Perform logical AND on each bit of the inputs:
@@ -266,15 +269,15 @@ def and_(x0: Bits | str, *xs: Bits | str) -> Bits:
                    or ``xs[i]`` not equal size to ``x0``.
         ValueError: Error parsing string literal.
     """
-    x0 = _expect_type(x0, Bits)
+    x0 = _expect_bits(x0)
     y = x0
     for x in xs:
-        x = _expect_size(x, x0.size)
+        x = _expect_bits_size(x, x0.size)
         y = _and_(y, x)
     return y
 
 
-def xnor(x0: Bits | str, *xs: Bits | str) -> Bits:
+def xnor(x0: BitsLike, *xs: BitsLike) -> Bits:
     """N-ary bitwise logical XNOR operator.
 
     Perform logical XNOR on each bit of the inputs:
@@ -323,7 +326,7 @@ def xnor(x0: Bits | str, *xs: Bits | str) -> Bits:
     return _not_(xor(x0, *xs))
 
 
-def xor(x0: Bits | str, *xs: Bits | str) -> Bits:
+def xor(x0: BitsLike, *xs: BitsLike) -> Bits:
     """N-ary bitwise logical XOR operator.
 
     Perform logical XOR on each bit of the inputs:
@@ -369,15 +372,15 @@ def xor(x0: Bits | str, *xs: Bits | str) -> Bits:
                    or ``xs[i]`` not equal size to ``x0``.
         ValueError: Error parsing string literal.
     """
-    x0 = _expect_type(x0, Bits)
+    x0 = _expect_bits(x0)
     y = x0
     for x in xs:
-        x = _expect_size(x, x0.size)
+        x = _expect_bits_size(x, x0.size)
         y = _xor_(y, x)
     return y
 
 
-def impl(p: Bits | str, q: Bits | str) -> Bits:
+def impl(p: BitsLike, q: BitsLike) -> Bits:
     """Binary bitwise logical IMPL (implies) operator.
 
     Perform logical IMPL on each bit of the inputs:
@@ -401,12 +404,12 @@ def impl(p: Bits | str, q: Bits | str) -> Bits:
                    or ``q`` not equal size to ``p``.
         ValueError: Error parsing string literal.
     """
-    p = _expect_type(p, Bits)
-    q = _expect_size(q, p.size)
+    p = _expect_bits(p)
+    q = _expect_bits_size(q, p.size)
     return _impl_(p, q)
 
 
-def ite(s: Bits | str, x1: Bits | str, x0: Bits | str) -> Bits:
+def ite(s: ScalarLike, x1: BitsLike, x0: BitsLike) -> Bits:
     """Ternary bitwise logical if-then-else (ITE) operator.
 
     Perform logical ITE on each bit of the inputs:
@@ -457,16 +460,16 @@ def ite(s: Bits | str, x1: Bits | str, x0: Bits | str) -> Bits:
                    or ``x0`` not equal size to ``x1``.
         ValueError: Error parsing string literal.
     """
-    s = _expect_size(s, 1)
-    x1 = _expect_type(x1, Bits)
-    x0 = _expect_size(x0, x1.size)
+    s = _expect_scalar(s)
+    x1 = _expect_bits(x1)
+    x0 = _expect_bits_size(x0, x1.size)
     return _ite_(s, x1, x0)
 
 
 _MUX_XN_RE = re.compile(r"x(\d+)")
 
 
-def mux(s: Bits | str, **xs: Bits | str) -> Bits:
+def mux(s: BitsLike, **xs: BitsLike) -> Bits:
     r"""Bitwise logical multiplex (mux) operator.
 
     Args:
@@ -500,7 +503,7 @@ def mux(s: Bits | str, **xs: Bits | str) -> Bits:
                    or ``xN`` mismatching size.
         ValueError: Error parsing string literal.
     """
-    s = _expect_type(s, Bits)
+    s = _expect_bits(s)
     n = 1 << s.size
 
     # Parse and check inputs
@@ -512,10 +515,10 @@ def mux(s: Bits | str, **xs: Bits | str) -> Bits:
             if not 0 <= i < n:
                 raise ValueError(f"Expected x in [x0, ..., x{n - 1}]; got {name}")
             if t is None:
-                x = _expect_type(value, Bits)
+                x = _expect_bits(value)
                 t = type(x)
             else:
-                x = _expect_size(value, t.size)
+                x = _expect_bits_size(value, t.size)
                 t = _resolve_type(t, type(x))
             i2x[i] = x
         else:

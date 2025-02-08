@@ -3,10 +3,10 @@
 # pylint: disable=protected-access
 
 from ._bits import (
-    Bits,
+    BitsLike,
     Scalar,
     Vector,
-    _expect_type,
+    _expect_bits,
     _Scalar0,
     _Scalar1,
     _ScalarW,
@@ -17,7 +17,7 @@ from ._lbool import _W, _1
 from ._util import clog2, mask
 
 
-def encode_onehot(x: Bits | str) -> Vector:
+def encode_onehot(x: BitsLike) -> Vector:
     """Compress one-hot encoding to an index.
 
     The index is the highest bit set in the input.
@@ -41,7 +41,7 @@ def encode_onehot(x: Bits | str) -> Vector:
         TypeError: ``x`` is not a valid ``Bits`` object.
         ValueError: ``x`` is not one-hot encoded.
     """
-    x = _expect_type(x, Bits)
+    x = _expect_bits(x)
 
     n = clog2(x.size)
     vec = Vector[n]
@@ -61,7 +61,7 @@ def encode_onehot(x: Bits | str) -> Vector:
     return vec(y ^ mask(n), y)
 
 
-def encode_priority(x: Bits | str) -> tuple[Vector, Scalar]:
+def encode_priority(x: BitsLike) -> tuple[Vector, Scalar]:
     """Compress priority encoding to (index, valid) tuple.
 
     The index is the highest bit set in the input.
@@ -86,7 +86,7 @@ def encode_priority(x: Bits | str) -> tuple[Vector, Scalar]:
     Raises:
         TypeError: ``x`` is not a valid ``Bits`` object.
     """
-    x = _expect_type(x, Bits)
+    x = _expect_bits(x)
 
     n = clog2(x.size)
     vec = Vector[n]
@@ -115,7 +115,7 @@ def encode_priority(x: Bits | str) -> tuple[Vector, Scalar]:
     return vec(y ^ mask(n), y), _Scalar1
 
 
-def decode(x: Bits | str) -> Vector:
+def decode(x: BitsLike) -> Vector:
     """Decode dense encoding to sparse, one-hot encoding.
 
     For example:
@@ -145,7 +145,7 @@ def decode(x: Bits | str) -> Vector:
         TypeError: ``x`` is not a valid ``Bits`` object.
         ValueError: Error parsing string literal.
     """
-    x = _expect_type(x, Bits)
+    x = _expect_bits(x)
 
     # Output has 2^N bits
     n = 1 << x.size

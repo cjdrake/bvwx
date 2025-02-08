@@ -2,7 +2,7 @@
 
 # pylint: disable=protected-access
 
-from ._bits import Bits, _expect_size, _parse_lit, _vec_size
+from ._bits import Bits, BitsLike, _expect_bits_size, _parse_lit, _vec_size
 from ._util import mask
 
 
@@ -69,8 +69,8 @@ class _EnumMeta(type):
         enum._cast_data = classmethod(_cast_data)
 
         # Override Vector.__new__ method
-        def _new(cls, arg: Bits | str):
-            x = _expect_size(arg, cls.size)
+        def _new(cls, arg: BitsLike):
+            x = _expect_bits_size(arg, cls.size)
             return cls.cast(x)
 
         enum.__new__ = _new

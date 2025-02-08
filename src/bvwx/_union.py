@@ -4,7 +4,7 @@
 
 from functools import partial
 
-from ._bits import Bits, Vector, _lit2bv, _vec_size
+from ._bits import Bits, BitsLike, Key, Vector, _expect_bits, _vec_size
 from ._util import classproperty, mask
 
 
@@ -30,11 +30,8 @@ class _UnionMeta(type):
         union.size = classproperty(lambda _: size)
 
         # Override Bits.__init__ method
-        def _init(self, arg: Bits | str):
-            if isinstance(arg, str):
-                x = _lit2bv(arg)
-            else:
-                x = arg
+        def _init(self, arg: BitsLike):
+            x = _expect_bits(arg)
             ts = []
             for _, ft in fields:
                 if ft not in ts:
@@ -48,7 +45,7 @@ class _UnionMeta(type):
         union.__init__ = _init
 
         # Override Bits.__getitem__ method
-        def _getitem(self, key: int | slice | Bits | str) -> Vector:
+        def _getitem(self, key: Key) -> Vector:
             size, (d0, d1) = self._get_key(key)
             return _vec_size(size)(d0, d1)
 

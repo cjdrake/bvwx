@@ -2,10 +2,10 @@
 
 import operator
 
-from ._bits import Bits, Scalar, _cmp, _eq, _expect_size, _expect_type, _match, _ne, _scmp
+from ._bits import BitsLike, Scalar, _cmp, _eq, _expect_bits, _expect_bits_size, _match, _ne, _scmp
 
 
-def eq(x0: Bits | str, x1: Bits | str) -> Scalar:
+def eq(x0: BitsLike, x1: BitsLike) -> Scalar:
     """Binary logical Equal (==) reduction operator.
 
     Equivalent to ``uand(xnor(x0, x1))``.
@@ -31,12 +31,12 @@ def eq(x0: Bits | str, x1: Bits | str) -> Scalar:
                    or ``x0`` not equal size to ``x1``.
         ValueError: Error parsing string literal.
     """
-    x0 = _expect_type(x0, Bits)
-    x1 = _expect_size(x1, x0.size)
+    x0 = _expect_bits(x0)
+    x1 = _expect_bits_size(x1, x0.size)
     return _eq(x0, x1)
 
 
-def ne(x0: Bits | str, x1: Bits | str) -> Scalar:
+def ne(x0: BitsLike, x1: BitsLike) -> Scalar:
     """Binary logical NotEqual (!=) reduction operator.
 
     Equivalent to ``uor(xor(x0, x1))``.
@@ -62,12 +62,12 @@ def ne(x0: Bits | str, x1: Bits | str) -> Scalar:
                    or ``x0`` not equal size to ``x1``.
         ValueError: Error parsing string literal.
     """
-    x0 = _expect_type(x0, Bits)
-    x1 = _expect_size(x1, x0.size)
+    x0 = _expect_bits(x0)
+    x1 = _expect_bits_size(x1, x0.size)
     return _ne(x0, x1)
 
 
-def lt(x0: Bits | str, x1: Bits | str) -> Scalar:
+def lt(x0: BitsLike, x1: BitsLike) -> Scalar:
     """Binary logical Unsigned LessThan (<) reduction operator.
 
     Returns ``Scalar`` result of ``x0.to_uint() < x1.to_uint()``.
@@ -95,12 +95,12 @@ def lt(x0: Bits | str, x1: Bits | str) -> Scalar:
                    or ``x0`` not equal size to ``x1``.
         ValueError: Error parsing string literal.
     """
-    x0 = _expect_type(x0, Bits)
-    x1 = _expect_size(x1, x0.size)
+    x0 = _expect_bits(x0)
+    x1 = _expect_bits_size(x1, x0.size)
     return _cmp(operator.lt, x0, x1)
 
 
-def le(x0: Bits | str, x1: Bits | str) -> Scalar:
+def le(x0: BitsLike, x1: BitsLike) -> Scalar:
     """Binary logical Unsigned LessThanOrEqual (≤) reduction operator.
 
     Returns ``Scalar`` result of ``x0.to_uint() <= x1.to_uint()``.
@@ -128,12 +128,12 @@ def le(x0: Bits | str, x1: Bits | str) -> Scalar:
                    or ``x0`` not equal size to ``x1``.
         ValueError: Error parsing string literal.
     """
-    x0 = _expect_type(x0, Bits)
-    x1 = _expect_size(x1, x0.size)
+    x0 = _expect_bits(x0)
+    x1 = _expect_bits_size(x1, x0.size)
     return _cmp(operator.le, x0, x1)
 
 
-def gt(x0: Bits | str, x1: Bits | str) -> Scalar:
+def gt(x0: BitsLike, x1: BitsLike) -> Scalar:
     """Binary logical Unsigned GreaterThan (>) reduction operator.
 
     Returns ``Scalar`` result of ``x0.to_uint() > x1.to_uint()``.
@@ -161,12 +161,12 @@ def gt(x0: Bits | str, x1: Bits | str) -> Scalar:
                    or ``x0`` not equal size to ``x1``.
         ValueError: Error parsing string literal.
     """
-    x0 = _expect_type(x0, Bits)
-    x1 = _expect_size(x1, x0.size)
+    x0 = _expect_bits(x0)
+    x1 = _expect_bits_size(x1, x0.size)
     return _cmp(operator.gt, x0, x1)
 
 
-def ge(x0: Bits | str, x1: Bits | str) -> Scalar:
+def ge(x0: BitsLike, x1: BitsLike) -> Scalar:
     """Binary logical Unsigned GreaterThanOrEqual (≥) reduction operator.
 
     Returns ``Scalar`` result of ``x0.to_uint() >= x1.to_uint()``.
@@ -194,12 +194,12 @@ def ge(x0: Bits | str, x1: Bits | str) -> Scalar:
                    or ``x0`` not equal size to ``x1``.
         ValueError: Error parsing string literal.
     """
-    x0 = _expect_type(x0, Bits)
-    x1 = _expect_size(x1, x0.size)
+    x0 = _expect_bits(x0)
+    x1 = _expect_bits_size(x1, x0.size)
     return _cmp(operator.ge, x0, x1)
 
 
-def slt(x0: Bits | str, x1: Bits | str) -> Scalar:
+def slt(x0: BitsLike, x1: BitsLike) -> Scalar:
     """Binary logical Signed LessThan (<) reduction operator.
 
     Returns ``Scalar`` result of ``x0.to_int() < x1.to_int()``.
@@ -227,12 +227,12 @@ def slt(x0: Bits | str, x1: Bits | str) -> Scalar:
                    or ``x0`` not equal size to ``x1``.
         ValueError: Error parsing string literal.
     """
-    x0 = _expect_type(x0, Bits)
-    x1 = _expect_size(x1, x0.size)
+    x0 = _expect_bits(x0)
+    x1 = _expect_bits_size(x1, x0.size)
     return _scmp(operator.lt, x0, x1)
 
 
-def sle(x0: Bits | str, x1: Bits | str) -> Scalar:
+def sle(x0: BitsLike, x1: BitsLike) -> Scalar:
     """Binary logical Signed LessThanOrEqual (≤) reduction operator.
 
     Returns ``Scalar`` result of ``x0.to_int() <= x1.to_int()``.
@@ -260,12 +260,12 @@ def sle(x0: Bits | str, x1: Bits | str) -> Scalar:
                    or ``x0`` not equal size to ``x1``.
         ValueError: Error parsing string literal.
     """
-    x0 = _expect_type(x0, Bits)
-    x1 = _expect_size(x1, x0.size)
+    x0 = _expect_bits(x0)
+    x1 = _expect_bits_size(x1, x0.size)
     return _scmp(operator.le, x0, x1)
 
 
-def sgt(x0: Bits | str, x1: Bits | str) -> Scalar:
+def sgt(x0: BitsLike, x1: BitsLike) -> Scalar:
     """Binary logical Signed GreaterThan (>) reduction operator.
 
     Returns ``Scalar`` result of ``x0.to_int() > x1.to_int()``.
@@ -293,12 +293,12 @@ def sgt(x0: Bits | str, x1: Bits | str) -> Scalar:
                    or ``x0`` not equal size to ``x1``.
         ValueError: Error parsing string literal.
     """
-    x0 = _expect_type(x0, Bits)
-    x1 = _expect_size(x1, x0.size)
+    x0 = _expect_bits(x0)
+    x1 = _expect_bits_size(x1, x0.size)
     return _scmp(operator.gt, x0, x1)
 
 
-def sge(x0: Bits | str, x1: Bits | str) -> Scalar:
+def sge(x0: BitsLike, x1: BitsLike) -> Scalar:
     """Binary logical Signed GreaterThanOrEqual (≥) reduction operator.
 
     Returns ``Scalar`` result of ``x0.to_int() >= x1.to_int()``.
@@ -326,12 +326,12 @@ def sge(x0: Bits | str, x1: Bits | str) -> Scalar:
                    or ``x0`` not equal size to ``x1``.
         ValueError: Error parsing string literal.
     """
-    x0 = _expect_type(x0, Bits)
-    x1 = _expect_size(x1, x0.size)
+    x0 = _expect_bits(x0)
+    x1 = _expect_bits_size(x1, x0.size)
     return _scmp(operator.ge, x0, x1)
 
 
-def match(x0: Bits | str, x1: Bits | str) -> Scalar:
+def match(x0: BitsLike, x1: BitsLike) -> Scalar:
     """Pattern match operator.
 
     Similar to ``eq`` operator, but with support for ``-`` wildcards.
@@ -357,6 +357,6 @@ def match(x0: Bits | str, x1: Bits | str) -> Scalar:
                    or ``x0`` not equal size to ``x1``.
         ValueError: Error parsing string literal.
     """
-    x0 = _expect_type(x0, Bits)
-    x1 = _expect_size(x1, x0.size)
+    x0 = _expect_bits(x0)
+    x1 = _expect_bits_size(x1, x0.size)
     return _match(x0, x1)

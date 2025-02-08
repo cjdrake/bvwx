@@ -2,11 +2,13 @@
 
 from ._bits import (
     Bits,
+    BitsLike,
+    UintLike,
     Vector,
     _bool2scalar,
     _cat,
-    _expect_shift,
-    _expect_type,
+    _expect_bits,
+    _expect_uint,
     _lit2bv,
     _lrot,
     _pack,
@@ -16,7 +18,7 @@ from ._bits import (
 )
 
 
-def xt(x: Bits | str, n: int) -> Bits:
+def xt(x: BitsLike, n: int) -> Bits:
     """Unsigned extend by n bits.
 
     Fill high order bits with zero.
@@ -37,7 +39,7 @@ def xt(x: Bits | str, n: int) -> Bits:
         TypeError: ``x`` is not a valid ``Bits`` object.
         ValueError: If n is negative.
     """
-    x = _expect_type(x, Bits)
+    x = _expect_bits(x)
 
     if n < 0:
         raise ValueError(f"Expected n ≥ 0, got {n}")
@@ -47,7 +49,7 @@ def xt(x: Bits | str, n: int) -> Bits:
     return _xt(x, n)
 
 
-def sxt(x: Bits | str, n: int) -> Bits:
+def sxt(x: BitsLike, n: int) -> Bits:
     """Sign extend by n bits.
 
     Fill high order bits with sign.
@@ -68,7 +70,7 @@ def sxt(x: Bits | str, n: int) -> Bits:
         TypeError: ``x`` is not a valid ``Bits`` object.
         ValueError: If n is negative.
     """
-    x = _expect_type(x, Bits)
+    x = _expect_bits(x)
 
     if n < 0:
         raise ValueError(f"Expected n ≥ 0, got {n}")
@@ -78,7 +80,7 @@ def sxt(x: Bits | str, n: int) -> Bits:
     return _sxt(x, n)
 
 
-def lrot(x: Bits | str, n: Bits | str | int) -> Bits:
+def lrot(x: BitsLike, n: UintLike) -> Bits:
     """Rotate left by n bits.
 
     For example:
@@ -100,12 +102,12 @@ def lrot(x: Bits | str, n: Bits | str | int) -> Bits:
         ValueError: Error parsing string literal,
                     or negative rotate amount.
     """
-    x = _expect_type(x, Bits)
-    n = _expect_shift(n, x.size)
+    x = _expect_bits(x)
+    n = _expect_uint(n)
     return _lrot(x, n)
 
 
-def rrot(x: Bits | str, n: Bits | str | int) -> Bits:
+def rrot(x: BitsLike, n: UintLike) -> Bits:
     """Rotate right by n bits.
 
     For example:
@@ -127,12 +129,12 @@ def rrot(x: Bits | str, n: Bits | str | int) -> Bits:
         ValueError: Error parsing string literal,
                     or negative rotate amount.
     """
-    x = _expect_type(x, Bits)
-    n = _expect_shift(n, x.size)
+    x = _expect_bits(x)
+    n = _expect_uint(n)
     return _rrot(x, n)
 
 
-def cat(*objs: Bits | int | str) -> Vector:
+def cat(*objs: BitsLike) -> Vector:
     """Concatenate a sequence of Vectors.
 
     Args:
@@ -147,31 +149,31 @@ def cat(*objs: Bits | int | str) -> Vector:
     # Convert inputs
     xs = []
     for obj in objs:
-        if isinstance(obj, Bits):
-            xs.append(obj)
-        elif obj in (0, 1):
+        if obj in (0, 1):
             xs.append(_bool2scalar[obj])
         elif isinstance(obj, str):
             x = _lit2bv(obj)
             xs.append(x)
+        elif isinstance(obj, Bits):
+            xs.append(obj)
         else:
             raise TypeError(f"Invalid input: {obj}")
 
     return _cat(*xs)
 
 
-def rep(obj: Bits | int | str, n: int) -> Vector:
+def rep(obj: BitsLike, n: int) -> Vector:
     """Repeat a Vector n times."""
     objs = [obj] * n
     return cat(*objs)
 
 
-def pack(x: Bits | str, n: int = 1) -> Bits:
+def pack(x: BitsLike, n: int = 1) -> Bits:
     """Pack n-bit blocks in right to left order."""
     if n < 1:
         raise ValueError(f"Expected n < 1, got {n}")
 
-    x = _expect_type(x, Bits)
+    x = _expect_bits(x)
     if x.size % n != 0:
         raise ValueError("Expected x.size to be a multiple of n")
 

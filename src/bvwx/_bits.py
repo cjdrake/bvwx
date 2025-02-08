@@ -64,43 +64,80 @@ def _get_array_shape(shape: tuple[int, ...]) -> type[Array]:
         return array
 
 
-def _expect_type(arg, t: type[Bits]):
-    if isinstance(arg, str):
-        x = _lit2bv(arg)
-    else:
-        x = arg
-    if not isinstance(x, t):
-        raise TypeError(f"Expected arg to be {t.__name__} or str literal")
-    return x
-
-
-def _expect_size(arg, size: int) -> Bits:
-    x = _expect_type(arg, Bits)
-    if x.size != size:
-        raise TypeError(f"Expected size {size}, got {x.size}")
-    return x
-
-
-def _expect_shift(arg, size: int) -> Bits:
-    if isinstance(arg, int):
-        return u2bv(arg, size)
+def _expect_bits(arg: BitsLike) -> Bits:
+    """Any Bits-like object that defines its own size"""
+    if arg in (0, 1):
+        return _bool2scalar[arg]
     if isinstance(arg, str):
         return _lit2bv(arg)
     if isinstance(arg, Bits):
         return arg
-    raise TypeError("Expected arg to be Bits, str literal, or int")
+    raise TypeError("Expected arg to be: Bits, or str literal, or {0, 1}")
 
 
-def _expect_scalar(arg: Scalar | str | bool) -> Scalar:
+def _expect_array(arg: ArrayLike) -> Array:
+    """Any Array-like object that defines its own size"""
     if arg in (0, 1):
-        x = _bool2scalar[arg]
-    elif isinstance(arg, str):
-        x = _lit2bv(arg)
-    else:
-        x = arg
-    if not isinstance(x, Scalar):
-        raise TypeError("Expected arg to be Scalar, str literal, or bool")
-    return x
+        return _bool2scalar[arg]
+    if isinstance(arg, str):
+        return _lit2bv(arg)
+    if isinstance(arg, (Empty, Scalar, Vector, Array)):
+        return arg
+    raise TypeError("Expected arg to be: Array, or str literal, or {0, 1}")
+
+
+def _expect_scalar(arg: ScalarLike) -> Scalar:
+    """Any Scalar-like object"""
+    if arg in (0, 1):
+        return _bool2scalar[arg]
+    if isinstance(arg, str):
+        return _expect_size(_lit2bv(arg), 1)
+    if isinstance(arg, Scalar):
+        return arg
+    raise TypeError("Expected arg to be: Scalar, str literal, or {0, 1}")
+
+
+def _expect_uint(arg: UintLike) -> Bits:
+    """Any Bits-like object that defines its own size"""
+    if isinstance(arg, int):
+        return u2bv(arg)
+    if isinstance(arg, str):
+        return _lit2bv(arg)
+    if isinstance(arg, Bits):
+        return arg
+    raise TypeError("Expected arg to be: Bits, or str literal, or {0, 1}")
+
+
+def _expect_bits_size(arg: BitsLike, size: int) -> Bits:
+    """Any Bits-Like object that may or may not define its own size"""
+    if isinstance(arg, int):
+        if arg < 0:
+            return i2bv(arg, size)
+        return u2bv(arg, size)
+    if isinstance(arg, str):
+        return _expect_size(_lit2bv(arg), size)
+    if isinstance(arg, Bits):
+        return _expect_size(arg, size)
+    raise TypeError("Expected arg to be: Bits, or str literal, or int")
+
+
+def _expect_vec_size(arg: VectorLike, size: int) -> Bits:
+    """Any Vector-Like object that may or may not define its own size"""
+    if isinstance(arg, int):
+        if arg < 0:
+            return i2bv(arg, size)
+        return u2bv(arg, size)
+    if isinstance(arg, str):
+        return _expect_size(_lit2bv(arg), size)
+    if isinstance(arg, (Empty, Scalar, Vector)):
+        return _expect_size(arg, size)
+    raise TypeError("Expected arg to be: Vector, or str literal, or int")
+
+
+def _expect_size(arg: Bits, size: int) -> Bits:
+    if arg.size != size:
+        raise TypeError(f"Expected size {size}, got {arg.size}")
+    return arg
 
 
 def _resolve_type(t0: type[Bits], t1: type[Bits]) -> type[Bits]:
@@ -350,67 +387,67 @@ class Bits(_SizedIf):
     def __invert__(self) -> Bits:
         return _not_(self)
 
-    def __or__(self, other: Bits | str) -> Bits:
-        other = _expect_size(other, self.size)
+    def __or__(self, other: BitsLike) -> Bits:
+        other = _expect_bits_size(other, self.size)
         return _or_(self, other)
 
-    def __ror__(self, other: Bits | str) -> Bits:
-        other = _expect_size(other, self.size)
+    def __ror__(self, other: BitsLike) -> Bits:
+        other = _expect_bits_size(other, self.size)
         return _or_(other, self)
 
-    def __and__(self, other: Bits | str) -> Bits:
-        other = _expect_size(other, self.size)
+    def __and__(self, other: BitsLike) -> Bits:
+        other = _expect_bits_size(other, self.size)
         return _and_(self, other)
 
-    def __rand__(self, other: Bits | str) -> Bits:
-        other = _expect_size(other, self.size)
+    def __rand__(self, other: BitsLike) -> Bits:
+        other = _expect_bits_size(other, self.size)
         return _and_(other, self)
 
-    def __xor__(self, other: Bits | str) -> Bits:
-        other = _expect_size(other, self.size)
+    def __xor__(self, other: BitsLike) -> Bits:
+        other = _expect_bits_size(other, self.size)
         return _xor_(self, other)
 
-    def __rxor__(self, other: Bits | str) -> Bits:
-        other = _expect_size(other, self.size)
+    def __rxor__(self, other: BitsLike) -> Bits:
+        other = _expect_bits_size(other, self.size)
         return _xor_(other, self)
 
     # Note: Drop carry-out
-    def __lshift__(self, n: Bits | str | int) -> Bits:
-        n = _expect_shift(n, self.size)
+    def __lshift__(self, n: UintLike) -> Bits:
+        n = _expect_uint(n)
         return _lsh(self, n)
 
-    def __rlshift__(self, other: Bits | str) -> Bits:
-        other = _expect_type(other, Bits)
+    def __rlshift__(self, other: BitsLike) -> Bits:
+        other = _expect_bits(other)
         return _lsh(other, self)
 
     # Note: Drop carry-out
-    def __rshift__(self, n: Bits | str | int) -> Bits:
-        n = _expect_shift(n, self.size)
+    def __rshift__(self, n: UintLike) -> Bits:
+        n = _expect_uint(n)
         return _rsh(self, n)
 
-    def __rrshift__(self, other: Bits | str) -> Bits:
-        other = _expect_type(other, Bits)
+    def __rrshift__(self, other: BitsLike) -> Bits:
+        other = _expect_bits(other)
         return _rsh(other, self)
 
     # Note: Keep carry-out
-    def __add__(self, other: Bits | str) -> Vector:
-        other = _expect_type(other, Bits)
+    def __add__(self, other: BitsLike) -> Vector:
+        other = _expect_bits(other)
         s, co = _add(self, other, _Scalar0)
         return _cat(s, co)
 
-    def __radd__(self, other: Bits | str) -> Vector:
-        other = _expect_type(other, Bits)
+    def __radd__(self, other: BitsLike) -> Vector:
+        other = _expect_bits(other)
         s, co = _add(other, self, _Scalar0)
         return _cat(s, co)
 
     # Note: Keep carry-out
-    def __sub__(self, other: Bits | str) -> Vector:
-        other = _expect_size(other, self.size)
+    def __sub__(self, other: BitsLike) -> Vector:
+        other = _expect_bits_size(other, self.size)
         s, co = _sub(self, other)
         return _cat(s, co)
 
-    def __rsub__(self, other: Bits | str) -> Vector:
-        other = _expect_size(other, self.size)
+    def __rsub__(self, other: BitsLike) -> Vector:
+        other = _expect_bits_size(other, self.size)
         s, co = _sub(other, self)
         return _cat(s, co)
 
@@ -419,24 +456,24 @@ class Bits(_SizedIf):
         s, co = _neg(self)
         return _cat(s, co)
 
-    def __mul__(self, other: Bits | str) -> Vector:
-        other = _expect_type(other, Bits)
+    def __mul__(self, other: BitsLike) -> Vector:
+        other = _expect_bits(other)
         return _mul(self, other)
 
-    def __rmul__(self, other: Bits | str) -> Vector:
-        other = _expect_type(other, Bits)
+    def __rmul__(self, other: BitsLike) -> Vector:
+        other = _expect_bits(other)
         return _mul(other, self)
 
-    def __floordiv__(self, other: Bits | str) -> Bits:
-        other = _expect_type(other, Bits)
+    def __floordiv__(self, other: BitsLike) -> Bits:
+        other = _expect_bits(other)
         return _div(self, other)
 
-    def __rfloordiv__(self, other: Bits | str) -> Bits:
-        other = _expect_type(other, Bits)
+    def __rfloordiv__(self, other: BitsLike) -> Bits:
+        other = _expect_bits(other)
         return _div(other, self)
 
-    def __mod__(self, other: Bits | str) -> Bits:
-        other = _expect_type(other, Bits)
+    def __mod__(self, other: BitsLike) -> Bits:
+        other = _expect_bits(other)
         return _mod(self, other)
 
     # Note: __rmod__ does not work b/c str implements % operator
@@ -544,12 +581,14 @@ class Bits(_SizedIf):
             if start != 0 or stop != self.size:
                 return self._get_slice(start, stop)
             return self.size, self._data
-        key = _expect_type(key, Bits)
-        index = _norm_index(self.size, key.to_uint())
-        return 1, self._get_index(index)
-
-
-type Key = int | slice | Bits | str
+        if isinstance(key, str):
+            key = _lit2bv(key)
+            index = _norm_index(self.size, key.to_uint())
+            return 1, self._get_index(index)
+        if isinstance(key, Bits):
+            index = _norm_index(self.size, key.to_uint())
+            return 1, self._get_index(index)
+        raise TypeError("Expected key to be int, slice, str literal, or Bits")
 
 
 class Array(Bits, _ShapedIf):
@@ -661,9 +700,14 @@ class Array(Bits, _ShapedIf):
                 return (i, i + 1)
             if isinstance(key, slice):
                 return _norm_slice(n, key)
-            key = _expect_type(key, Bits)
-            i = _norm_index(n, key.to_uint())
-            return (i, i + 1)
+            if isinstance(key, str):
+                key = _lit2bv(key)
+                i = _norm_index(n, key.to_uint())
+                return (i, i + 1)
+            if isinstance(key, Bits):
+                i = _norm_index(n, key.to_uint())
+                return (i, i + 1)
+            assert False  # pragma: no cover
 
         return tuple(f(n, key) for n, key in zip(cls._shape, keys))
 
@@ -893,6 +937,15 @@ class Empty(Bits, _ShapedIf):
 
 
 _Empty = Empty._cast_data(0, 0)
+
+
+# Type Aliases
+type BitsLike = Bits | str | int
+type ArrayLike = Array | str | int
+type VectorLike = Vector | str | int
+type ScalarLike = Scalar | str | int
+type UintLike = Bits | str | int
+type Key = int | slice | Bits | str
 
 
 # Bitwise
@@ -1351,10 +1404,10 @@ def _bools2vec(x0: int, *xs: int) -> Vector:
     return _vec_size(size)(d1 ^ mask(size), d1)
 
 
-def _rank2(fst: Vector, *rst: Vector | str) -> Array:
+def _rank2(fst: Vector, *rst: VectorLike) -> Array:
     d0, d1 = fst.data
     for i, x in enumerate(rst, start=1):
-        x = _expect_type(x, Vector[fst.size])
+        x = _expect_vec_size(x, fst.size)
         d0 |= x.data[0] << (fst.size * i)
         d1 |= x.data[1] << (fst.size * i)
     if fst.shape == (1,):
@@ -1444,17 +1497,19 @@ def _stack(*xs: Array) -> Array:
     # {Empty, Empty, ...} => Empty
     if fst.shape == (0,):
         return _Empty
+
     # {Scalar, Scalar, ...} => Vector[K]
     if fst.shape == (1,):
         size = len(xs)
         return _vec_size(size)(d0, d1)
+
     # {Vector[K], Vector[K], ...} => Array[J,K]
     # {Array[J,K], Array[J,K], ...} => Array[I,J,K]
     shape = (len(xs),) + fst.shape
     return _get_array_shape(shape)(d0, d1)
 
 
-def stack(*objs: Array | int | str) -> Array:
+def stack(*objs: ArrayLike) -> Array:
     """Stack a sequence of Bits w/ same shape into a higher dimensional shape.
 
     For a sequence length N with shape M,
@@ -1485,20 +1540,7 @@ def stack(*objs: Array | int | str) -> Array:
     Raises:
         TypeError: If input obj is invalid.
     """
-    # Convert inputs
-    xs = []
-    for obj in objs:
-        if isinstance(obj, (Empty, Scalar, Vector, Array)):
-            xs.append(obj)
-        elif obj in (0, 1):
-            xs.append(_bool2scalar[obj])
-        elif isinstance(obj, str):
-            x = _lit2bv(obj)
-            xs.append(x)
-        else:
-            raise TypeError(f"Invalid input: {obj}")
-
-    return _stack(*xs)
+    return _stack(*[_expect_array(obj) for obj in objs])
 
 
 def u2bv(n: int, size: int | None = None) -> Vector:

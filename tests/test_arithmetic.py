@@ -54,6 +54,15 @@ ADD_VALS = [
     # Mismatched sizes
     ("2b01", "3b001", F, "3b010", F),
     ("3b001", "2b01", F, "3b010", F),
+    # Allow bool inputs
+    (False, False, False, "1b0", F),
+    (False, False, True, "1b1", F),
+    (False, True, False, "1b1", F),
+    (False, True, True, "1b0", T),
+    (True, False, False, "1b1", F),
+    (True, False, True, "1b0", T),
+    (True, True, False, "1b0", T),
+    (True, True, True, "1b1", T),
 ]
 
 

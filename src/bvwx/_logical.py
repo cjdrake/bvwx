@@ -1,9 +1,9 @@
 """Logical Operators"""
 
-from ._bits import Scalar, _expect_scalar, _land_, _lor_, _lxor_
+from ._bits import Scalar, ScalarLike, _expect_scalar, _land_, _lor_, _lxor_
 
 
-def lor(*xs: Scalar | str | bool) -> Scalar:
+def lor(*xs: ScalarLike) -> Scalar:
     """N-ary logical OR operator.
 
     The identity of OR is ``0``.
@@ -31,7 +31,7 @@ def lor(*xs: Scalar | str | bool) -> Scalar:
     return _lor_(*[_expect_scalar(x) for x in xs])
 
 
-def land(*xs: Scalar | str | bool) -> Scalar:
+def land(*xs: ScalarLike) -> Scalar:
     """N-ary logical AND operator.
 
     The identity of AND is ``1``.
@@ -59,7 +59,7 @@ def land(*xs: Scalar | str | bool) -> Scalar:
     return _land_(*[_expect_scalar(x) for x in xs])
 
 
-def lxor(*xs: Scalar | str | bool) -> Scalar:
+def lxor(*xs: ScalarLike) -> Scalar:
     """N-ary logical XOR operator.
 
     The identity of XOR is ``0``.

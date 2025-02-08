@@ -155,6 +155,11 @@ def test_vec_getitem():
     assert X2[1] == "1b0"
     assert X2[0] == "1bX"
 
+    assert X2["2b11"] == "1b-"
+    assert X2["2b10"] == "1b1"
+    assert X2["2b01"] == "1b0"
+    assert X2["2b00"] == "1bX"
+
     assert X2[bits("2b11")] == "1b-"
     assert X2[bits("2b10")] == "1b1"
     assert X2[bits("2b01")] == "1b0"
@@ -301,6 +306,7 @@ def test_slicing():
 
     assert x[0, 0, 0] == F
     assert x["1b0", "1b0", "1b0"] == F
+    assert x[F, F, F] == F
     assert x[-4, -4, -4] == F
     assert x[3, 3, 3] == T
     assert x[-1, -1, -1] == T

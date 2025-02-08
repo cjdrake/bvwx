@@ -2,14 +2,17 @@
 
 from ._bits import (
     Bits,
-    Scalar,
+    BitsLike,
+    ScalarLike,
+    UintLike,
     Vector,
     _add,
     _cat,
     _div,
-    _expect_shift,
-    _expect_size,
-    _expect_type,
+    _expect_bits,
+    _expect_bits_size,
+    _expect_scalar,
+    _expect_uint,
     _lsh,
     _mod,
     _mul,
@@ -21,7 +24,7 @@ from ._bits import (
 )
 
 
-def add(a: Bits | str, b: Bits | str, ci: Scalar | str | None = None) -> Bits:
+def add(a: BitsLike, b: BitsLike, ci: ScalarLike | None = None) -> Bits:
     """Addition with carry-in, but NO carry-out.
 
     For example:
@@ -45,14 +48,14 @@ def add(a: Bits | str, b: Bits | str, ci: Scalar | str | None = None) -> Bits:
         TypeError: ``a``, ``b``, or ``ci`` are not valid ``Bits`` objects.
         ValueError: Error parsing string literal.
     """
-    a = _expect_type(a, Bits)
-    b = _expect_type(b, Bits)
-    ci = _Scalar0 if ci is None else _expect_type(ci, Scalar)
+    a = _expect_bits(a)
+    b = _expect_bits(b)
+    ci = _Scalar0 if ci is None else _expect_scalar(ci)
     s, _ = _add(a, b, ci)
     return s
 
 
-def adc(a: Bits | str, b: Bits | str, ci: Scalar | str | None = None) -> Vector:
+def adc(a: BitsLike, b: BitsLike, ci: ScalarLike | None = None) -> Vector:
     """Addition with carry-in, and carry-out.
 
     For example:
@@ -77,14 +80,14 @@ def adc(a: Bits | str, b: Bits | str, ci: Scalar | str | None = None) -> Vector:
         TypeError: ``a``, ``b``, or ``ci`` are not valid ``Bits`` objects.
         ValueError: Error parsing string literal.
     """
-    a = _expect_type(a, Bits)
-    b = _expect_type(b, Bits)
-    ci = _Scalar0 if ci is None else _expect_type(ci, Scalar)
+    a = _expect_bits(a)
+    b = _expect_bits(b)
+    ci = _Scalar0 if ci is None else _expect_scalar(ci)
     s, co = _add(a, b, ci)
     return _cat(s, co)
 
 
-def sub(a: Bits | str, b: Bits | str) -> Bits:
+def sub(a: BitsLike, b: BitsLike) -> Bits:
     """Twos complement subtraction, with NO carry-out.
 
     Args:
@@ -99,13 +102,13 @@ def sub(a: Bits | str, b: Bits | str) -> Bits:
                    or ``a`` not equal size to ``b``.
         ValueError: Error parsing string literal.
     """
-    a = _expect_type(a, Bits)
-    b = _expect_size(b, a.size)
+    a = _expect_bits(a)
+    b = _expect_bits_size(b, a.size)
     s, _ = _sub(a, b)
     return s
 
 
-def sbc(a: Bits | str, b: Bits | str) -> Vector:
+def sbc(a: BitsLike, b: BitsLike) -> Vector:
     """Twos complement subtraction, with carry-out.
 
     Args:
@@ -121,13 +124,13 @@ def sbc(a: Bits | str, b: Bits | str) -> Vector:
                    or ``a`` not equal size to ``b``.
         ValueError: Error parsing string literal.
     """
-    a = _expect_type(a, Bits)
-    b = _expect_size(b, a.size)
+    a = _expect_bits(a)
+    b = _expect_bits_size(b, a.size)
     s, co = _sub(a, b)
     return _cat(s, co)
 
 
-def neg(x: Bits | str) -> Bits:
+def neg(x: BitsLike) -> Bits:
     """Twos complement negation, with NO carry-out.
 
     Args:
@@ -140,12 +143,12 @@ def neg(x: Bits | str) -> Bits:
         TypeError: ``x`` is not a valid ``Bits`` object.
         ValueError: Error parsing string literal.
     """
-    x = _expect_type(x, Bits)
+    x = _expect_bits(x)
     s, _ = _neg(x)
     return s
 
 
-def ngc(x: Bits | str) -> Vector:
+def ngc(x: BitsLike) -> Vector:
     """Twos complement negation, with carry-out.
 
     Args:
@@ -159,12 +162,12 @@ def ngc(x: Bits | str) -> Vector:
         TypeError: ``x`` is not a valid ``Bits`` object.
         ValueError: Error parsing string literal.
     """
-    x = _expect_type(x, Bits)
+    x = _expect_bits(x)
     s, co = _neg(x)
     return _cat(s, co)
 
 
-def mul(a: Bits | str, b: Bits | str) -> Vector:
+def mul(a: BitsLike, b: BitsLike) -> Vector:
     """Unsigned multiply.
 
     For example:
@@ -186,12 +189,12 @@ def mul(a: Bits | str, b: Bits | str) -> Vector:
         TypeError: ``a`` or ``b`` are not valid ``Bits`` objects.
         ValueError: Error parsing string literal.
     """
-    a = _expect_type(a, Bits)
-    b = _expect_type(b, Bits)
+    a = _expect_bits(a)
+    b = _expect_bits(b)
     return _mul(a, b)
 
 
-def div(a: Bits | str, b: Bits | str) -> Bits:
+def div(a: BitsLike, b: BitsLike) -> Bits:
     """Unsigned divide.
 
     Args:
@@ -205,14 +208,14 @@ def div(a: Bits | str, b: Bits | str) -> Bits:
         TypeError: ``a`` or ``b`` are not valid ``Bits`` objects.
         ValueError: Error parsing string literal.
     """
-    a = _expect_type(a, Bits)
-    b = _expect_type(b, Bits)
+    a = _expect_bits(a)
+    b = _expect_bits(b)
     if not a.size >= b.size > 0:
         raise ValueError("Expected a.size ≥ b.size > 0")
     return _div(a, b)
 
 
-def mod(a: Bits | str, b: Bits | str) -> Bits:
+def mod(a: BitsLike, b: BitsLike) -> Bits:
     """Unsigned modulo.
 
     Args:
@@ -226,14 +229,14 @@ def mod(a: Bits | str, b: Bits | str) -> Bits:
         TypeError: ``a`` or ``b`` are not valid ``Bits`` objects.
         ValueError: Error parsing string literal.
     """
-    a = _expect_type(a, Bits)
-    b = _expect_type(b, Bits)
+    a = _expect_bits(a)
+    b = _expect_bits(b)
     if not a.size >= b.size > 0:
         raise ValueError("Expected a.size ≥ b.size > 0")
     return _mod(a, b)
 
 
-def lsh(x: Bits | str, n: Bits | str | int) -> Bits:
+def lsh(x: BitsLike, n: UintLike) -> Bits:
     """Logical left shift by n bits.
 
     Fill bits with zeros.
@@ -257,12 +260,12 @@ def lsh(x: Bits | str, n: Bits | str | int) -> Bits:
         ValueError: Error parsing string literal,
                     or negative shift amount.
     """
-    x = _expect_type(x, Bits)
-    n = _expect_shift(n, x.size)
+    x = _expect_bits(x)
+    n = _expect_uint(n)
     return _lsh(x, n)
 
 
-def rsh(x: Bits | str, n: Bits | str | int) -> Bits:
+def rsh(x: BitsLike, n: UintLike) -> Bits:
     """Logical right shift by n bits.
 
     Fill bits with zeros.
@@ -286,12 +289,12 @@ def rsh(x: Bits | str, n: Bits | str | int) -> Bits:
         ValueError: Error parsing string literal,
                     or negative shift amount.
     """
-    x = _expect_type(x, Bits)
-    n = _expect_shift(n, x.size)
+    x = _expect_bits(x)
+    n = _expect_uint(n)
     return _rsh(x, n)
 
 
-def srsh(x: Bits | str, n: Bits | str | int) -> Bits:
+def srsh(x: BitsLike, n: UintLike) -> Bits:
     """Arithmetic (signed) right shift by n bits.
 
     Fill bits with most significant bit (sign).
@@ -315,6 +318,6 @@ def srsh(x: Bits | str, n: Bits | str | int) -> Bits:
         ValueError: Error parsing string literal,
                     or negative shift amount.
     """
-    x = _expect_type(x, Bits)
-    n = _expect_shift(n, x.size)
+    x = _expect_bits(x)
+    n = _expect_uint(n)
     return _srsh(x, n)
