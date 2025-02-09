@@ -2,7 +2,8 @@
 
 # pylint: disable=protected-access
 
-from ._bits import Bits, BitsLike, _expect_bits_size, _parse_lit, _vec_size
+from ._bits import Bits, BitsLike, _expect_bits_size, _vec_size
+from ._lbool import parse_lit
 from ._util import mask
 
 
@@ -23,9 +24,9 @@ class _EnumMeta(type):
             # NAME = lit
             else:
                 if size is None:
-                    size, data = _parse_lit(val)
+                    size, data = parse_lit(val)
                 else:
-                    size_i, data = _parse_lit(val)
+                    size_i, data = parse_lit(val)
                     if size_i != size:
                         s = f"Expected lit len {size}, got {size_i}"
                         raise ValueError(s)
