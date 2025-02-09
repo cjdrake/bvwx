@@ -48,6 +48,8 @@ def test_lit_bin():
         assert len(x) == n and x.data[1] == d1
 
     # Valid inputs w/ X
+    x = bits("4bW1_0X")
+    assert len(x) == 4 and x.data == (0b1010, 0b1100)
     x = bits("4b-1_0X")
     assert len(x) == 4 and x.data == (0b1010, 0b1100)
     x = bits("4bX01-")
@@ -62,7 +64,7 @@ def test_lit_bin():
         bits("0b0")
     # Contains illegal characters
     with pytest.raises(ValueError):
-        bits("4b1XW0")
+        bits("4b1XQ0")
 
     # Size is too big
     with pytest.raises(ValueError):
