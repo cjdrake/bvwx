@@ -14,6 +14,7 @@ from_char: dict[str, lbv] = {
     "0": _0,
     "1": _1,
     "-": _W,
+    "W": _W,
 }
 
 to_char: dict[lbv, str] = {
