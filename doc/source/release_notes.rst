@@ -5,6 +5,11 @@
 This section lists new features, API changes, and bug fixes.
 For a complete history, see the Git commit log.
 
+Version 0.6.0
+=============
+
+Added ``lit2bv`` function to top level API.
+
 Version 0.5.0
 =============
 
