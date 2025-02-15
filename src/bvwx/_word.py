@@ -9,12 +9,12 @@ from ._bits import (
     _cat,
     _expect_bits,
     _expect_uint,
-    _lit2bv,
     _lrot,
     _pack,
     _rrot,
     _sxt,
     _xt,
+    lit2bv,
 )
 
 
@@ -152,7 +152,7 @@ def cat(*objs: BitsLike) -> Vector:
         if obj in (0, 1):
             xs.append(_bool2scalar[obj])
         elif isinstance(obj, str):
-            x = _lit2bv(obj)
+            x = lit2bv(obj)
             xs.append(x)
         elif isinstance(obj, Bits):
             xs.append(obj)

@@ -68,7 +68,7 @@ def _expect_bits(arg: BitsLike) -> Bits:
     if arg in (0, 1):
         return _bool2scalar[arg]
     if isinstance(arg, str):
-        return _lit2bv(arg)
+        return lit2bv(arg)
     if isinstance(arg, Bits):
         return arg
     raise TypeError("Expected arg to be: Bits, or str literal, or {0, 1}")
@@ -79,7 +79,7 @@ def _expect_array(arg: ArrayLike) -> Array:
     if arg in (0, 1):
         return _bool2scalar[arg]
     if isinstance(arg, str):
-        return _lit2bv(arg)
+        return lit2bv(arg)
     if isinstance(arg, (Empty, Scalar, Vector, Array)):
         return arg
     raise TypeError("Expected arg to be: Array, or str literal, or {0, 1}")
@@ -90,7 +90,7 @@ def _expect_scalar(arg: ScalarLike) -> Scalar:
     if arg in (0, 1):
         return _bool2scalar[arg]
     if isinstance(arg, str):
-        return _expect_size(_lit2bv(arg), 1)
+        return _expect_size(lit2bv(arg), 1)
     if isinstance(arg, Scalar):
         return arg
     raise TypeError("Expected arg to be: Scalar, str literal, or {0, 1}")
@@ -101,7 +101,7 @@ def _expect_uint(arg: UintLike) -> Bits:
     if isinstance(arg, int):
         return u2bv(arg)
     if isinstance(arg, str):
-        return _lit2bv(arg)
+        return lit2bv(arg)
     if isinstance(arg, Bits):
         return arg
     raise TypeError("Expected arg to be: Bits, or str literal, or {0, 1}")
@@ -114,7 +114,7 @@ def _expect_bits_size(arg: BitsLike, size: int) -> Bits:
             return i2bv(arg, size)
         return u2bv(arg, size)
     if isinstance(arg, str):
-        return _expect_size(_lit2bv(arg), size)
+        return _expect_size(lit2bv(arg), size)
     if isinstance(arg, Bits):
         return _expect_size(arg, size)
     raise TypeError("Expected arg to be: Bits, or str literal, or int")
@@ -127,7 +127,7 @@ def _expect_vec_size(arg: VectorLike, size: int) -> Bits:
             return i2bv(arg, size)
         return u2bv(arg, size)
     if isinstance(arg, str):
-        return _expect_size(_lit2bv(arg), size)
+        return _expect_size(lit2bv(arg), size)
     if isinstance(arg, (Empty, Scalar, Vector)):
         return _expect_size(arg, size)
     raise TypeError("Expected arg to be: Vector, or str literal, or int")
@@ -581,7 +581,7 @@ class Bits(_SizedIf):
                 return self._get_slice(start, stop)
             return self.size, self._data
         if isinstance(key, str):
-            key = _lit2bv(key)
+            key = lit2bv(key)
             index = _norm_index(self.size, key.to_uint())
             return 1, self._get_index(index)
         if isinstance(key, Bits):
@@ -700,7 +700,7 @@ class Array(Bits, _ShapedIf):
             if isinstance(key, slice):
                 return _norm_slice(n, key)
             if isinstance(key, str):
-                key = _lit2bv(key)
+                key = lit2bv(key)
                 i = _norm_index(n, key.to_uint())
                 return (i, i + 1)
             if isinstance(key, Bits):
@@ -1318,29 +1318,6 @@ def _match(x0: Bits, x1: Bits) -> Scalar:
     return _Scalar1
 
 
-def _lit2bv(lit: str) -> Vector:
-    """Convert a string literal to a vec.
-
-    A string literal is in the form {width}{base}{characters},
-    where width is the number of bits, base is either 'b' for binary or
-    'h' for hexadecimal, and characters is a string of legal characters.
-    The character string can contains '_' separators for readability.
-
-    For example:
-        4b1010
-        6b11_-10X
-        64hdead_beef_feed_face
-
-    Returns:
-        A Vec instance.
-
-    Raises:
-        ValueError: If input literal has a syntax error.
-    """
-    size, (d0, d1) = lb.parse_lit(lit)
-    return _vec_size(size)(d0, d1)
-
-
 def _bools2vec(x0: int, *xs: int) -> Vector:
     """Convert an iterable of bools to a vec.
 
@@ -1417,9 +1394,9 @@ def bits(obj=None) -> Array:
         case [0 | 1 as fst, *rst]:
             return _bools2vec(fst, *rst)
         case str() as lit:
-            return _lit2bv(lit)
+            return lit2bv(lit)
         case [str() as lit, *rst]:
-            x = _lit2bv(lit)
+            x = lit2bv(lit)
             return _rank2(x, *rst)
         case [Scalar() as x, *rst]:
             return _rank2(x, *rst)
@@ -1496,6 +1473,29 @@ def stack(*objs: ArrayLike) -> Array:
         TypeError: If input obj is invalid.
     """
     return _stack(*[_expect_array(obj) for obj in objs])
+
+
+def lit2bv(lit: str) -> Vector:
+    """Convert string literal to Vector.
+
+    A string literal is in the form {width}{base}{characters},
+    where width is the number of bits, base is either 'b' for binary or
+    'h' for hexadecimal, and characters is a string of legal characters.
+    The character string can contains '_' separators for readability.
+
+    For example:
+        4b1010
+        6b11_-10X
+        64hdead_beef_feed_face
+
+    Returns:
+        A Vec instance.
+
+    Raises:
+        ValueError: If input literal has a syntax error.
+    """
+    size, (d0, d1) = lb.parse_lit(lit)
+    return _vec_size(size)(d0, d1)
 
 
 def u2bv(n: int, size: int | None = None) -> Vector:

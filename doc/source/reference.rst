@@ -138,5 +138,6 @@ Factory Functions
 
 .. autofunction:: bvwx.bits
 .. autofunction:: bvwx.stack
+.. autofunction:: bvwx.lit2bv
 .. autofunction:: bvwx.u2bv
 .. autofunction:: bvwx.i2bv
