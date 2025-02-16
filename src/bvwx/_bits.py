@@ -1005,21 +1005,21 @@ def _lor_(*xs: Scalar) -> Scalar:
     y = lb._0
     for x in xs:
         y = lb.or_(y, x.data)
-    return Scalar(y[0], y[1])
+    return _scalars[y]
 
 
 def _land_(*xs: Scalar) -> Scalar:
     y = lb._1
     for x in xs:
         y = lb.and_(y, x.data)
-    return Scalar(y[0], y[1])
+    return _scalars[y]
 
 
 def _lxor_(*xs: Scalar) -> Scalar:
     y = lb._0
     for x in xs:
         y = lb.xor(y, x.data)
-    return Scalar(y[0], y[1])
+    return _scalars[y]
 
 
 # Unary
@@ -1027,21 +1027,21 @@ def _uor(x: Bits) -> Scalar:
     y = lb._0
     for i in range(x.size):
         y = lb.or_(y, x._get_index(i))
-    return Scalar(y[0], y[1])
+    return _scalars[y]
 
 
 def _uand(x: Bits) -> Scalar:
     y = lb._1
     for i in range(x.size):
         y = lb.and_(y, x._get_index(i))
-    return Scalar(y[0], y[1])
+    return _scalars[y]
 
 
 def _uxor(x: Bits) -> Scalar:
     y = lb._0
     for i in range(x.size):
         y = lb.xor(y, x._get_index(i))
-    return Scalar(y[0], y[1])
+    return _scalars[y]
 
 
 # Arithmetic

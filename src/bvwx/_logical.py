@@ -25,7 +25,7 @@ def lor(*xs: ScalarLike) -> Scalar:
         ``Scalar``
 
     Raises:
-        TypeError: ``x`` is not a valid ``Bits`` object.
+        TypeError: ``x`` is not a valid ``Scalar`` object.
         ValueError: Error parsing string literal.
     """
     return _lor_(*[_expect_scalar(x) for x in xs])
@@ -53,7 +53,7 @@ def land(*xs: ScalarLike) -> Scalar:
         ``Scalar``
 
     Raises:
-        TypeError: ``x`` is not a valid ``Bits`` object.
+        TypeError: ``x`` is not a valid ``Scalar`` object.
         ValueError: Error parsing string literal.
     """
     return _land_(*[_expect_scalar(x) for x in xs])
@@ -81,7 +81,7 @@ def lxor(*xs: ScalarLike) -> Scalar:
         ``Scalar``
 
     Raises:
-        TypeError: ``x`` is not a valid ``Bits`` object.
+        TypeError: ``x`` is not a valid ``Scalar`` object.
         ValueError: Error parsing string literal.
     """
     return _lxor_(*[_expect_scalar(x) for x in xs])
