@@ -1,6 +1,6 @@
 """Test bvwx count operators"""
 
-from bvwx import cpop
+from bvwx import clz, cpop
 
 CPOP_VALS = [
     ("1b0", "1b0"),
@@ -25,3 +25,28 @@ CPOP_VALS = [
 def test_cpop():
     for x, y in CPOP_VALS:
         assert cpop(x) == y
+
+
+CLZ_VALS = [
+    ("1b0", "1b1"),
+    ("1b1", "1b0"),
+    ("1bW", "1bW"),
+    ("1bX", "1bX"),
+    ("2b00", "2b10"),
+    ("2b01", "2b01"),
+    ("2b10", "2b00"),
+    ("2b11", "2b00"),
+    ("3b000", "2b11"),
+    ("3b001", "2b10"),
+    ("3b010", "2b01"),
+    ("3b011", "2b01"),
+    ("3b100", "2b00"),
+    ("3b101", "2b00"),
+    ("3b110", "2b00"),
+    ("3b111", "2b00"),
+]
+
+
+def test_clz():
+    for x, y in CLZ_VALS:
+        assert clz(x) == y

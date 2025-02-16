@@ -18,3 +18,19 @@ def cpop(x: BitsLike) -> Vector:
 
     d1 = x.data[1]
     return u2bv(d1.bit_count(), n)
+
+
+def clz(x: BitsLike) -> Vector:
+    """Count leading zeros."""
+    x = _expect_bits(x)
+
+    n = clog2(x.size + 1)
+    vec = Vector[n]
+
+    if x.has_x():
+        return vec.xes()
+    if x.has_dc():
+        return vec.dcs()
+
+    d1 = x.data[1]
+    return u2bv(x.size - clog2(d1 + 1), n)
