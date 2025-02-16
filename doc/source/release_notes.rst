@@ -5,6 +5,13 @@
 This section lists new features, API changes, and bug fixes.
 For a complete history, see the Git commit log.
 
+Version 0.7.0
+=============
+
+Removed bitwise ``nand``, ``nor``, and ``xnor`` operators.
+
+Moved ``clog2`` function into ``bvwx`` namespace.
+
 Version 0.6.0
 =============
 
