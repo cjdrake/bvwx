@@ -175,55 +175,6 @@ def and_(x0: BitsLike, *xs: BitsLike) -> Bits:
     return y
 
 
-def xnor(x0: BitsLike, *xs: BitsLike) -> Bits:
-    """N-ary bitwise logical XNOR operator.
-
-    Perform logical XNOR on each bit of the inputs:
-
-    +-------+-----------------------+--------------+-----------------------+
-    |   x0  |           x1          | XNOR(x0, x1) |          Note         |
-    +=======+=======================+==============+=======================+
-    | ``0`` |                 ``0`` |        ``1`` |                       |
-    +-------+-----------------------+--------------+-----------------------+
-    | ``0`` |                 ``1`` |        ``0`` |                       |
-    +-------+-----------------------+--------------+-----------------------+
-    | ``1`` |                 ``0`` |        ``0`` |                       |
-    +-------+-----------------------+--------------+-----------------------+
-    | ``1`` |                 ``1`` |        ``1`` |                       |
-    +-------+-----------------------+--------------+-----------------------+
-    | ``X`` | {``0``, ``1``, ``-``} |        ``X`` |  ``X`` dominates all  |
-    +-------+-----------------------+--------------+-----------------------+
-    | ``-`` | {``0``, ``1``. ``-``} |        ``-`` | ``-`` dominates known |
-    +-------+-----------------------+--------------+-----------------------+
-
-    For example:
-
-    >>> xnor("16b----_1111_0000_XXXX", "16b-10X_-10X_-10X_-10X")
-    bits("16b---X_-10X_-01X_XXXX")
-
-    In expressions, you can use the unary ``~`` and binary ``^`` operators:
-
-    >>> from bvwx import bits
-    >>> a = bits("16b----_1111_0000_XXXX")
-    >>> b = bits("16b-10X_-10X_-10X_-10X")
-    >>> ~(a ^ b)
-    bits("16b---X_-10X_-01X_XXXX")
-
-    Args:
-        x0: ``Bits`` or string literal.
-        xs: Sequence of ``Bits`` equal size to ``x0``.
-
-    Returns:
-        ``Bits`` equal size to ``x0``.
-
-    Raises:
-        TypeError: ``x0`` is not a valid ``Bits`` object,
-                   or ``xs[i]`` not equal size to ``x0``.
-        ValueError: Error parsing string literal.
-    """
-    return _not_(xor(x0, *xs))
-
-
 def xor(x0: BitsLike, *xs: BitsLike) -> Bits:
     """N-ary bitwise logical XOR operator.
 

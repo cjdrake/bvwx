@@ -2,7 +2,7 @@
 
 import pytest
 
-from bvwx import and_, bits, impl, ite, mux, not_, or_, xnor, xor
+from bvwx import and_, bits, impl, ite, mux, not_, or_, xor
 
 F = bits("1b0")
 T = bits("1b1")
@@ -94,34 +94,6 @@ def test_and():
     # Invalid rhs
     with pytest.raises(TypeError):
         and_(v0, "1b0")
-
-
-def test_xnor():
-    # Array
-    x0 = bits(["4b----", "4b1111", "4b0000", "4bXXXX"])
-    x1 = bits(["4b-10X", "4b-10X", "4b-10X", "4b-10X"])
-    assert str(xnor(x0, x1)) == "[4b---X, 4b-10X, 4b-01X, 4bXXXX]"
-
-    # Vec
-    x0 = "16b----_1111_0000_XXXX"
-    x1 = "16b-10X_-10X_-10X_-10X"
-    yy = "16b---X_-10X_-01X_XXXX"
-    v0 = bits(x0)
-    v1 = bits(x1)
-
-    assert xnor(v0, x1) == yy
-    assert xnor(v0, v1) == yy
-    assert ~(v0 ^ x1) == yy
-    assert ~(x0 ^ v1) == yy
-
-    # Int-like inputs
-    assert xnor(False, False) == T
-    assert xnor("4b1100", -6) == "4b1001"
-    assert xnor("4b1100", 10) == "4b1001"
-
-    # Invalid rhs
-    with pytest.raises(TypeError):
-        xnor(v0, "1b0")
 
 
 def test_xor():

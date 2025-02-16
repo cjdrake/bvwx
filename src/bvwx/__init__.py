@@ -2,7 +2,7 @@
 
 from ._arithmetic import adc, add, div, lsh, mod, mul, neg, ngc, rsh, sbc, srsh, sub
 from ._bits import Array, Bits, Empty, Scalar, Vector, bits, i2bv, lit2bv, stack, u2bv
-from ._bitwise import and_, impl, ite, mux, not_, or_, xnor, xor
+from ._bitwise import and_, impl, ite, mux, not_, or_, xor
 from ._code import decode, encode_onehot, encode_priority
 from ._enum import Enum
 from ._logical import land, lor, lxor
@@ -30,7 +30,6 @@ __all__ = [
     "not_",
     "or_",
     "and_",
-    "xnor",
     "xor",
     "impl",
     "ite",
