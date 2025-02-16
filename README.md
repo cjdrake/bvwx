@@ -20,8 +20,8 @@ This lifted, four-state logic consists of:
 * ``DC`` - Weak Unknown: either True or False, propagates *optimistically*
 * ``X`` - Strong Unknown: neither True nor False, propagates *pessimistically*
 
-``DC`` values are denoted by ``-`` in string literals.
-This is a convention from the [Espresso][1] PLA file format.
+``DC`` values are denoted by ``-`` or ``W`` in string literals.
+The ``-`` character is a convention from the [Espresso][1] PLA file format.
 Wherever it hampers readability, we will instead use ``W``.
 
 Collections of bits can be organized into arbitrary shapes using the
