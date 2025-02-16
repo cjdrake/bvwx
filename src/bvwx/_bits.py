@@ -1484,9 +1484,10 @@ def lit2bv(lit: str) -> Vector:
     The character string can contains '_' separators for readability.
 
     For example:
-        4b1010
-        6b11_-10X
-        64hdead_beef_feed_face
+
+    * ``"4b1010"``
+    * ``"6b11_-10X"``
+    * ``"64hdead_beef_feed_face"``
 
     Returns:
         A Vec instance.

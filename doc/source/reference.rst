@@ -130,6 +130,11 @@ Predicate
 
 .. autofunction:: bvwx.match
 
+Count
+-----
+
+.. autofunction:: bvwx.cpop
+
 Factory Functions
 =================
 
