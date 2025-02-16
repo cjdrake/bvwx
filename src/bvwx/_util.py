@@ -1,10 +1,8 @@
 """Utility functions."""
 
-from functools import cache
 from math import ceil, log2
 
 
-@cache
 def clog2(x: int) -> int:
     """Return the ceiling log base two of an integer ≥ 1.
 
@@ -25,7 +23,6 @@ def clog2(x: int) -> int:
     return ceil(log2(x))
 
 
-@cache
 def mask(n: int) -> int:
     """Return n bit mask."""
     return (1 << n) - 1
