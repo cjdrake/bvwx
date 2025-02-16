@@ -170,57 +170,6 @@ def or_(x0: BitsLike, *xs: BitsLike) -> Bits:
     return y
 
 
-def nand(x0: BitsLike, *xs: BitsLike) -> Bits:
-    """N-ary bitwise logical NAND operator.
-
-    Perform logical NAND on each bit of the inputs:
-
-    +-------+-----------------------+--------------+-----------------------+
-    |   x0  |           x1          | NAND(x0, x1) |          Note         |
-    +=======+=======================+==============+=======================+
-    | ``0`` |                 ``0`` |        ``1`` |                       |
-    +-------+-----------------------+--------------+-----------------------+
-    | ``0`` |                 ``1`` |        ``1`` |                       |
-    +-------+-----------------------+--------------+-----------------------+
-    | ``1`` |                 ``0`` |        ``1`` |                       |
-    +-------+-----------------------+--------------+-----------------------+
-    | ``1`` |                 ``1`` |        ``0`` |                       |
-    +-------+-----------------------+--------------+-----------------------+
-    | ``X`` | {``0``, ``1``, ``-``} |        ``X`` |  ``X`` dominates all  |
-    +-------+-----------------------+--------------+-----------------------+
-    | ``0`` |                 ``-`` |        ``1`` | ``0`` dominates ``-`` |
-    +-------+-----------------------+--------------+-----------------------+
-    | ``-`` |        {``1``, ``-``} |        ``-`` | ``-`` dominates ``1`` |
-    +-------+-----------------------+--------------+-----------------------+
-
-    For example:
-
-    >>> nand("16b----_1111_0000_XXXX", "16b-10X_-10X_-10X_-10X")
-    bits("16b--1X_-01X_111X_XXXX")
-
-    In expressions, you can use the unary ``~`` and binary ``&`` operators:
-
-    >>> from bvwx import bits
-    >>> a = bits("16b----_1111_0000_XXXX")
-    >>> b = bits("16b-10X_-10X_-10X_-10X")
-    >>> ~(a & b)
-    bits("16b--1X_-01X_111X_XXXX")
-
-    Args:
-        x0: ``Bits`` or string literal.
-        xs: Sequence of ``Bits`` equal size to ``x0``.
-
-    Returns:
-        ``Bits`` equal size to ``x0``.
-
-    Raises:
-        TypeError: ``x0`` is not a valid ``Bits`` object,
-                   or ``xs[i]`` not equal size to ``x0``.
-        ValueError: Error parsing string literal.
-    """
-    return _not_(and_(x0, *xs))
-
-
 def and_(x0: BitsLike, *xs: BitsLike) -> Bits:
     """N-ary bitwise logical AND operator.
 

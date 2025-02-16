@@ -59,7 +59,6 @@ Bitwise
 .. autofunction:: bvwx.not_
 .. autofunction:: bvwx.nor
 .. autofunction:: bvwx.or_
-.. autofunction:: bvwx.nand
 .. autofunction:: bvwx.and_
 .. autofunction:: bvwx.xnor
 .. autofunction:: bvwx.xor
