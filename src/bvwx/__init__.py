@@ -10,6 +10,7 @@ from ._predicate import eq, ge, gt, le, lt, match, ne, sge, sgt, sle, slt
 from ._struct import Struct
 from ._unary import uand, uor, uxor
 from ._union import Union
+from ._util import clog2
 from ._word import cat, lrot, pack, rep, rrot, sxt, xt
 
 # Alias Vector to Vec for brevity
@@ -85,4 +86,6 @@ __all__ = [
     "lit2bv",
     "u2bv",
     "i2bv",
+    # util
+    "clog2",
 ]
