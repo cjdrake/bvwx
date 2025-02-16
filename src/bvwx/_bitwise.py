@@ -63,57 +63,6 @@ def not_(x: BitsLike) -> Bits:
     return _not_(x)
 
 
-def nor(x0: BitsLike, *xs: BitsLike) -> Bits:
-    """N-ary bitwise logical NOR operator.
-
-    Perform logical NOR on each bit of the inputs:
-
-    +-------+-----------------------+-------------+-----------------------+
-    |   x0  |           x1          | NOR(x0, x1) |          Note         |
-    +=======+=======================+=============+=======================+
-    | ``0`` |                 ``0`` |       ``1`` |                       |
-    +-------+-----------------------+-------------+-----------------------+
-    | ``0`` |                 ``1`` |       ``0`` |                       |
-    +-------+-----------------------+-------------+-----------------------+
-    | ``1`` |                 ``0`` |       ``0`` |                       |
-    +-------+-----------------------+-------------+-----------------------+
-    | ``1`` |                 ``1`` |       ``0`` |                       |
-    +-------+-----------------------+-------------+-----------------------+
-    | ``X`` | {``0``, ``1``, ``-``} |       ``X`` |  ``X`` dominates all  |
-    +-------+-----------------------+-------------+-----------------------+
-    | ``1`` |                 ``-`` |       ``0`` | ``1`` dominates ``-`` |
-    +-------+-----------------------+-------------+-----------------------+
-    | ``-`` |        {``0``, ``-``} |       ``-`` | ``-`` dominates ``0`` |
-    +-------+-----------------------+-------------+-----------------------+
-
-    For example:
-
-    >>> nor("16b----_1111_0000_XXXX", "16b-10X_-10X_-10X_-10X")
-    bits("16b-0-X_000X_-01X_XXXX")
-
-    In expressions, you can use the unary ``~`` and binary ``|`` operators:
-
-    >>> from bvwx import bits
-    >>> a = bits("16b----_1111_0000_XXXX")
-    >>> b = bits("16b-10X_-10X_-10X_-10X")
-    >>> ~(a | b)
-    bits("16b-0-X_000X_-01X_XXXX")
-
-    Args:
-        x0: ``Bits`` or string literal.
-        xs: Sequence of ``Bits`` equal size to ``x0``.
-
-    Returns:
-        ``Bits`` equal size to ``x0``.
-
-    Raises:
-        TypeError: ``x0`` is not a valid ``Bits`` object,
-                   or ``xs[i]`` not equal size to ``x0``.
-        ValueError: Error parsing string literal.
-    """
-    return _not_(or_(x0, *xs))
-
-
 def or_(x0: BitsLike, *xs: BitsLike) -> Bits:
     """N-ary bitwise logical OR operator.
 
