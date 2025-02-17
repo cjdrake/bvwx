@@ -5,6 +5,11 @@
 This section lists new features, API changes, and bug fixes.
 For a complete history, see the Git commit log.
 
+Version 0.8.0
+=============
+
+Added ``cpop``, ``clz`` and ``ctz`` functions.
+
 Version 0.7.0
 =============
 
