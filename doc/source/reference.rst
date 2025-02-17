@@ -135,6 +135,7 @@ Count
 
 .. autofunction:: bvwx.cpop
 .. autofunction:: bvwx.clz
+.. autofunction:: bvwx.ctz
 
 Factory Functions
 =================
