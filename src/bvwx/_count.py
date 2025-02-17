@@ -1,7 +1,7 @@
 """Counting"""
 
-from ._bits import BitsLike, Vector, _expect_bits, u2bv
-from ._util import clog2
+from ._bits import BitsLike, Vector, _expect_bits
+from ._util import clog2, mask
 
 
 def cpop(x: BitsLike) -> Vector:
@@ -16,8 +16,8 @@ def cpop(x: BitsLike) -> Vector:
     if x.has_dc():
         return vec.dcs()
 
-    d1 = x.data[1]
-    return u2bv(d1.bit_count(), n)
+    d1 = x.data[1].bit_count()
+    return vec(d1 ^ mask(n), d1)
 
 
 def clz(x: BitsLike) -> Vector:
@@ -32,8 +32,8 @@ def clz(x: BitsLike) -> Vector:
     if x.has_dc():
         return vec.dcs()
 
-    d1 = x.data[1]
-    return u2bv(x.size - clog2(d1 + 1), n)
+    d1 = x.size - clog2(x.data[1] + 1)
+    return vec(d1 ^ mask(n), d1)
 
 
 def ctz(x: BitsLike) -> Vector:
@@ -48,5 +48,6 @@ def ctz(x: BitsLike) -> Vector:
     if x.has_dc():
         return vec.dcs()
 
-    d1 = (1 << x.size) - x.data[1]
-    return u2bv(clog2(-d1 & d1), n)
+    d = (1 << x.size) - x.data[1]
+    d1 = clog2(-d & d)
+    return vec(d1 ^ mask(n), d1)
