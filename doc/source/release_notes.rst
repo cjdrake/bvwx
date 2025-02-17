@@ -5,6 +5,20 @@
 This section lists new features, API changes, and bug fixes.
 For a complete history, see the Git commit log.
 
+Version 0.9.0
+=============
+
+Update ``xt`` and ``sxt`` functions to accept ``Bits`` object for ``n`` arg.
+
+For example
+
+.. code-block:: python
+
+    >>> xt("4b1010", "2b10")
+    bits("6b00_1010")
+    >>> sxt("4b1010", "2b10")
+    bits("4b11_1010")
+
 Version 0.8.0
 =============
 
