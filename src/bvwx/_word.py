@@ -18,7 +18,7 @@ from ._bits import (
 )
 
 
-def xt(x: BitsLike, n: int) -> Bits:
+def xt(x: BitsLike, n: UintLike) -> Bits:
     """Unsigned extend by n bits.
 
     Fill high order bits with zero.
@@ -40,16 +40,11 @@ def xt(x: BitsLike, n: int) -> Bits:
         ValueError: If n is negative.
     """
     x = _expect_bits(x)
-
-    if n < 0:
-        raise ValueError(f"Expected n ≥ 0, got {n}")
-    if n == 0:
-        return x
-
+    n = _expect_uint(n)
     return _xt(x, n)
 
 
-def sxt(x: BitsLike, n: int) -> Bits:
+def sxt(x: BitsLike, n: UintLike) -> Bits:
     """Sign extend by n bits.
 
     Fill high order bits with sign.
@@ -71,12 +66,7 @@ def sxt(x: BitsLike, n: int) -> Bits:
         ValueError: If n is negative.
     """
     x = _expect_bits(x)
-
-    if n < 0:
-        raise ValueError(f"Expected n ≥ 0, got {n}")
-    if n == 0:
-        return x
-
+    n = _expect_uint(n)
     return _sxt(x, n)
 
 

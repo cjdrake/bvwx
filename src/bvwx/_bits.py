@@ -1193,14 +1193,32 @@ def _srsh(x: Bits, n: Bits) -> Bits:
 
 
 # Word
-def _xt(x: Bits, n: int) -> Vector:
+def _xt(x: Bits, n: Bits) -> Vector:
+    if n.has_x():
+        return x.xes()
+    if n.has_dc():
+        return x.dcs()
+
+    n = n.to_uint()
+    if n == 0:
+        return x
+
     ext0 = mask(n)
     d0 = x.data[0] | ext0 << x.size
     d1 = x.data[1]
     return _vec_size(x.size + n)(d0, d1)
 
 
-def _sxt(x: Bits, n: int) -> Vector:
+def _sxt(x: Bits, n: Bits) -> Vector:
+    if n.has_x():
+        return x.xes()
+    if n.has_dc():
+        return x.dcs()
+
+    n = n.to_uint()
+    if n == 0:
+        return x
+
     sign0, sign1 = x._get_index(x.size - 1)
     ext0 = mask(n) * sign0
     ext1 = mask(n) * sign1

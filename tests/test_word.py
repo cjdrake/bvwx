@@ -18,6 +18,10 @@ def test_xt():
     assert xt(x, 0) is x
     assert xt(x, 4) == bits("8b0000_1010")
 
+    # X Prop
+    assert xt(x, "1b-") == bits("4b----")
+    assert xt(x, "1bX") == bits("4bXXXX")
+
 
 def test_sxt():
     assert sxt("4b1010", 4) == bits("8b1111_1010")
@@ -33,6 +37,10 @@ def test_sxt():
     assert sxt(x1, 4) == bits("8b1111_1010")
     assert sxt(x2, 0) is x2
     assert sxt(x2, 4) == bits("8b0000_0101")
+
+    # X Prop
+    assert sxt(x1, "1b-") == bits("4b----")
+    assert sxt(x1, "1bX") == bits("4bXXXX")
 
 
 def test_lrot():
