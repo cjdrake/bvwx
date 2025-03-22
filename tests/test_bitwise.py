@@ -249,6 +249,11 @@ def test_mux():
     assert mux("2b1-", x0="4b10_00", x1="4b10_01", x2="4b10_10", x3="4b10_11") == "4b101-"
     assert mux("2b-1", x0="4b10_00", x1="4b10_01", x2="4b10_10", x3="4b10_11") == "4b10-1"
 
+    assert mux("2b00", x0="1bX") == "1bX"
+    assert mux("2b01", x1="1b0") == "1b0"
+    assert mux("2b10", x2="1b1") == "1b1"
+    assert mux("2b11", x3="1bW") == "1bW"
+
     # Int-like inputs
     assert mux(False, x0=False, x1=True) == F
     assert mux(1, x0=False, x1=True) == T
