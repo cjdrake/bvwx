@@ -32,10 +32,7 @@ class _UnionMeta(type):
         # Override Bits.__init__ method
         def _init(self, arg: BitsLike):
             x = _expect_bits(arg)
-            ts = []
-            for _, ft in fields:
-                if ft not in ts:
-                    ts.append(ft)
+            ts = {ft for _, ft in fields}
             if not isinstance(x, tuple(ts)):
                 s = ", ".join(t.__name__ for t in ts)
                 s = f"Expected arg to be {{{s}}}, or str literal"
