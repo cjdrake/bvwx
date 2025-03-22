@@ -106,6 +106,9 @@ def encode_priority(x: BitsLike) -> tuple[Vector, Scalar]:
             if x_i == _W:
                 return vec.dcs(), _ScalarW
 
+        # Not possible to get here
+        assert False  # pragma: no cover
+
     d1 = x.data[1]
 
     if d1 == 0:
