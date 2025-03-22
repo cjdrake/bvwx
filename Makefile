@@ -28,7 +28,7 @@ prof:
 
 .PHONY: cov
 cov:
-	@$(PYTEST) --doctest-modules --cov=src/bvwx --cov-report=html
+	@$(PYTEST) --doctest-modules --cov=src/bvwx --cov-branch --cov-report=html
 
 .PHONY: build
 build:
