@@ -1,6 +1,7 @@
 {
     "python.analysis.typeCheckingMode": "off",
     "python.testing.pytestEnabled": true,
+    "python.testing.pytestArgs": ["--cov=src/bvwx"],
     "python.testing.unittestEnabled": false,
     "[python]": {
         "editor.codeActionsOnSave": {
