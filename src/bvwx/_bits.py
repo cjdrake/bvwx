@@ -1,6 +1,4 @@
-"""Bits Data Types
-
-"""
+"""Bits Data Types"""
 
 # PyLint is confused by my hacky classproperty implementation
 # pylint: disable=comparison-with-callable
