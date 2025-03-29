@@ -5,15 +5,15 @@ from ._bits import (
     BitsLike,
     UintLike,
     Vector,
-    _bool2scalar,
     _cat,
-    _expect_bits,
-    _expect_uint,
     _lrot,
     _pack,
     _rrot,
     _sxt,
     _xt,
+    bool2scalar,
+    expect_bits,
+    expect_uint,
     lit2bv,
 )
 
@@ -39,8 +39,8 @@ def xt(x: BitsLike, n: UintLike) -> Bits:
         TypeError: ``x`` is not a valid ``Bits`` object.
         ValueError: If n is negative.
     """
-    x = _expect_bits(x)
-    n = _expect_uint(n)
+    x = expect_bits(x)
+    n = expect_uint(n)
     return _xt(x, n)
 
 
@@ -65,8 +65,8 @@ def sxt(x: BitsLike, n: UintLike) -> Bits:
         TypeError: ``x`` is not a valid ``Bits`` object.
         ValueError: If n is negative.
     """
-    x = _expect_bits(x)
-    n = _expect_uint(n)
+    x = expect_bits(x)
+    n = expect_uint(n)
     return _sxt(x, n)
 
 
@@ -92,8 +92,8 @@ def lrot(x: BitsLike, n: UintLike) -> Bits:
         ValueError: Error parsing string literal,
                     or negative rotate amount.
     """
-    x = _expect_bits(x)
-    n = _expect_uint(n)
+    x = expect_bits(x)
+    n = expect_uint(n)
     return _lrot(x, n)
 
 
@@ -119,8 +119,8 @@ def rrot(x: BitsLike, n: UintLike) -> Bits:
         ValueError: Error parsing string literal,
                     or negative rotate amount.
     """
-    x = _expect_bits(x)
-    n = _expect_uint(n)
+    x = expect_bits(x)
+    n = expect_uint(n)
     return _rrot(x, n)
 
 
@@ -140,7 +140,7 @@ def cat(*objs: BitsLike) -> Vector:
     xs = []
     for obj in objs:
         if obj in (0, 1):
-            xs.append(_bool2scalar[obj])
+            xs.append(bool2scalar[obj])
         elif isinstance(obj, str):
             x = lit2bv(obj)
             xs.append(x)
@@ -163,7 +163,7 @@ def pack(x: BitsLike, n: int = 1) -> Bits:
     if n < 1:
         raise ValueError(f"Expected n < 1, got {n}")
 
-    x = _expect_bits(x)
+    x = expect_bits(x)
     if x.size % n != 0:
         raise ValueError("Expected x.size to be a multiple of n")
 

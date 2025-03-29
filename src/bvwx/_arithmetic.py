@@ -9,18 +9,18 @@ from ._bits import (
     _add,
     _cat,
     _div,
-    _expect_bits,
-    _expect_bits_size,
-    _expect_scalar,
-    _expect_uint,
     _lsh,
     _mod,
     _mul,
     _neg,
     _rsh,
-    _Scalar0,
     _srsh,
     _sub,
+    expect_bits,
+    expect_bits_size,
+    expect_scalar,
+    expect_uint,
+    scalar0,
 )
 
 
@@ -48,9 +48,9 @@ def add(a: BitsLike, b: BitsLike, ci: ScalarLike | None = None) -> Bits:
         TypeError: ``a``, ``b``, or ``ci`` are not valid ``Bits`` objects.
         ValueError: Error parsing string literal.
     """
-    a = _expect_bits(a)
-    b = _expect_bits(b)
-    ci = _Scalar0 if ci is None else _expect_scalar(ci)
+    a = expect_bits(a)
+    b = expect_bits(b)
+    ci = scalar0 if ci is None else expect_scalar(ci)
     s, _ = _add(a, b, ci)
     return s
 
@@ -80,9 +80,9 @@ def adc(a: BitsLike, b: BitsLike, ci: ScalarLike | None = None) -> Vector:
         TypeError: ``a``, ``b``, or ``ci`` are not valid ``Bits`` objects.
         ValueError: Error parsing string literal.
     """
-    a = _expect_bits(a)
-    b = _expect_bits(b)
-    ci = _Scalar0 if ci is None else _expect_scalar(ci)
+    a = expect_bits(a)
+    b = expect_bits(b)
+    ci = scalar0 if ci is None else expect_scalar(ci)
     s, co = _add(a, b, ci)
     return _cat(s, co)
 
@@ -102,8 +102,8 @@ def sub(a: BitsLike, b: BitsLike) -> Bits:
                    or ``a`` not equal size to ``b``.
         ValueError: Error parsing string literal.
     """
-    a = _expect_bits(a)
-    b = _expect_bits_size(b, a.size)
+    a = expect_bits(a)
+    b = expect_bits_size(b, a.size)
     s, _ = _sub(a, b)
     return s
 
@@ -124,8 +124,8 @@ def sbc(a: BitsLike, b: BitsLike) -> Vector:
                    or ``a`` not equal size to ``b``.
         ValueError: Error parsing string literal.
     """
-    a = _expect_bits(a)
-    b = _expect_bits_size(b, a.size)
+    a = expect_bits(a)
+    b = expect_bits_size(b, a.size)
     s, co = _sub(a, b)
     return _cat(s, co)
 
@@ -143,7 +143,7 @@ def neg(x: BitsLike) -> Bits:
         TypeError: ``x`` is not a valid ``Bits`` object.
         ValueError: Error parsing string literal.
     """
-    x = _expect_bits(x)
+    x = expect_bits(x)
     s, _ = _neg(x)
     return s
 
@@ -162,7 +162,7 @@ def ngc(x: BitsLike) -> Vector:
         TypeError: ``x`` is not a valid ``Bits`` object.
         ValueError: Error parsing string literal.
     """
-    x = _expect_bits(x)
+    x = expect_bits(x)
     s, co = _neg(x)
     return _cat(s, co)
 
@@ -189,8 +189,8 @@ def mul(a: BitsLike, b: BitsLike) -> Vector:
         TypeError: ``a`` or ``b`` are not valid ``Bits`` objects.
         ValueError: Error parsing string literal.
     """
-    a = _expect_bits(a)
-    b = _expect_bits(b)
+    a = expect_bits(a)
+    b = expect_bits(b)
     return _mul(a, b)
 
 
@@ -208,8 +208,8 @@ def div(a: BitsLike, b: BitsLike) -> Bits:
         TypeError: ``a`` or ``b`` are not valid ``Bits`` objects.
         ValueError: Error parsing string literal.
     """
-    a = _expect_bits(a)
-    b = _expect_bits(b)
+    a = expect_bits(a)
+    b = expect_bits(b)
     if not a.size >= b.size > 0:
         raise ValueError("Expected a.size ≥ b.size > 0")
     return _div(a, b)
@@ -229,8 +229,8 @@ def mod(a: BitsLike, b: BitsLike) -> Bits:
         TypeError: ``a`` or ``b`` are not valid ``Bits`` objects.
         ValueError: Error parsing string literal.
     """
-    a = _expect_bits(a)
-    b = _expect_bits(b)
+    a = expect_bits(a)
+    b = expect_bits(b)
     if not a.size >= b.size > 0:
         raise ValueError("Expected a.size ≥ b.size > 0")
     return _mod(a, b)
@@ -260,8 +260,8 @@ def lsh(x: BitsLike, n: UintLike) -> Bits:
         ValueError: Error parsing string literal,
                     or negative shift amount.
     """
-    x = _expect_bits(x)
-    n = _expect_uint(n)
+    x = expect_bits(x)
+    n = expect_uint(n)
     return _lsh(x, n)
 
 
@@ -289,8 +289,8 @@ def rsh(x: BitsLike, n: UintLike) -> Bits:
         ValueError: Error parsing string literal,
                     or negative shift amount.
     """
-    x = _expect_bits(x)
-    n = _expect_uint(n)
+    x = expect_bits(x)
+    n = expect_uint(n)
     return _rsh(x, n)
 
 
@@ -318,6 +318,6 @@ def srsh(x: BitsLike, n: UintLike) -> Bits:
         ValueError: Error parsing string literal,
                     or negative shift amount.
     """
-    x = _expect_bits(x)
-    n = _expect_uint(n)
+    x = expect_bits(x)
+    n = expect_uint(n)
     return _srsh(x, n)

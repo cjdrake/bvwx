@@ -6,12 +6,12 @@ from ._bits import (
     BitsLike,
     Scalar,
     Vector,
-    _expect_bits,
-    _Scalar0,
-    _Scalar1,
-    _ScalarW,
-    _ScalarX,
-    _vec_size,
+    expect_bits,
+    scalar0,
+    scalar1,
+    scalarW,
+    scalarX,
+    vec_size,
 )
 from ._lbool import _W, _1
 from ._util import clog2, mask
@@ -41,7 +41,7 @@ def encode_onehot(x: BitsLike) -> Vector:
         TypeError: ``x`` is not a valid ``Bits`` object.
         ValueError: ``x`` is not one-hot encoded.
     """
-    x = _expect_bits(x)
+    x = expect_bits(x)
 
     n = clog2(x.size)
     vec = Vector[n]
@@ -86,14 +86,14 @@ def encode_priority(x: BitsLike) -> tuple[Vector, Scalar]:
     Raises:
         TypeError: ``x`` is not a valid ``Bits`` object.
     """
-    x = _expect_bits(x)
+    x = expect_bits(x)
 
     n = clog2(x.size)
     vec = Vector[n]
 
     # X propagation
     if x.has_x():
-        return vec.xes(), _ScalarX
+        return vec.xes(), scalarX
 
     # Handle DC
     if x.has_dc():
@@ -101,10 +101,10 @@ def encode_priority(x: BitsLike) -> tuple[Vector, Scalar]:
             x_i = x._get_index(i)
             # 0*1{0,1,-}*
             if x_i == _1:
-                return vec(i ^ mask(n), i), _Scalar1
+                return vec(i ^ mask(n), i), scalar1
             # 0*-{0,1,-}* => DC
             if x_i == _W:
-                return vec.dcs(), _ScalarW
+                return vec.dcs(), scalarW
 
         # Not possible to get here
         assert False  # pragma: no cover
@@ -112,10 +112,10 @@ def encode_priority(x: BitsLike) -> tuple[Vector, Scalar]:
     d1 = x.data[1]
 
     if d1 == 0:
-        return vec.dcs(), _Scalar0
+        return vec.dcs(), scalar0
 
     y = clog2(d1 + 1) - 1
-    return vec(y ^ mask(n), y), _Scalar1
+    return vec(y ^ mask(n), y), scalar1
 
 
 def decode(x: BitsLike) -> Vector:
@@ -148,11 +148,11 @@ def decode(x: BitsLike) -> Vector:
         TypeError: ``x`` is not a valid ``Bits`` object.
         ValueError: Error parsing string literal.
     """
-    x = _expect_bits(x)
+    x = expect_bits(x)
 
     # Output has 2^N bits
     n = 1 << x.size
-    vec = _vec_size(n)
+    vec = vec_size(n)
 
     # X/DC propagation
     if x.has_x():

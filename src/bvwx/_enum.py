@@ -2,7 +2,7 @@
 
 # pylint: disable=protected-access
 
-from ._bits import Bits, BitsLike, _expect_bits_size, _vec_size
+from ._bits import Bits, BitsLike, expect_bits_size, vec_size
 from ._lbool import parse_lit
 from ._util import mask
 
@@ -49,7 +49,7 @@ class _EnumMeta(type):
         data2key[(dmax, dmax)] = "DC"
 
         # Create Enum class
-        vec = _vec_size(size)
+        vec = vec_size(size)
         enum = super().__new__(mcs, name, bases + (vec,), enum_attrs)
 
         # Instantiate members
@@ -71,7 +71,7 @@ class _EnumMeta(type):
 
         # Override Vector.__new__ method
         def _new(cls, arg: BitsLike):
-            x = _expect_bits_size(arg, cls.size)
+            x = expect_bits_size(arg, cls.size)
             return cls.cast(x)
 
         enum.__new__ = _new

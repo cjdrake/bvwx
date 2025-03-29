@@ -5,7 +5,7 @@
 
 from functools import partial
 
-from ._bits import Bits, Key, Vector, _expect_bits_size, _vec_size
+from ._bits import Bits, Key, Vector, expect_bits_size, vec_size
 from ._util import classproperty, mask
 
 
@@ -53,7 +53,7 @@ class _StructMeta(type):
             for arg, (fn, ft) in zip(args, fields):
                 if arg is not None:
                     # TODO(cjdrake): Check input type?
-                    x = _expect_bits_size(arg, ft.size)
+                    x = expect_bits_size(arg, ft.size)
                     d0 |= x.data[0] << offsets[fn]
                     d1 |= x.data[1] << offsets[fn]
             obj._data = (d0, d1)
@@ -67,7 +67,7 @@ class _StructMeta(type):
         # Override Bits.__getitem__ method
         def _getitem(self, key: Key) -> Vector:
             size, (d0, d1) = self._get_key(key)
-            return _vec_size(size)(d0, d1)
+            return vec_size(size)(d0, d1)
 
         struct.__getitem__ = _getitem
 

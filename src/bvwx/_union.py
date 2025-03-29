@@ -4,7 +4,7 @@
 
 from functools import partial
 
-from ._bits import Bits, BitsLike, Key, Vector, _expect_bits, _vec_size
+from ._bits import Bits, BitsLike, Key, Vector, expect_bits, vec_size
 from ._util import classproperty, mask
 
 
@@ -31,7 +31,7 @@ class _UnionMeta(type):
 
         # Override Bits.__init__ method
         def _init(self, arg: BitsLike):
-            x = _expect_bits(arg)
+            x = expect_bits(arg)
             ts = {ft for _, ft in fields}
             if not isinstance(x, tuple(ts)):
                 s = ", ".join(t.__name__ for t in ts)
@@ -44,7 +44,7 @@ class _UnionMeta(type):
         # Override Bits.__getitem__ method
         def _getitem(self, key: Key) -> Vector:
             size, (d0, d1) = self._get_key(key)
-            return _vec_size(size)(d0, d1)
+            return vec_size(size)(d0, d1)
 
         union.__getitem__ = _getitem
 

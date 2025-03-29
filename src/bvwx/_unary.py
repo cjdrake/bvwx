@@ -1,6 +1,6 @@
 """Unary Reduction Operators"""
 
-from ._bits import BitsLike, Scalar, _expect_bits, _uand, _uor, _uxor
+from ._bits import BitsLike, Scalar, _uand, _uor, _uxor, expect_bits
 
 
 def uor(x: BitsLike) -> Scalar:
@@ -30,7 +30,7 @@ def uor(x: BitsLike) -> Scalar:
         TypeError: ``x`` is not a valid ``Bits`` object.
         ValueError: Error parsing string literal.
     """
-    x = _expect_bits(x)
+    x = expect_bits(x)
     return _uor(x)
 
 
@@ -61,7 +61,7 @@ def uand(x: BitsLike) -> Scalar:
         TypeError: ``x`` is not a valid ``Bits`` object.
         ValueError: Error parsing string literal.
     """
-    x = _expect_bits(x)
+    x = expect_bits(x)
     return _uand(x)
 
 
@@ -92,5 +92,5 @@ def uxor(x: BitsLike) -> Scalar:
         TypeError: ``x`` is not a valid ``Bits`` object.
         ValueError: Error parsing string literal.
     """
-    x = _expect_bits(x)
+    x = expect_bits(x)
     return _uxor(x)

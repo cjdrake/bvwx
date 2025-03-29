@@ -7,16 +7,16 @@ from ._bits import (
     BitsLike,
     ScalarLike,
     _and_,
-    _expect_bits,
-    _expect_bits_size,
-    _expect_scalar,
     _impl_,
     _ite_,
     _mux_,
     _not_,
     _or_,
-    _resolve_type,
     _xor_,
+    expect_bits,
+    expect_bits_size,
+    expect_scalar,
+    resolve_type,
 )
 
 
@@ -59,7 +59,7 @@ def not_(x: BitsLike) -> Bits:
         TypeError: ``x0`` is not a valid ``Bits`` object.
         ValueError: Error parsing string literal.
     """
-    x = _expect_bits(x)
+    x = expect_bits(x)
     return _not_(x)
 
 
@@ -111,10 +111,10 @@ def or_(x0: BitsLike, *xs: BitsLike) -> Bits:
                    or ``xs[i]`` not equal size to ``x0``.
         ValueError: Error parsing string literal.
     """
-    x0 = _expect_bits(x0)
+    x0 = expect_bits(x0)
     y = x0
     for x in xs:
-        x = _expect_bits_size(x, x0.size)
+        x = expect_bits_size(x, x0.size)
         y = _or_(y, x)
     return y
 
@@ -167,10 +167,10 @@ def and_(x0: BitsLike, *xs: BitsLike) -> Bits:
                    or ``xs[i]`` not equal size to ``x0``.
         ValueError: Error parsing string literal.
     """
-    x0 = _expect_bits(x0)
+    x0 = expect_bits(x0)
     y = x0
     for x in xs:
-        x = _expect_bits_size(x, x0.size)
+        x = expect_bits_size(x, x0.size)
         y = _and_(y, x)
     return y
 
@@ -221,10 +221,10 @@ def xor(x0: BitsLike, *xs: BitsLike) -> Bits:
                    or ``xs[i]`` not equal size to ``x0``.
         ValueError: Error parsing string literal.
     """
-    x0 = _expect_bits(x0)
+    x0 = expect_bits(x0)
     y = x0
     for x in xs:
-        x = _expect_bits_size(x, x0.size)
+        x = expect_bits_size(x, x0.size)
         y = _xor_(y, x)
     return y
 
@@ -253,8 +253,8 @@ def impl(p: BitsLike, q: BitsLike) -> Bits:
                    or ``q`` not equal size to ``p``.
         ValueError: Error parsing string literal.
     """
-    p = _expect_bits(p)
-    q = _expect_bits_size(q, p.size)
+    p = expect_bits(p)
+    q = expect_bits_size(q, p.size)
     return _impl_(p, q)
 
 
@@ -309,9 +309,9 @@ def ite(s: ScalarLike, x1: BitsLike, x0: BitsLike) -> Bits:
                    or ``x0`` not equal size to ``x1``.
         ValueError: Error parsing string literal.
     """
-    s = _expect_scalar(s)
-    x1 = _expect_bits(x1)
-    x0 = _expect_bits_size(x0, x1.size)
+    s = expect_scalar(s)
+    x1 = expect_bits(x1)
+    x0 = expect_bits_size(x0, x1.size)
     return _ite_(s, x1, x0)
 
 
@@ -352,7 +352,7 @@ def mux(s: BitsLike, **xs: BitsLike) -> Bits:
                    or ``xN`` mismatching size.
         ValueError: Error parsing string literal.
     """
-    s = _expect_bits(s)
+    s = expect_bits(s)
     n = 1 << s.size
 
     # Parse and check inputs
@@ -364,11 +364,11 @@ def mux(s: BitsLike, **xs: BitsLike) -> Bits:
             if not 0 <= i < n:
                 raise ValueError(f"Expected x in [x0, ..., x{n - 1}]; got {name}")
             if t is None:
-                x = _expect_bits(value)
+                x = expect_bits(value)
                 t = type(x)
             else:
-                x = _expect_bits_size(value, t.size)
-                t = _resolve_type(t, type(x))
+                x = expect_bits_size(value, t.size)
+                t = resolve_type(t, type(x))
             i2x[i] = x
         else:
             raise ValueError(f"Invalid input name: {name}")

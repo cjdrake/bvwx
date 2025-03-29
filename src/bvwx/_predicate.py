@@ -2,7 +2,7 @@
 
 import operator
 
-from ._bits import BitsLike, Scalar, _cmp, _eq, _expect_bits, _expect_bits_size, _match, _ne, _scmp
+from ._bits import BitsLike, Scalar, _cmp, _eq, _match, _ne, _scmp, expect_bits, expect_bits_size
 
 
 def eq(x0: BitsLike, x1: BitsLike) -> Scalar:
@@ -31,8 +31,8 @@ def eq(x0: BitsLike, x1: BitsLike) -> Scalar:
                    or ``x0`` not equal size to ``x1``.
         ValueError: Error parsing string literal.
     """
-    x0 = _expect_bits(x0)
-    x1 = _expect_bits_size(x1, x0.size)
+    x0 = expect_bits(x0)
+    x1 = expect_bits_size(x1, x0.size)
     return _eq(x0, x1)
 
 
@@ -62,8 +62,8 @@ def ne(x0: BitsLike, x1: BitsLike) -> Scalar:
                    or ``x0`` not equal size to ``x1``.
         ValueError: Error parsing string literal.
     """
-    x0 = _expect_bits(x0)
-    x1 = _expect_bits_size(x1, x0.size)
+    x0 = expect_bits(x0)
+    x1 = expect_bits_size(x1, x0.size)
     return _ne(x0, x1)
 
 
@@ -95,8 +95,8 @@ def lt(x0: BitsLike, x1: BitsLike) -> Scalar:
                    or ``x0`` not equal size to ``x1``.
         ValueError: Error parsing string literal.
     """
-    x0 = _expect_bits(x0)
-    x1 = _expect_bits_size(x1, x0.size)
+    x0 = expect_bits(x0)
+    x1 = expect_bits_size(x1, x0.size)
     return _cmp(operator.lt, x0, x1)
 
 
@@ -128,8 +128,8 @@ def le(x0: BitsLike, x1: BitsLike) -> Scalar:
                    or ``x0`` not equal size to ``x1``.
         ValueError: Error parsing string literal.
     """
-    x0 = _expect_bits(x0)
-    x1 = _expect_bits_size(x1, x0.size)
+    x0 = expect_bits(x0)
+    x1 = expect_bits_size(x1, x0.size)
     return _cmp(operator.le, x0, x1)
 
 
@@ -161,8 +161,8 @@ def gt(x0: BitsLike, x1: BitsLike) -> Scalar:
                    or ``x0`` not equal size to ``x1``.
         ValueError: Error parsing string literal.
     """
-    x0 = _expect_bits(x0)
-    x1 = _expect_bits_size(x1, x0.size)
+    x0 = expect_bits(x0)
+    x1 = expect_bits_size(x1, x0.size)
     return _cmp(operator.gt, x0, x1)
 
 
@@ -194,8 +194,8 @@ def ge(x0: BitsLike, x1: BitsLike) -> Scalar:
                    or ``x0`` not equal size to ``x1``.
         ValueError: Error parsing string literal.
     """
-    x0 = _expect_bits(x0)
-    x1 = _expect_bits_size(x1, x0.size)
+    x0 = expect_bits(x0)
+    x1 = expect_bits_size(x1, x0.size)
     return _cmp(operator.ge, x0, x1)
 
 
@@ -227,8 +227,8 @@ def slt(x0: BitsLike, x1: BitsLike) -> Scalar:
                    or ``x0`` not equal size to ``x1``.
         ValueError: Error parsing string literal.
     """
-    x0 = _expect_bits(x0)
-    x1 = _expect_bits_size(x1, x0.size)
+    x0 = expect_bits(x0)
+    x1 = expect_bits_size(x1, x0.size)
     return _scmp(operator.lt, x0, x1)
 
 
@@ -260,8 +260,8 @@ def sle(x0: BitsLike, x1: BitsLike) -> Scalar:
                    or ``x0`` not equal size to ``x1``.
         ValueError: Error parsing string literal.
     """
-    x0 = _expect_bits(x0)
-    x1 = _expect_bits_size(x1, x0.size)
+    x0 = expect_bits(x0)
+    x1 = expect_bits_size(x1, x0.size)
     return _scmp(operator.le, x0, x1)
 
 
@@ -293,8 +293,8 @@ def sgt(x0: BitsLike, x1: BitsLike) -> Scalar:
                    or ``x0`` not equal size to ``x1``.
         ValueError: Error parsing string literal.
     """
-    x0 = _expect_bits(x0)
-    x1 = _expect_bits_size(x1, x0.size)
+    x0 = expect_bits(x0)
+    x1 = expect_bits_size(x1, x0.size)
     return _scmp(operator.gt, x0, x1)
 
 
@@ -326,8 +326,8 @@ def sge(x0: BitsLike, x1: BitsLike) -> Scalar:
                    or ``x0`` not equal size to ``x1``.
         ValueError: Error parsing string literal.
     """
-    x0 = _expect_bits(x0)
-    x1 = _expect_bits_size(x1, x0.size)
+    x0 = expect_bits(x0)
+    x1 = expect_bits_size(x1, x0.size)
     return _scmp(operator.ge, x0, x1)
 
 
@@ -357,6 +357,6 @@ def match(x0: BitsLike, x1: BitsLike) -> Scalar:
                    or ``x0`` not equal size to ``x1``.
         ValueError: Error parsing string literal.
     """
-    x0 = _expect_bits(x0)
-    x1 = _expect_bits_size(x1, x0.size)
+    x0 = expect_bits(x0)
+    x1 = expect_bits_size(x1, x0.size)
     return _match(x0, x1)
