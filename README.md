@@ -35,9 +35,14 @@ For abstraction purposes, BVWX also provides user-defined
 ```python
 >>> from bvwx import *
 
->>> # Bitwise Operators
 >>> x0 = bits(["4b----", "4b1111", "4b0000", "4bXXXX"])
 >>> x1 = bits(["4b-10X", "4b-10X", "4b-10X", "4b-10X"])
+
+>>> # Bitwise Operators
+>>> ~x0
+bits(["4b----", "4b0000", "4b1111", "4bXXXX"])
+>>> ~x1
+bits(["4b-01X", "4b-01X", "4b-01X", "4b-01X"])
 >>> x0 | x1
 bits(["4b-1-X", "4b111X", "4b-10X", "4bXXXX"])
 >>> x0 & x1

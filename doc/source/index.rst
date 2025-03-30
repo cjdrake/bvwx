@@ -7,5 +7,7 @@
     :caption: Contents:
 
     installation
+    quickstart
+    overview
     release_notes
     reference
