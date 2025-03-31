@@ -207,6 +207,7 @@ def div(a: BitsLike, b: BitsLike) -> Bits:
     Raises:
         TypeError: ``a`` or ``b`` are not valid ``Bits`` objects.
         ValueError: Error parsing string literal.
+        ZeroDivisionError: If ``b`` is zero.
     """
     a = expect_bits(a)
     b = expect_bits(b)
@@ -228,6 +229,7 @@ def mod(a: BitsLike, b: BitsLike) -> Bits:
     Raises:
         TypeError: ``a`` or ``b`` are not valid ``Bits`` objects.
         ValueError: Error parsing string literal.
+        ZeroDivisionError: If ``b`` is zero.
     """
     a = expect_bits(a)
     b = expect_bits(b)
