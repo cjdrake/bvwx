@@ -161,7 +161,7 @@ def rep(obj: BitsLike, n: int) -> Vector:
 def pack(x: BitsLike, n: int = 1) -> Bits:
     """Pack n-bit blocks in right to left order."""
     if n < 1:
-        raise ValueError(f"Expected n < 1, got {n}")
+        raise ValueError(f"Expected n ≥ 1, got {n}")
 
     x = expect_bits(x)
     if x.size % n != 0:
