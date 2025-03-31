@@ -5,6 +5,20 @@
 This section lists new features, API changes, and bug fixes.
 For a complete history, see the Git commit log.
 
+Version 0.10.0
+==============
+
+No API changes.
+
+Bug fixes:
+
+* Fixed issue w/ ``Struct`` / ``Union`` string representation.
+* Sign extend (``sxt``) empty input raises ``TypeError``.
+
+Added quickstart guide to documentation.
+
+Updates to unit tests to improve code and branch coverage.
+
 Version 0.9.0
 =============
 
