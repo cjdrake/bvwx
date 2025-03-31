@@ -1102,6 +1102,9 @@ def _mul(a: Bits, b: Bits) -> Vector:
 
 
 def _div(a: Bits, b: Bits) -> Bits:
+    if not a.size >= b.size > 0:
+        raise ValueError("Expected a.size ≥ b.size > 0")
+
     # X/DC propagation
     if a.has_x() or b.has_x():
         return a.xes()
@@ -1115,6 +1118,9 @@ def _div(a: Bits, b: Bits) -> Bits:
 
 
 def _mod(a: Bits, b: Bits) -> Bits:
+    if not a.size >= b.size > 0:
+        raise ValueError("Expected a.size ≥ b.size > 0")
+
     # X/DC propagation
     if a.has_x() or b.has_x():
         return b.xes()
@@ -1283,6 +1289,11 @@ def _cat(*xs: Bits) -> Vector:
 
 
 def _pack(x: Bits, n: int) -> Bits:
+    if n < 1:
+        raise ValueError(f"Expected n ≥ 1, got {n}")
+    if x.size % n != 0:
+        raise ValueError("Expected x.size to be a multiple of n")
+
     if x.size == 0:
         return x
 

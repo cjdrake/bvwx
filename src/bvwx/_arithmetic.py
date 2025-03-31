@@ -211,8 +211,6 @@ def div(a: BitsLike, b: BitsLike) -> Bits:
     """
     a = expect_bits(a)
     b = expect_bits(b)
-    if not a.size >= b.size > 0:
-        raise ValueError("Expected a.size ≥ b.size > 0")
     return _div(a, b)
 
 
@@ -233,8 +231,6 @@ def mod(a: BitsLike, b: BitsLike) -> Bits:
     """
     a = expect_bits(a)
     b = expect_bits(b)
-    if not a.size >= b.size > 0:
-        raise ValueError("Expected a.size ≥ b.size > 0")
     return _mod(a, b)
 
 
