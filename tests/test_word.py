@@ -42,6 +42,10 @@ def test_sxt():
     assert sxt(x1, "1b-") == bits("4b----")
     assert sxt(x1, "1bX") == bits("4bXXXX")
 
+    # Cannot sign extend empty
+    with pytest.raises(TypeError):
+        sxt(E, 2)
+
 
 def test_lrot():
     v = bits("4b-10X")

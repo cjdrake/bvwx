@@ -62,7 +62,7 @@ def sxt(x: BitsLike, n: UintLike) -> Bits:
         ``Bits`` sign-extended by n bits.
 
     Raises:
-        TypeError: ``x`` is not a valid ``Bits`` object.
+        TypeError: ``x`` is not a valid ``Bits`` object, or empty.
         ValueError: If n is negative.
     """
     x = expect_bits(x)

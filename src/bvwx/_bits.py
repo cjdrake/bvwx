@@ -1208,6 +1208,10 @@ def _xt(x: Bits, n: Bits) -> Vector:
 
 
 def _sxt(x: Bits, n: Bits) -> Vector:
+    # Empty does not have a sign
+    if x.size == 0:
+        raise TypeError("Cannot sign extend empty")
+
     if n.has_x():
         return x.xes()
     if n.has_dc():
