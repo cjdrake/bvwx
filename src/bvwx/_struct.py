@@ -76,7 +76,14 @@ class _StructMeta(type):
             parts = [f"{name}("]
             for fn, _ in fields:
                 x = getattr(self, fn)
-                parts.append(f"    {fn}={x!s},")
+                rhs = str(x).splitlines()
+                if len(rhs) == 1:
+                    parts.append(f"    {fn}={rhs[0]},")
+                else:
+                    parts.append(f"    {fn}={rhs[0]}")
+                    for line in rhs[1:-1]:
+                        parts.append(f"    {line}")
+                    parts.append(f"    {rhs[-1]},")
             parts.append(")")
             return "\n".join(parts)
 
@@ -87,7 +94,14 @@ class _StructMeta(type):
             parts = [f"{name}("]
             for fn, _ in fields:
                 x = getattr(self, fn)
-                parts.append(f"    {fn}={x!r},")
+                rhs = repr(x).splitlines()
+                if len(rhs) == 1:
+                    parts.append(f"    {fn}={rhs[0]},")
+                else:
+                    parts.append(f"    {fn}={rhs[0]}")
+                    for line in rhs[1:-1]:
+                        parts.append(f"    {line}")
+                    parts.append(f"    {rhs[-1]},")
             parts.append(")")
             return "\n".join(parts)
 

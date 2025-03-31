@@ -22,6 +22,11 @@ class Simple(Struct):
     c: Vector[4]
 
 
+class Compound(Struct):
+    p: Simple
+    q: Simple
+
+
 S1 = """\
 Simple(
     a=2b10,
@@ -56,6 +61,45 @@ def test_simple():
     assert s[6] == s.c[1]
     assert s[7] == s.c[2]
     assert s[8] == s.c[3]
+
+
+S2 = """\
+Compound(
+    p=Simple(
+        a=2b01,
+        b=3b010,
+        c=4b0011,
+    ),
+    q=Simple(
+        a=2b10,
+        b=3b100,
+        c=4b1000,
+    ),
+)"""
+
+R2 = """\
+Compound(
+    p=Simple(
+        a=bits("2b01"),
+        b=bits("3b010"),
+        c=bits("4b0011"),
+    ),
+    q=Simple(
+        a=bits("2b10"),
+        b=bits("3b100"),
+        c=bits("4b1000"),
+    ),
+)"""
+
+
+def test_compound():
+    c = Compound(
+        p=Simple(a="2b01", b="3b010", c="4b0011"),
+        q=Simple(a="2b10", b="3b100", c="4b1000"),
+    )
+
+    assert str(c) == S2
+    assert repr(c) == R2
 
 
 def test_init():
