@@ -163,3 +163,9 @@ Create ``MyUnion`` instances, and use them in expressions:
             b=bits("8bXXXX_XXXX"),
         ),
     )
+
+Next Steps
+----------
+
+.. note::
+    To ``self``: Write documentation about other stuff, then point users to it.
