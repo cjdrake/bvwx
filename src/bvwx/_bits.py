@@ -903,7 +903,7 @@ class Empty(Bits, _ShapedIf):
 
     def __new__(cls, d0: int, d1: int):
         assert d0 == d1 == 0
-        return _Empty
+        return _empty
 
     def __reversed__(self):
         yield self
@@ -933,7 +933,7 @@ class Empty(Bits, _ShapedIf):
         yield from ()
 
 
-_Empty = Empty._cast_data(0, 0)
+_empty = Empty._cast_data(0, 0)
 
 
 # Type Aliases
@@ -1269,7 +1269,7 @@ def _rrot(x: Bits, n: Bits) -> Bits:
 
 def _cat(*xs: Bits) -> Vector:
     if len(xs) == 0:
-        return _Empty
+        return _empty
     if len(xs) == 1:
         return xs[0]
 
@@ -1408,7 +1408,7 @@ def bits(obj=None) -> Array:
     """
     match obj:
         case None | []:
-            return _Empty
+            return _empty
         case 0 | 1 as x:
             return bool2scalar[x]
         case [0 | 1 as fst, *rst]:
@@ -1430,7 +1430,7 @@ def bits(obj=None) -> Array:
 
 def _stack(*xs: Array) -> Array:
     if len(xs) == 0:
-        return _Empty
+        return _empty
     if len(xs) == 1:
         return xs[0]
 
@@ -1448,7 +1448,7 @@ def _stack(*xs: Array) -> Array:
 
     # {Empty, Empty, ...} => Empty
     if fst.shape == (0,):
-        return _Empty
+        return _empty
 
     # {Scalar, Scalar, ...} => Vector[K]
     if fst.shape == (1,):
