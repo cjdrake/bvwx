@@ -5,7 +5,7 @@
 This chapter will get you started using ``bvwx``.
 
 Install
--------
+=======
 
 To install the latest release of BVWX, run:
 
@@ -16,7 +16,7 @@ To install the latest release of BVWX, run:
 See the :ref:`installation` chapter for more details.
 
 Basic Boolean Algebra
----------------------
+=====================
 
 Fire up a Python `REPL <https://docs.python.org/3/glossary.html#term-REPL>`_,
 ignore the advice given in PEP8's `Imports <https://peps.python.org/pep-0008/#imports>`_ section,
@@ -70,7 +70,7 @@ zero-dimensional ``Scalar``, and even ``Empty`` bit sequences:
     bvwx._bits.Empty
 
 User-Defined Types
-------------------
+==================
 
 Now that we have experimented with pre-defined data types,
 let's create some new ones.
@@ -165,7 +165,7 @@ Create ``MyUnion`` instances, and use them in expressions:
     )
 
 Next Steps
-----------
+==========
 
 .. note::
     To ``self``: Write documentation about other stuff, then point users to it.
