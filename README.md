@@ -14,16 +14,17 @@ implements a family of hardware-oriented, bit vector data types and operators.
 
 The fundamental BVWX data type is an ordered collection of "bits" (i.e. binary digits).
 Unlike standard Boolean algebra where bit values are restricted to {`0`, `1`},
-BVWX extends this to include hardware-oriented values `DC` (don't care), and `X`.
+BVWX extends this to include hardware-oriented values `W` (don't care),
+and `X` (exception).
 
 This lifted, four-state logic consists of:
 
 * `0` - False
 * `1` - True
-* `DC` - Weak Unknown: either True or False, propagates *optimistically*
+* `W` - Weak Unknown: either True or False, propagates *optimistically*
 * `X` - Strong Unknown: neither True nor False, propagates *pessimistically*
 
-`DC` values are denoted by `-` or `W` in string literals.
+`W` may also be denoted by `-` in string literals.
 The `-` character is a convention from the [Espresso][1] PLA file format.
 Wherever it hampers readability, we will instead use `W`.
 
