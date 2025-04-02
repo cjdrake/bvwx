@@ -1,7 +1,7 @@
 # Bit Vectors With Xes
 
 BVWX (pronounced bih-vuh-wax, like "bivouacs") is a Python library that
-implements a family of hardware-oriented bit vector data types.
+implements a family of hardware-oriented, bit vector data types and operators.
 
 [Read the docs!](https://bvwx.rtfd.org) (WIP)
 
