@@ -27,8 +27,8 @@ Wherever it hampers readability, we will instead use ``W``.
 Collections of bits can be organized into arbitrary shapes using the
 multi-dimensional ``Array`` and one-dimensional ``Vec`` class factories.
 
-For abstraction purposes, BVWX also provides user-defined
-``Enum``, ``Struct``, and ``Union`` class factories.
+``Enum``, ``Struct``, and ``Union`` class factories can be extended to create
+user-defined abstract date types.
 
 ## Example
 
