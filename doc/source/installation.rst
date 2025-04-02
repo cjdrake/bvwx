@@ -4,13 +4,13 @@
     Installation
 ####################
 
-BVWX releases are hosted on `PyPI <https://pypi.org/>`_
+BVWX releases are hosted on `PyPI <https://pypi.org>`_
 at https://pypi.org/project/bvwx.
 
 This page explains how to install BVWX using various methods.
 
 With pip
---------
+========
 
 To install the latest release of BVWX, run:
 
@@ -27,7 +27,7 @@ To upgrade to the latest release, run:
 See https://pip.pypa.io for ``pip`` documentation.
 
 With uv
--------
+=======
 
 This author is old, and uncool.
 He has never used ``uv``.
