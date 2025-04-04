@@ -9,8 +9,10 @@ implements a family of hardware-oriented, bit vector data types and operators.
 
 ## Features
 
+### Data Types
+
 The fundamental BVWX data type is an ordered collection of "bits" (i.e. binary digits).
-Unlike standard Boolean Algebra where bit values are restricted to {``0``, ``1``},
+Unlike standard Boolean algebra where bit values are restricted to {``0``, ``1``},
 BVWX extends this to include hardware-oriented values ``DC`` (don't care), and ``X``.
 
 This lifted, four-state logic consists of:
@@ -29,6 +31,16 @@ multi-dimensional ``Array`` and one-dimensional ``Vec`` class factories.
 
 ``Enum``, ``Struct``, and ``Union`` class factories can be extended to create
 user-defined abstract date types.
+
+### Operators
+
+BVWX implements several operators necessary for implementing Boolean algorithms.
+This includes, basic NOT, OR, AND, XOR, ITE, MUX functions,
+but also arithmetic, comparison, shift, rotate, extend, concatenate, pack,
+encode/decode, and bit count.
+
+See [Operators](https://bvwx.readthedocs.io/en/latest/reference.html#operators)
+section of the reference documentation for a full list.
 
 ## Example
 
