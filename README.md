@@ -83,7 +83,7 @@ BVWX is available on [PyPI](https://pypi.org):
 
     $ pip install bvwx
 
-It supports Python 3.12+
+It requires Python 3.12+
 
 ## Developing
 
