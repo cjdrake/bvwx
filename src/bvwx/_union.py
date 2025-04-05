@@ -53,14 +53,8 @@ class _UnionMeta(type):
             parts = [f"{name}("]
             for fn, _ in fields:
                 x = getattr(self, fn)
-                lines = str(x).splitlines()
-                if len(lines) == 1:
-                    parts.append(f"    {fn}={lines[0]},")
-                else:
-                    parts.append(f"    {fn}={lines[0]}")
-                    for line in lines[1:-1]:
-                        parts.append(f"    {line}")
-                    parts.append(f"    {lines[-1]},")
+                s = "\n    ".join(str(x).splitlines())
+                parts.append(f"    {fn}={s},")
             parts.append(")")
             return "\n".join(parts)
 
@@ -71,14 +65,8 @@ class _UnionMeta(type):
             parts = [f"{name}("]
             for fn, _ in fields:
                 x = getattr(self, fn)
-                lines = repr(x).splitlines()
-                if len(lines) == 1:
-                    parts.append(f"    {fn}={lines[0]},")
-                else:
-                    parts.append(f"    {fn}={lines[0]}")
-                    for line in lines[1:-1]:
-                        parts.append(f"    {line}")
-                    parts.append(f"    {lines[-1]},")
+                r = "\n    ".join(repr(x).splitlines())
+                parts.append(f"    {fn}={r},")
             parts.append(")")
             return "\n".join(parts)
 
