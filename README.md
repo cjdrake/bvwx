@@ -7,40 +7,42 @@ implements a family of hardware-oriented, bit vector data types and operators.
 
 [![Documentation Status](https://readthedocs.org/projects/bvwx/badge/?version=latest)](https://bvwx.readthedocs.io/en/latest/?badge=latest)
 
+
 ## Features
 
 ### Data Types
 
 The fundamental BVWX data type is an ordered collection of "bits" (i.e. binary digits).
-Unlike standard Boolean algebra where bit values are restricted to {``0``, ``1``},
-BVWX extends this to include hardware-oriented values ``DC`` (don't care), and ``X``.
+Unlike standard Boolean algebra where bit values are restricted to {`0`, `1`},
+BVWX extends this to include hardware-oriented values `DC` (don't care), and `X`.
 
 This lifted, four-state logic consists of:
 
-* ``0`` - False
-* ``1`` - True
-* ``DC`` - Weak Unknown: either True or False, propagates *optimistically*
-* ``X`` - Strong Unknown: neither True nor False, propagates *pessimistically*
+* `0` - False
+* `1` - True
+* `DC` - Weak Unknown: either True or False, propagates *optimistically*
+* `X` - Strong Unknown: neither True nor False, propagates *pessimistically*
 
-``DC`` values are denoted by ``-`` or ``W`` in string literals.
-The ``-`` character is a convention from the [Espresso][1] PLA file format.
-Wherever it hampers readability, we will instead use ``W``.
+`DC` values are denoted by `-` or `W` in string literals.
+The `-` character is a convention from the [Espresso][1] PLA file format.
+Wherever it hampers readability, we will instead use `W`.
 
 Collections of bits can be organized into arbitrary shapes using the
-multi-dimensional ``Array`` and one-dimensional ``Vec`` class factories.
+multi-dimensional `Array` and one-dimensional `Vec` class factories.
 
-``Enum``, ``Struct``, and ``Union`` class factories can be extended to create
+`Enum`, `Struct`, and `Union` class factories can be extended to create
 user-defined abstract date types.
 
 ### Operators
 
 BVWX implements several operators necessary for implementing Boolean algorithms.
-This includes, basic NOT, OR, AND, XOR, ITE, MUX functions,
-but also arithmetic, comparison, shift, rotate, extend, concatenate, pack,
-encode/decode, and bit count.
+This includes standard NOT, OR, AND, XOR, ITE (if-then-else), and MUX functions,
+but also efficient implementations of arithmetic, comparison, shift, rotate,
+extend, concatenate, pack, encode/decode, and bit count.
 
 See [Operators](https://bvwx.readthedocs.io/en/latest/reference.html#operators)
 section of the reference documentation for a full list.
+
 
 ## Example
 
@@ -89,6 +91,7 @@ Pixel(
 >>> # And much more ...
 ```
 
+
 ## Installing
 
 BVWX is available on [PyPI](https://pypi.org):
@@ -96,6 +99,7 @@ BVWX is available on [PyPI](https://pypi.org):
     $ pip install bvwx
 
 It requires Python 3.12+
+
 
 ## Developing
 
