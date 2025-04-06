@@ -7,7 +7,7 @@
 BVWX releases are hosted on `PyPI <https://pypi.org>`_
 at https://pypi.org/project/bvwx.
 
-This page explains how to install BVWX using various methods.
+This chapter explains how to install BVWX using various methods.
 
 
 With pip
