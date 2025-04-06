@@ -2,6 +2,7 @@
     Reference
 #################
 
+
 Data Types
 ==========
 
@@ -49,6 +50,7 @@ Data Types
 .. autoclass:: bvwx.Enum
 .. autoclass:: bvwx.Struct
 .. autoclass:: bvwx.Union
+
 
 Operators
 =========
@@ -136,6 +138,7 @@ Count
 .. autofunction:: bvwx.cpop
 .. autofunction:: bvwx.clz
 .. autofunction:: bvwx.ctz
+
 
 Factory Functions
 =================

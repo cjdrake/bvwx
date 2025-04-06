@@ -9,6 +9,7 @@ at https://pypi.org/project/bvwx.
 
 This page explains how to install BVWX using various methods.
 
+
 With pip
 ========
 
@@ -25,6 +26,7 @@ To upgrade to the latest release, run:
     $ pip install --upgrade bvwx
 
 See https://pip.pypa.io for ``pip`` documentation.
+
 
 With uv
 =======

@@ -4,6 +4,7 @@
 
 This chapter will get you started using ``bvwx``.
 
+
 Install
 =======
 
@@ -14,6 +15,7 @@ To install the latest release of BVWX, run:
     $ pip install bvwx
 
 See the :ref:`installation` chapter for more details.
+
 
 Basic Boolean Algebra
 =====================
@@ -68,6 +70,7 @@ zero-dimensional ``Scalar``, and even ``Empty`` bit sequences:
     bvwx._bits.Scalar
     >>> type(bits())
     bvwx._bits.Empty
+
 
 User-Defined Types
 ==================
@@ -163,6 +166,7 @@ Create ``MyUnion`` instances, and use them in expressions:
             b=bits("8bXXXX_XXXX"),
         ),
     )
+
 
 Next Steps
 ==========
