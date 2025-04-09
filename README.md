@@ -12,7 +12,7 @@ implements a family of hardware-oriented, bit vector data types and operators.
 
 ### Data Types
 
-The fundamental BVWX data type is an ordered collection of "bits" (i.e. binary digits).
+The fundamental BVWX data type is an ordered collection of "bits".
 Unlike standard Boolean algebra where bit values are restricted to {`0`, `1`},
 BVWX extends this to include hardware-oriented values `W` (don't care),
 and `X` (exception).
