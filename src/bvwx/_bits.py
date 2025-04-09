@@ -11,7 +11,7 @@ from __future__ import annotations
 import math
 import random
 from collections.abc import Callable, Generator
-from functools import partial
+from functools import cached_property, partial
 
 from . import _lbool as lb
 from ._lbool import lbv
@@ -537,17 +537,29 @@ class Bits(_SizedIf):
         """Return True if contains at most one ``1`` bit."""
         return not self.has_unknown() and self.count_ones() <= 1
 
+    @cached_property
+    def _has_x(self) -> bool:
+        return bool((self._data[0] | self._data[1]) ^ self._dmax)
+
     def has_x(self) -> bool:
         """Return True if contains at least one ``X`` bit."""
-        return bool((self._data[0] | self._data[1]) ^ self._dmax)
+        return self._has_x
+
+    @cached_property
+    def _has_dc(self) -> bool:
+        return bool(self._data[0] & self._data[1])
 
     def has_dc(self) -> bool:
         """Return True if contains at least one ``-`` bit."""
-        return bool(self._data[0] & self._data[1])
+        return self._has_dc
+
+    @cached_property
+    def _has_unknown(self) -> bool:
+        return bool(self._data[0] ^ self._data[1] ^ self._dmax)
 
     def has_unknown(self) -> bool:
         """Return True if contains at least one unknown bit."""
-        return bool(self._data[0] ^ self._data[1] ^ self._dmax)
+        return self._has_unknown
 
     def vcd_var(self) -> str:
         """Return VCD variable type."""
