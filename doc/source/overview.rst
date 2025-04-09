@@ -57,7 +57,7 @@ to semiconductor device physics,
 and deterministic information dissolves into analog signals and quantum uncertainty.
 To grapple with this,
 most HDLs provide uninitialized, unspecified, undriven, or uncertain values.
-For example, `VHDL`_ uses `std_logic_1164`_.
+For example, `VHDL`_ uses `Std_logic_1164`_.
 
 BVWX implements a four-state logic:
 
@@ -110,12 +110,12 @@ All Sizes, Shapes, and Composition
 
 Software primitives come in fixed bundles such as 32 or 64 bits.
 These bundle sizes correspond to the width of architected registers.
-Furthermore, they are always aligned with 8-bit addressable memory.
+Furthermore, they are always aligned with byte-aligned, addressable memory.
 
 Hardware primitives, on the other hand, correspond to flip flops and wires.
-They are bit-aligned, not register-aligned.
+They are bit-aligned, not byte/register-aligned.
 Overfitting of variable storage (i.e. fewer bits of information than physical storage)
-leads to wasted energy (through leakage and capacitive discharge),
+leads to wasted energy through leakage and capacitive discharge,
 and therefore shorter battery life.
 From a one-bit ``valid`` indicator to a network packet consisting of hundreds
 of bytes of header and data fields,
@@ -171,7 +171,7 @@ It will instead return all ``W``:
     bits("4b----")
 
 It is still *possible* to implement bit-accurate ``W`` / ``X`` propagation,
-but that is an exercise left to the user if required.
+but that is an exercise left to the user.
 
 
 Summary
@@ -194,5 +194,5 @@ a useful set of tools for a difficult job.
 .. _Espresso: https://ptolemy.berkeley.edu/projects/embedded/pubs/downloads/espresso
 .. _Systemverilog: https://standards.ieee.org/ieee/1800/7743
 .. _VHDL: https://standards.ieee.org/ieee/1076/3666/
-.. _STD_LOGIC_1164: https://standards.ieee.org/ieee/1164/1767/
+.. _Std_logic_1164: https://standards.ieee.org/ieee/1164/1767/
 .. _seqlogic: https://github.com/cjdrake/seqlogic
