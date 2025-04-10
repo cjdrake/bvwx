@@ -2,7 +2,7 @@
 
 import pytest
 
-from bvwx import adc, add, bits, cat, div, lsh, mod, mul, neg, ngc, rsh, sbc, srsh, sub
+from bvwx import adc, add, bits, cat, div, lsh, matmul, mod, mul, neg, ngc, rsh, sbc, srsh, sub
 
 E = bits()
 
@@ -350,3 +350,70 @@ def test_array_srsh():
     x = bits(["4b0000", "4b1111"])
     y = srsh(x, 2)
     assert str(y) == "[4b1100, 4b1111]"
+
+
+VECMUL_VALS = [
+    # Vec[n] X Vec[n] => Scalar
+    ("2b00", "2b00", "1b0"),
+    ("2b00", "2b01", "1b0"),
+    ("2b00", "2b10", "1b0"),
+    ("2b00", "2b11", "1b0"),
+    ("2b01", "2b00", "1b0"),
+    ("2b01", "2b01", "1b1"),
+    ("2b01", "2b10", "1b0"),
+    ("2b01", "2b11", "1b1"),
+    ("2b10", "2b00", "1b0"),
+    ("2b10", "2b01", "1b0"),
+    ("2b10", "2b10", "1b1"),
+    ("2b10", "2b11", "1b1"),
+    ("2b11", "2b00", "1b0"),
+    ("2b11", "2b01", "1b1"),
+    ("2b11", "2b10", "1b1"),
+    ("2b11", "2b11", "1b1"),
+]
+
+MATMUL_VALS = [
+    # Vec[m] X Array[m,n] => Vec[n]
+    ("2b00", ["4b1100", "4b1010"], "4b0000"),
+    ("2b01", ["4b1100", "4b1010"], "4b1100"),
+    ("2b10", ["4b1100", "4b1010"], "4b1010"),
+    ("2b11", ["4b1100", "4b1010"], "4b1110"),
+    # Array[m,n] X Vec[n] => Vec[m]
+    (["2b00", "2b01", "2b10", "2b11"], "2b00", "4b0000"),
+    (["2b00", "2b01", "2b10", "2b11"], "2b01", "4b1010"),
+    (["2b00", "2b01", "2b10", "2b11"], "2b10", "4b1100"),
+    (["2b00", "2b01", "2b10", "2b11"], "2b11", "4b1110"),
+    # Array[m,n] X Array[n,p] => Array[m,p]
+    (
+        ["2b00", "2b01", "2b10", "2b11"],
+        ["4b1100", "4b1010"],
+        ["4b0000", "4b1100", "4b1010", "4b1110"],
+    ),
+]
+
+
+def test_matmul():
+    for a, b, y in VECMUL_VALS:
+        assert matmul(a, b) == bits(y)
+        assert bits(a) @ b == bits(y)
+        assert a @ bits(b) == bits(y)
+
+    for a, b, y in MATMUL_VALS:
+        assert bits(a) @ bits(b) == bits(y)
+
+    with pytest.raises(TypeError):
+        _ = bits("2b00") @ bits("3b000")
+
+    with pytest.raises(TypeError):
+        _ = bits("2b00") @ bits(["2b00", "2b00", "2b00"])
+
+    with pytest.raises(TypeError):
+        _ = bits(["2b00", "2b00"]) @ bits("3b000")
+
+    with pytest.raises(TypeError):
+        _ = bits(["2b00", "2b00"]) @ bits(["2b00", "2b00", "2b00"])
+
+    with pytest.raises(TypeError):
+        a = bits([["2b00", "2b00"], ["2b00", "2b00"]])
+        b = bits([["2b00", "2b00"], ["2b00", "2b00"]])
+        _ = a @ b

@@ -1,6 +1,6 @@
 """Bit Vectors With Xes"""
 
-from ._arithmetic import adc, add, div, lsh, mod, mul, neg, ngc, rsh, sbc, srsh, sub
+from ._arithmetic import adc, add, div, lsh, matmul, mod, mul, neg, ngc, rsh, sbc, srsh, sub
 from ._bits import Array, Bits, Empty, Scalar, Vector, bits, i2bv, lit2bv, stack, u2bv
 from ._bitwise import and_, impl, ite, mux, not_, or_, xor
 from ._code import decode, encode_onehot, encode_priority
@@ -62,6 +62,7 @@ __all__ = [
     "mul",
     "div",
     "mod",
+    "matmul",
     "lsh",
     "rsh",
     "srsh",

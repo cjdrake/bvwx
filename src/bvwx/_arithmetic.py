@@ -1,6 +1,7 @@
 """Arithmetic Operators"""
 
 from ._bits import (
+    ArrayLike,
     Bits,
     BitsLike,
     ScalarLike,
@@ -10,12 +11,14 @@ from ._bits import (
     _cat,
     _div,
     _lsh,
+    _matmul,
     _mod,
     _mul,
     _neg,
     _rsh,
     _srsh,
     _sub,
+    expect_array,
     expect_bits,
     expect_bits_size,
     expect_scalar,
@@ -232,6 +235,25 @@ def mod(a: BitsLike, b: BitsLike) -> Bits:
     a = expect_bits(a)
     b = expect_bits(b)
     return _mod(a, b)
+
+
+def matmul(a: ArrayLike, b: ArrayLike) -> Bits:
+    """Matrix multiply.
+
+    Args:
+        a: ``Array`` or string literal
+        b: ``Array`` or string literal
+
+    Returns:
+        ``Array`` product
+
+    Raises:
+        TypeError: ``a`` or ``b`` are invalid or incompatible ``Bits`` objects.
+        ValueError: Error parsing string literal.
+    """
+    a = expect_array(a)
+    b = expect_array(b)
+    return _matmul(a, b)
 
 
 def lsh(x: BitsLike, n: UintLike) -> Bits:

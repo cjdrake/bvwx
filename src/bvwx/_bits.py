@@ -69,10 +69,10 @@ def expect_bits(arg: BitsLike) -> Bits:
         return lit2bv(arg)
     if isinstance(arg, Bits):
         return arg
-    raise TypeError("Expected arg to be: Bits, or str literal, or {0, 1}")
+    raise TypeError("Expected arg to be: Bits, str literal, or {0, 1}")
 
 
-def _expect_array(arg: ArrayLike) -> Array:
+def expect_array(arg: ArrayLike) -> Array:
     """Any Array-like object that defines its own size"""
     if arg in (0, 1):
         return bool2scalar[arg]
@@ -80,7 +80,7 @@ def _expect_array(arg: ArrayLike) -> Array:
         return lit2bv(arg)
     if isinstance(arg, (Empty, Scalar, Vector, Array)):
         return arg
-    raise TypeError("Expected arg to be: Array, or str literal, or {0, 1}")
+    raise TypeError("Expected arg to be: Array, str literal, or {0, 1}")
 
 
 def expect_scalar(arg: ScalarLike) -> Scalar:
@@ -102,7 +102,7 @@ def expect_uint(arg: UintLike) -> Bits:
         return lit2bv(arg)
     if isinstance(arg, Bits):
         return arg
-    raise TypeError("Expected arg to be: Bits, or str literal, or {0, 1}")
+    raise TypeError("Expected arg to be: Bits, str literal, or {0, 1}")
 
 
 def expect_bits_size(arg: BitsLike, size: int) -> Bits:
@@ -115,7 +115,7 @@ def expect_bits_size(arg: BitsLike, size: int) -> Bits:
         return _expect_size(lit2bv(arg), size)
     if isinstance(arg, Bits):
         return _expect_size(arg, size)
-    raise TypeError("Expected arg to be: Bits, or str literal, or int")
+    raise TypeError("Expected arg to be: Bits, str literal, or int")
 
 
 def _expect_vec_size(arg: VectorLike, size: int) -> Bits:
@@ -128,7 +128,7 @@ def _expect_vec_size(arg: VectorLike, size: int) -> Bits:
         return _expect_size(lit2bv(arg), size)
     if isinstance(arg, (Empty, Scalar, Vector)):
         return _expect_size(arg, size)
-    raise TypeError("Expected arg to be: Vector, or str literal, or int")
+    raise TypeError("Expected arg to be: Vector, str literal, or int")
 
 
 def _expect_size(arg: Bits, size: int) -> Bits:
@@ -474,6 +474,14 @@ class Bits(_SizedIf):
         return _mod(self, other)
 
     # Note: __rmod__ does not work b/c str implements % operator
+
+    def __matmul__(self, other: ArrayLike) -> Bits:
+        other = expect_array(other)
+        return _matmul(self, other)
+
+    def __rmatmul__(self, other: ArrayLike) -> Bits:
+        other = expect_array(other)
+        return _matmul(other, self)
 
     def to_uint(self) -> int:
         """Convert to unsigned integer.
@@ -1145,6 +1153,32 @@ def _mod(a: Bits, b: Bits) -> Bits:
     return b._cast_data(r ^ dmax, r)
 
 
+def _and_or(a: Vector, b: Vector) -> Scalar:
+    return _uor(_and_(a, b))
+
+
+def _matmul(a: Array, b: Array) -> Array:
+    match (a.shape, b.shape):
+        # Vec[n] @ Vec[n] => Scalar
+        case (int() as n1,), (int() as n2,) if n1 == n2:
+            return _and_or(a, b)
+        # Vec[m] @ Array[m,n] => Vec[n]
+        case (int() as m1,), (int() as m2, int() as n) if m1 == m2:
+            return _stack(*[_and_or(a, b[:, j]) for j in range(n)])
+        # Array[m,n] @ Vec[n] => Vec[m]
+        case (int() as m, int() as n1), (int() as n2,) if n1 == n2:
+            return _stack(*[_and_or(a[i, :], b) for i in range(m)])
+        # Array[m,n] @ Array[n,p] => Array[m,p]
+        case (int() as m, int() as n1), (int() as n2, int() as p) if n1 == n2:
+            xs = [_stack(*[_and_or(a[i, :], b[:, j]) for j in range(p)]) for i in range(m)]
+            return _stack(*xs)
+        # Incompatible shapes
+        case _:
+            s = "Expected Array[m,n] @ Array[n,p]"
+            s += f", got {a.__class__.__name__} @ {b.__class__.__name__}"
+            raise TypeError(s)
+
+
 def _lsh(x: Bits, n: Bits) -> Bits:
     if n.has_x():
         return x.xes()
@@ -1515,7 +1549,7 @@ def stack(*objs: ArrayLike) -> Array:
     Raises:
         TypeError: If input obj is invalid.
     """
-    return _stack(*[_expect_array(obj) for obj in objs])
+    return _stack(*[expect_array(obj) for obj in objs])
 
 
 def lit2bv(lit: str) -> Vector:

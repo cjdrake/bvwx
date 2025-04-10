@@ -94,6 +94,7 @@ Arithmetic
 .. autofunction:: bvwx.mul
 .. autofunction:: bvwx.div
 .. autofunction:: bvwx.mod
+.. autofunction:: bvwx.matmul
 .. autofunction:: bvwx.lsh
 .. autofunction:: bvwx.rsh
 .. autofunction:: bvwx.srsh
