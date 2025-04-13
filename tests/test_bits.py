@@ -7,7 +7,7 @@
 
 import pytest
 
-from bvwx import Array, Empty, Enum, Scalar, Vec, bits, u2bv
+from bvwx import Array, Empty, Enum, Scalar, Struct, Union, Vec, bits, u2bv
 
 E = bits()
 F = bits(False)
@@ -89,6 +89,38 @@ def test_hash():
     s.add(u2bv(2))
     s.add(u2bv(1))
     s.add(u2bv(0))
+    assert len(s) == 4
+
+
+class MyStruct(Struct):
+    a: Vec[8]
+    b: Vec[8]
+
+
+class MyUnion(Union):
+    a: Vec[4]
+    b: Vec[8]
+
+
+def test_bug_3():
+    s = set()
+    s.add(MyStruct(a="8h00"))
+    s.add(MyStruct(a="8h11"))
+    s.add(MyStruct(a="8h22"))
+    s.add(MyStruct(a="8h33"))
+    s.add(MyStruct(a="8h22"))
+    s.add(MyStruct(a="8h11"))
+    s.add(MyStruct(a="8h00"))
+    assert len(s) == 4
+
+    s.clear()
+    s.add(MyUnion("4b0001"))
+    s.add(MyUnion("4b0010"))
+    s.add(MyUnion("4b0100"))
+    s.add(MyUnion("4b1000"))
+    s.add(MyUnion("4b0100"))
+    s.add(MyUnion("4b0010"))
+    s.add(MyUnion("4b0001"))
     assert len(s) == 4
 
 
