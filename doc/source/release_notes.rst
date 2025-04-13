@@ -8,6 +8,12 @@ This chapter lists new features, API changes, and bug fixes.
 For a complete history, see the Git commit log.
 
 
+Version 0.11.0
+==============
+
+Implemented a matrix multiply operator (https://github.com/cjdrake/bvwx/issues/2).
+
+
 Version 0.10.0
 ==============
 
