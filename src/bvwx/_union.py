@@ -4,7 +4,7 @@
 
 from functools import partial
 
-from ._bits import Bits, BitsLike, Key, Vector, expect_bits, vec_size
+from ._bits import Bits, BitsLike, Composite, Key, Vector, expect_bits, vec_size
 from ._util import classproperty, mask
 
 
@@ -24,7 +24,7 @@ class _UnionMeta(type):
 
         # Create Union class
         size = max(field_type.size for _, field_type in fields)
-        union = super().__new__(mcs, name, bases + (Bits,), {})
+        union = super().__new__(mcs, name, bases + (Composite,), {})
 
         # Class properties
         union.size = classproperty(lambda _: size)

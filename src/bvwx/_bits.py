@@ -377,9 +377,6 @@ class Bits(_SizedIf):
             return self.size == obj.size and self._data == obj.data
         return False
 
-    def __hash__(self) -> int:
-        return hash(self.shape) ^ hash(self._data)
-
     # Bitwise Operations
     def __invert__(self) -> Bits:
         return _not_(self)
@@ -624,7 +621,17 @@ class Bits(_SizedIf):
         raise TypeError("Expected key to be int, slice, str literal, or Bits")
 
 
-class Array(Bits, _ShapedIf):
+class Shaped(Bits, _ShapedIf):
+    def __hash__(self) -> int:
+        return hash(self.shape) ^ hash(self._data)
+
+
+class Composite(Bits, _SizedIf):
+    def __hash__(self) -> int:
+        return hash(self.size) ^ hash(self._data)
+
+
+class Array(Shaped):
     """Multi dimensional array of bits.
 
     To create an ``Array`` instance, use the ``bits`` function:
@@ -745,7 +752,7 @@ class Array(Bits, _ShapedIf):
         return tuple(f(n, key) for n, key in zip(cls._shape, keys))
 
 
-class Vector(Bits, _ShapedIf):
+class Vector(Shaped):
     """One dimensional sequence of bits.
 
     To create a ``Vector`` instance,
@@ -833,7 +840,7 @@ class Vector(Bits, _ShapedIf):
         return self
 
 
-class Scalar(Bits, _ShapedIf):
+class Scalar(Shaped):
     """Zero dimensional (scalar) sequence of bits.
 
     Degenerate form of a ``Vector`` resulting from a one bit slice.
@@ -909,7 +916,7 @@ _scalars: dict[lbv, Scalar] = {
 bool2scalar = (scalar0, scalar1)
 
 
-class Empty(Bits, _ShapedIf):
+class Empty(Shaped):
     """Null dimensional sequence of bits.
 
     Degenerate form of a ``Vector`` resulting from an empty slice.

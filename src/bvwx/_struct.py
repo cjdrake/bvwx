@@ -5,7 +5,7 @@
 
 from functools import partial
 
-from ._bits import Bits, Key, Vector, expect_bits_size, vec_size
+from ._bits import Bits, Composite, Key, Vector, expect_bits_size, vec_size
 from ._util import classproperty, mask
 
 
@@ -42,7 +42,7 @@ class _StructMeta(type):
 
         # Create Struct class
         size = sum(field_type.size for _, field_type in fields)
-        struct = super().__new__(mcs, name, bases + (Bits,), {})
+        struct = super().__new__(mcs, name, bases + (Composite,), {})
 
         # Class properties
         struct.size = classproperty(lambda _: size)
