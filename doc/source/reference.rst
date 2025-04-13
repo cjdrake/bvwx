@@ -31,9 +31,9 @@ Data Types
     .. automethod:: bvwx.Bits.to_uint
     .. automethod:: bvwx.Bits.to_int
 
-    .. automethod:: bvwx.Bits.count_xes
     .. automethod:: bvwx.Bits.count_zeros
     .. automethod:: bvwx.Bits.count_ones
+    .. automethod:: bvwx.Bits.count_xes
     .. automethod:: bvwx.Bits.count_dcs
     .. automethod:: bvwx.Bits.count_unknown
 
