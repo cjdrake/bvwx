@@ -570,7 +570,7 @@ class Bits(_SizedIf):
         return bool(self._data[0] & self._data[1])
 
     @cached_property
-    def _has_unknown(self) -> bool:
+    def _has_xw(self) -> bool:
         return bool(self._data[0] ^ self._data[1] ^ self._dmax)
 
     def has_x(self) -> bool:
@@ -583,7 +583,7 @@ class Bits(_SizedIf):
 
     def has_unknown(self) -> bool:
         """Return True if contains at least one unknown bit."""
-        return self._has_unknown
+        return self._has_xw
 
     def vcd_var(self) -> str:
         """Return VCD variable type."""
