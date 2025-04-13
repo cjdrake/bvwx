@@ -1058,24 +1058,31 @@ def _lxor_(*xs: Scalar) -> Scalar:
 
 # Unary
 def _uor(x: Bits) -> Scalar:
-    y = lb._0
-    for i in range(x.size):
-        y = lb.or_(y, x._get_index(i))
-    return _scalars[y]
+    if x._has_x:
+        return scalarX
+    if x._has_1:
+        return scalar1
+    if x._has_w:
+        return scalarW
+    return scalar0
 
 
 def _uand(x: Bits) -> Scalar:
-    y = lb._1
-    for i in range(x.size):
-        y = lb.and_(y, x._get_index(i))
-    return _scalars[y]
+    if x._has_x:
+        return scalarX
+    if x._has_0:
+        return scalar0
+    if x._has_w:
+        return scalarW
+    return scalar1
 
 
 def _uxor(x: Bits) -> Scalar:
-    y = lb._0
-    for i in range(x.size):
-        y = lb.xor(y, x._get_index(i))
-    return _scalars[y]
+    if x._has_x:
+        return scalarX
+    if x._has_w:
+        return scalarW
+    return bool2scalar[x.data[1].bit_count() & 1]
 
 
 # Arithmetic
