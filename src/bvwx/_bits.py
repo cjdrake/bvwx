@@ -310,7 +310,7 @@ class Bits(_SizedIf):
         Returns:
             Class instance filled with either ``-`` or ``X``.
         """
-        if sel.has_x():
+        if sel._has_x:
             return cls.xes()
         return cls.dcs()
 
@@ -1086,9 +1086,9 @@ def _add(a: Bits, b: Bits, ci: Scalar) -> tuple[Bits, Scalar]:
         t = vec_size(max(a.size, b.size))
 
     # X/DC propagation
-    if a.has_x() or b.has_x() or ci.has_x():
+    if a._has_x or b._has_x or ci._has_x:
         return t.xes(), scalarX
-    if a.has_dc() or b.has_dc() or ci.has_dc():
+    if a._has_w or b._has_w or ci._has_w:
         return t.dcs(), scalarW
 
     dmax = mask(t.size)
@@ -1101,9 +1101,9 @@ def _add(a: Bits, b: Bits, ci: Scalar) -> tuple[Bits, Scalar]:
 
 def _inc(a: Bits) -> tuple[Bits, Scalar]:
     # X/DC propagation
-    if a.has_x():
+    if a._has_x:
         return a.xes(), scalarX
-    if a.has_dc():
+    if a._has_w:
         return a.dcs(), scalarW
 
     dmax = mask(a.size)
@@ -1126,9 +1126,9 @@ def _mul(a: Bits, b: Bits) -> Vector:
     t = vec_size(a.size + b.size)
 
     # X/DC propagation
-    if a.has_x() or b.has_x():
+    if a._has_x or b._has_x:
         return t.xes()
-    if a.has_dc() or b.has_dc():
+    if a._has_w or b._has_w:
         return t.dcs()
 
     dmax = mask(t.size)
@@ -1142,9 +1142,9 @@ def _div(a: Bits, b: Bits) -> Bits:
         raise ValueError("Expected a.size ≥ b.size > 0")
 
     # X/DC propagation
-    if a.has_x() or b.has_x():
+    if a._has_x or b._has_x:
         return a.xes()
-    if a.has_dc() or b.has_dc():
+    if a._has_w or b._has_w:
         return a.dcs()
 
     dmax = mask(a.size)
@@ -1158,9 +1158,9 @@ def _mod(a: Bits, b: Bits) -> Bits:
         raise ValueError("Expected a.size ≥ b.size > 0")
 
     # X/DC propagation
-    if a.has_x() or b.has_x():
+    if a._has_x or b._has_x:
         return b.xes()
-    if a.has_dc() or b.has_dc():
+    if a._has_w or b._has_w:
         return b.dcs()
 
     dmax = mask(b.size)
@@ -1196,9 +1196,9 @@ def _matmul(a: Array, b: Array) -> Array:
 
 
 def _lsh(x: Bits, n: Bits) -> Bits:
-    if n.has_x():
+    if n._has_x:
         return x.xes()
-    if n.has_dc():
+    if n._has_w:
         return x.dcs()
 
     n = n.to_uint()
@@ -1216,9 +1216,9 @@ def _lsh(x: Bits, n: Bits) -> Bits:
 
 
 def _rsh(x: Bits, n: Bits) -> Bits:
-    if n.has_x():
+    if n._has_x:
         return x.xes()
-    if n.has_dc():
+    if n._has_w:
         return x.dcs()
 
     n = n.to_uint()
@@ -1236,9 +1236,9 @@ def _rsh(x: Bits, n: Bits) -> Bits:
 
 
 def _srsh(x: Bits, n: Bits) -> Bits:
-    if n.has_x():
+    if n._has_x:
         return x.xes()
-    if n.has_dc():
+    if n._has_w:
         return x.dcs()
 
     n = n.to_uint()
@@ -1260,9 +1260,9 @@ def _srsh(x: Bits, n: Bits) -> Bits:
 
 # Word
 def _xt(x: Bits, n: Bits) -> Vector:
-    if n.has_x():
+    if n._has_x:
         return x.xes()
-    if n.has_dc():
+    if n._has_w:
         return x.dcs()
 
     n = n.to_uint()
@@ -1280,9 +1280,9 @@ def _sxt(x: Bits, n: Bits) -> Vector:
     if x.size == 0:
         raise TypeError("Cannot sign extend empty")
 
-    if n.has_x():
+    if n._has_x:
         return x.xes()
-    if n.has_dc():
+    if n._has_w:
         return x.dcs()
 
     n = n.to_uint()
@@ -1298,9 +1298,9 @@ def _sxt(x: Bits, n: Bits) -> Vector:
 
 
 def _lrot(x: Bits, n: Bits) -> Bits:
-    if n.has_x():
+    if n._has_x:
         return x.xes()
-    if n.has_dc():
+    if n._has_w:
         return x.dcs()
 
     n = n.to_uint()
@@ -1317,9 +1317,9 @@ def _lrot(x: Bits, n: Bits) -> Bits:
 
 
 def _rrot(x: Bits, n: Bits) -> Bits:
-    if n.has_x():
+    if n._has_x:
         return x.xes()
-    if n.has_dc():
+    if n._has_w:
         return x.dcs()
 
     n = n.to_uint()
@@ -1382,25 +1382,25 @@ def _ne(x0: Bits, x1: Bits) -> Scalar:
 
 def _cmp(op: Callable, x0: Bits, x1: Bits) -> Scalar:
     # X/DC propagation
-    if x0.has_x() or x1.has_x():
+    if x0._has_x or x1._has_x:
         return scalarX
-    if x0.has_dc() or x1.has_dc():
+    if x0._has_w or x1._has_w:
         return scalarW
     return bool2scalar[op(x0.to_uint(), x1.to_uint())]
 
 
 def _scmp(op: Callable, x0: Bits, x1: Bits) -> Scalar:
     # X/DC propagation
-    if x0.has_x() or x1.has_x():
+    if x0._has_x or x1._has_x:
         return scalarX
-    if x0.has_dc() or x1.has_dc():
+    if x0._has_w or x1._has_w:
         return scalarW
     return bool2scalar[op(x0.to_int(), x1.to_int())]
 
 
 def _match(x0: Bits, x1: Bits) -> Scalar:
     # Propagate X
-    if x0.has_x() or x1.has_x():
+    if x0._has_x or x1._has_x:
         return scalarX
 
     for i in range(x0.size):
