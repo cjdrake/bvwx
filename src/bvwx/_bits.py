@@ -546,24 +546,40 @@ class Bits(_SizedIf):
         return not self.has_unknown() and self.count_ones() <= 1
 
     @cached_property
+    def _has_0(self) -> bool:
+        return bool(self._data[0] & (self._data[1] ^ self._dmax))
+
+    @cached_property
+    def _has_1(self) -> bool:
+        return bool((self._data[0] ^ self._dmax) & self._data[1])
+
+    def has_0(self) -> bool:
+        """Return True if contains at least one ``0`` bit."""
+        return self._has_0
+
+    def has_1(self) -> bool:
+        """Return True if contains at least one ``1`` bit."""
+        return self._has_1
+
+    @cached_property
     def _has_x(self) -> bool:
         return bool((self._data[0] | self._data[1]) ^ self._dmax)
+
+    @cached_property
+    def _has_w(self) -> bool:
+        return bool(self._data[0] & self._data[1])
+
+    @cached_property
+    def _has_unknown(self) -> bool:
+        return bool(self._data[0] ^ self._data[1] ^ self._dmax)
 
     def has_x(self) -> bool:
         """Return True if contains at least one ``X`` bit."""
         return self._has_x
 
-    @cached_property
-    def _has_dc(self) -> bool:
-        return bool(self._data[0] & self._data[1])
-
     def has_dc(self) -> bool:
         """Return True if contains at least one ``-`` bit."""
-        return self._has_dc
-
-    @cached_property
-    def _has_unknown(self) -> bool:
-        return bool(self._data[0] ^ self._data[1] ^ self._dmax)
+        return self._has_w
 
     def has_unknown(self) -> bool:
         """Return True if contains at least one unknown bit."""
