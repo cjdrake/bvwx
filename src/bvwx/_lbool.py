@@ -9,10 +9,10 @@ type lbv = tuple[int, int]
 
 
 # Scalars
-_X = (0, 0)
-_0 = (1, 0)
-_1 = (0, 1)
-_W = (1, 1)
+_X: lbv = (0, 0)
+_0: lbv = (1, 0)
+_1: lbv = (0, 1)
+_W: lbv = (1, 1)
 
 
 from_char: dict[str, lbv] = {

@@ -895,12 +895,12 @@ class Scalar(Bits, _ShapedIf):
         yield self
 
 
-scalarX = Scalar._cast_data(*lb._X)
-scalar0 = Scalar._cast_data(*lb._0)
-scalar1 = Scalar._cast_data(*lb._1)
-scalarW = Scalar._cast_data(*lb._W)
+scalarX: Scalar = Scalar._cast_data(*lb._X)
+scalar0: Scalar = Scalar._cast_data(*lb._0)
+scalar1: Scalar = Scalar._cast_data(*lb._1)
+scalarW: Scalar = Scalar._cast_data(*lb._W)
 
-_scalars = {
+_scalars: dict[lbv, Scalar] = {
     lb._X: scalarX,
     lb._0: scalar0,
     lb._1: scalar1,
