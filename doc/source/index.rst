@@ -6,8 +6,8 @@
     :maxdepth: 2
     :caption: Contents:
 
+    overview
     installation
     quickstart
-    overview
     release_notes
     reference
