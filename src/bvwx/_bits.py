@@ -78,7 +78,7 @@ def expect_array(arg: ArrayLike) -> Array:
         return bool2scalar[arg]
     if isinstance(arg, str):
         return lit2bv(arg)
-    if isinstance(arg, (Empty, Scalar, Vector, Array)):
+    if isinstance(arg, Shaped):
         return arg
     raise TypeError("Expected arg to be: Array, str literal, or {0, 1}")
 
@@ -1718,7 +1718,7 @@ def _sel(x: Array, key: tuple[tuple[int, int], ...]) -> Array:
 
     # Full select 0:n
     if key_r:
-        return _stack(*[_sel(xx, key_r) for xx in x])
+        return _stack(*[_sel(x_r, key_r) for x_r in x])
 
     return x
 
