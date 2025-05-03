@@ -6,7 +6,7 @@
 
 import pytest
 
-from bvwx import Union, Vector, bits
+from bvwx import Union, Vec, bits
 
 
 def test_empty():
@@ -17,9 +17,9 @@ def test_empty():
 
 
 class Simple(Union):
-    a: Vector[2]
-    b: Vector[3]
-    c: Vector[4]
+    a: Vec[2]
+    b: Vec[3]
+    c: Vec[4]
 
 
 class Compound(Union):

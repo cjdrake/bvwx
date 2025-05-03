@@ -6,7 +6,7 @@
 
 import pytest
 
-from bvwx import Struct, Vector
+from bvwx import Struct, Vec
 
 
 def test_empty():
@@ -17,9 +17,9 @@ def test_empty():
 
 
 class Simple(Struct):
-    a: Vector[2]
-    b: Vector[3]
-    c: Vector[4]
+    a: Vec[2]
+    b: Vec[3]
+    c: Vec[4]
 
 
 class Compound(Struct):
