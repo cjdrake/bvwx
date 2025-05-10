@@ -6,6 +6,7 @@ help:
 	@echo     prof  - PyTest with profile report
 	@echo     cov   - PyTest with HTML coverage report
 
+PKG := bvwx
 PYTEST := pytest
 
 .PHONY: test
@@ -18,4 +19,4 @@ prof:
 
 .PHONY: cov
 cov:
-	@$(PYTEST) --doctest-modules --cov=src/bvwx --cov-branch --cov-report=html
+	@$(PYTEST) --doctest-modules --cov=src/$(PKG) --cov-branch --cov-report=html
