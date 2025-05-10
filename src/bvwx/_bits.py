@@ -54,7 +54,7 @@ def _get_array_shape(shape: tuple[int, ...]) -> type[Array]:
     try:
         return _ArrayShape[shape]
     except KeyError:
-        name = f'Array[{",".join(str(n) for n in shape)}]'
+        name = f"Array[{','.join(str(n) for n in shape)}]"
         size = math.prod(shape)
         array = type(name, (Array,), {"_shape": shape, "_size": size})
         _ArrayShape[shape] = array
@@ -147,7 +147,6 @@ def resolve_type(t0: type[Bits], t1: type[Bits]) -> type[Bits]:
 
 
 class _SizedIf:
-
     _size: int
 
     @classproperty
@@ -156,7 +155,6 @@ class _SizedIf:
 
 
 class _ShapedIf:
-
     _shape: tuple[int, ...]
 
     @classproperty
@@ -1695,7 +1693,6 @@ def _sel(x: Array, key: tuple[tuple[int, int], ...]) -> Array:
 
     # Partial select m:n
     if start != 0 or stop != x.shape[0]:
-
         if len(key_r) == 0:
             size = stop - start
             d0, d1 = _chunk(x.data, start, size)
