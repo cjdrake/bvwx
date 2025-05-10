@@ -8,6 +8,11 @@ This chapter lists new features, API changes, and bug fixes.
 For a complete history, see the Git commit log.
 
 
+Version 0.12.0
+==============
+
+Updated tooling to use ``uv`` and ``ruff`.
+
 Version 0.11.1
 ==============
 
