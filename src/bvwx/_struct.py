@@ -1,8 +1,5 @@
 """Bits Struct data type."""
 
-# pylint: disable=exec-used
-# pylint: disable=protected-access
-
 from functools import partial
 
 from ._bits import Bits, Composite, Key, Vector, expect_bits_size, vec_size

@@ -1,7 +1,5 @@
 """Bits Enum data type."""
 
-# pylint: disable=protected-access
-
 from ._bits import Bits, BitsLike, expect_bits_size, vec_size
 from ._lbool import parse_lit
 from ._util import mask

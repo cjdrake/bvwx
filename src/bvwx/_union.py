@@ -1,7 +1,5 @@
 """Bits Union data type."""
 
-# pylint: disable=protected-access
-
 from functools import partial
 
 from ._bits import Bits, BitsLike, Composite, Key, Vector, expect_bits, vec_size

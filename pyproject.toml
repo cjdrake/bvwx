@@ -10,9 +10,6 @@ dependencies = []
 [project.urls]
 Repository = "https://github.com/cjdrake/bvwx.git"
 
-[tool.ruff]
-line-length = 100
-
 [dependency-groups]
 dev = [
     "ipykernel>=6.29.5",

@@ -1,7 +1,5 @@
 """Encode/Decode Operators"""
 
-# pylint: disable=protected-access
-
 from ._bits import (
     BitsLike,
     Scalar,

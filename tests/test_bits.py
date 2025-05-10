@@ -1,10 +1,5 @@
 """Test Bits methods"""
 
-# For error testing
-# pylint: disable=comparison-with-callable
-# pylint: disable=pointless-statement
-# pylint: disable=unidiomatic-typecheck
-
 import pytest
 
 from bvwx import Array, Empty, Enum, Scalar, Struct, Union, Vec, bits, u2bv

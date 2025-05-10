@@ -1,11 +1,5 @@
 """Test bvwx Enum"""
 
-# PyLint is confused by Enum metaclass
-# pylint: disable=invalid-unary-operand-type
-
-# For error testing
-# pylint: disable=unused-variable
-
 import pytest
 
 from bvwx import Enum, Vec

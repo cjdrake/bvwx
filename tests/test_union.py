@@ -1,9 +1,5 @@
 """Test bvwx Union"""
 
-# For error testing
-# pylint: disable=unused-variable
-# pylint: disable=unsubscriptable-object
-
 import pytest
 
 from bvwx import Union, Vec, bits

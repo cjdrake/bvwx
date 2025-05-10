@@ -1,11 +1,5 @@
 """Bits Data Types"""
 
-# PyLint is confused by my hacky classproperty implementation
-# pylint: disable=comparison-with-callable
-# pylint: disable=no-self-argument
-
-# pylint: disable=protected-access
-
 from __future__ import annotations
 
 import math

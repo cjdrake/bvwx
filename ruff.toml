@@ -1,0 +1,19 @@
+line-length = 100
+
+[lint]
+
+# https://docs.astral.sh/ruff/rules
+select = [
+    "E4",   # pycodestyle
+    "E7",
+    "E9",
+    "F",    # pyflakes
+    "PL",   # pylint
+]
+
+ignore = [
+    "PLR0911",
+    "PLR0915",
+    "PLR2004",
+    "PLW2901",
+]
