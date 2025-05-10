@@ -6,7 +6,6 @@ help:
 	@echo     test  - PyTest
 	@echo     prof  - PyTest with profile report
 	@echo     cov   - PyTest with HTML coverage report
-	@echo     build - Build source/binary distributions
 
 PYTHON := python
 PYLINT := pylint
@@ -29,7 +28,3 @@ prof:
 .PHONY: cov
 cov:
 	@$(PYTEST) --doctest-modules --cov=src/bvwx --cov-branch --cov-report=html
-
-.PHONY: build
-build:
-	@$(PYTHON) -m build
