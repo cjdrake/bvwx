@@ -10,7 +10,7 @@ dependencies = []
 [project.urls]
 Repository = "https://github.com/cjdrake/bvwx.git"
 
-[tool.black]
+[tool.ruff]
 line-length = 100
 
 [dependency-groups]
