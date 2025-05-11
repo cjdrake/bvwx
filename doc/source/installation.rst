@@ -13,7 +13,7 @@ This chapter explains how to install BVWX using various methods.
 With pip
 ========
 
-To install the latest release of BVWX, run:
+To install the latest release of ``bvwx``, run:
 
 .. code-block:: console
 
