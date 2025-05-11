@@ -31,10 +31,16 @@ See https://pip.pypa.io for ``pip`` documentation.
 With uv
 =======
 
-This author is old, and uncool.
-He has never used ``uv``.
+To add ``bvwx`` as a project dependency, run:
 
-.. note::
-    To ``self``: Figure out how the cool kids use ``uv``.
+.. code-block:: console
+
+    $ uv add bvwx
+
+To upgrade to the latest release, run:
+
+.. code-block:: console
+
+    $ uv sync --upgrade-package bvwx
 
 See https://docs.astral.sh/uv for ``uv`` documentation.
