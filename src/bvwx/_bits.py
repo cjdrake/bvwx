@@ -1181,22 +1181,22 @@ def _and_or(a: Vector, b: Vector) -> Scalar:
 
 def _matmul(a: Array, b: Array) -> Array:
     match (a.shape, b.shape):
-        # Vec[n] @ Vec[n] => Scalar
-        case (int() as n1,), (int() as n2,) if n1 == n2:
+        # Vec[k] @ Vec[k] => Scalar
+        case (int() as k1,), (int() as k2,) if k1 == k2:
             return _and_or(a, b)
-        # Vec[m] @ Array[m,n] => Vec[n]
-        case (int() as m1,), (int() as m2, int() as n) if m1 == m2:
+        # Vec[k] @ Array[k,n] => Vec[n]
+        case (int() as k1,), (int() as k2, int() as n) if k1 == k2:
             return _stack(*[_and_or(a, b[:, j]) for j in range(n)])
-        # Array[m,n] @ Vec[n] => Vec[m]
-        case (int() as m, int() as n1), (int() as n2,) if n1 == n2:
+        # Array[m,k] @ Vec[k] => Vec[m]
+        case (int() as m, int() as k1), (int() as k2,) if k1 == k2:
             return _stack(*[_and_or(a[i, :], b) for i in range(m)])
-        # Array[m,n] @ Array[n,p] => Array[m,p]
-        case (int() as m, int() as n1), (int() as n2, int() as p) if n1 == n2:
-            xs = [_stack(*[_and_or(a[i, :], b[:, j]) for j in range(p)]) for i in range(m)]
+        # Array[m,k] @ Array[k,n] => Array[m,n]
+        case (int() as m, int() as k1), (int() as k2, int() as n) if k1 == k2:
+            xs = [_stack(*[_and_or(a[i, :], b[:, j]) for j in range(n)]) for i in range(m)]
             return _stack(*xs)
         # Incompatible shapes
         case _:
-            s = "Expected Array[m,n] @ Array[n,p]"
+            s = "Expected Array[m,k] @ Array[k,n]"
             s += f", got {a.__class__.__name__} @ {b.__class__.__name__}"
             raise TypeError(s)
 
