@@ -161,10 +161,10 @@ class Bits(_SizedIf):
 
     A bit is a 4-state logical value in the set {``0``, ``1``, ``X``, ``-``}:
 
-        * ``0`` is Boolean zero or "False"
-        * ``1`` is Boolean one or "True"
-        * ``X`` is an uninitialized or metastable value
-        * ``-`` is a "don't care" value
+        * 0 is Boolean zero or "False"
+        * 1 is Boolean one or "True"
+        * X is an uninitialized or metastable value
+        * - is a "don't care" value
 
     The values ``0`` and ``1`` are "known".
     The values ``X`` and ``-`` are "unknown".
@@ -194,10 +194,10 @@ class Bits(_SizedIf):
     Do **NOT** construct a Bits object directly.
     Use one of the factory functions:
 
-        * ``bits``
-        * ``stack``
-        * ``u2bv``
-        * ``i2bv``
+        * bits
+        * stack
+        * u2bv
+        * i2bv
     """
 
     @classmethod
