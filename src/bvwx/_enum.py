@@ -51,7 +51,6 @@ class _EnumMeta(type):
                 obj._data = data
             return obj
 
-        # Override Vector._cast_data method
         enum._cast_data = classmethod(_cast_data)
 
         # Override Vector.__new__ method
