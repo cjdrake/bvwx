@@ -12,7 +12,6 @@ select = [
 ]
 
 ignore = [
-    "PLR0911",  # too-many-return-statements
     "PLR0915",  # too-many-statements
 ]
 

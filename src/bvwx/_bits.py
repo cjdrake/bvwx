@@ -1451,7 +1451,7 @@ def _rank2(fst: Vector, *rst: VectorLike) -> Array:
     return _get_array_shape(shape)(d0, d1)
 
 
-def bits(obj=None) -> Array:
+def bits(obj=None) -> Array:  # noqa: PLR0911
     """Create a shaped Bits object using standard input formats.
 
     For example, empty input returns an ``Empty`` instance.
