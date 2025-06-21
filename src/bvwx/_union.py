@@ -9,16 +9,21 @@ from ._util import classproperty, mask
 class _UnionMeta(type):
     """Union Metaclass: Create union base classes."""
 
-    def __new__(mcs, name, bases, attrs):
+    def __new__(mcs, name: str, bases: tuple[type], attrs: dict[str, type[Bits]]):
         # Base case for API
         if name == "Union":
             return super().__new__(mcs, name, bases, attrs)
 
+        # TODO(cjdrake): Support multiple inheritance?
+        assert len(bases) == 1
+
         # Get field_name: field_type items
         try:
-            fields = list(attrs["__annotations__"].items())
+            annotations: dict[str, type[Bits]] = attrs["__annotations__"]
         except KeyError as e:
             raise ValueError("Empty Union is not supported") from e
+
+        fields = list(annotations.items())
 
         # Create Union class
         size = max(field_type.size for _, field_type in fields)
@@ -47,7 +52,7 @@ class _UnionMeta(type):
         union.__getitem__ = _getitem
 
         # Override Bits.__str__ method
-        def _str(self):
+        def _str(self) -> str:
             parts = [f"{name}("]
             for fn, _ in fields:
                 x = getattr(self, fn)
@@ -59,7 +64,7 @@ class _UnionMeta(type):
         union.__str__ = _str
 
         # Override Bits.__repr__ method
-        def _repr(self):
+        def _repr(self) -> str:
             parts = [f"{name}("]
             for fn, _ in fields:
                 x = getattr(self, fn)
@@ -71,7 +76,7 @@ class _UnionMeta(type):
         union.__repr__ = _repr
 
         # Create Union fields
-        def _fget(ft: type[Bits], self):
+        def _fget(ft: type[Bits], self) -> Bits:
             m = mask(ft.size)
             d0 = self._data[0] & m
             d1 = self._data[1] & m
