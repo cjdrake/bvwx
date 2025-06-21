@@ -43,7 +43,7 @@ _LIT_PREFIX_RE = re.compile(r"(?P<Size>[1-9][0-9]*)(?P<Base>[bdh])")
 def parse_lit(lit: str) -> tuple[int, lbv]:
     m = _LIT_PREFIX_RE.match(lit)
 
-    if not m:
+    if m is None:
         raise ValueError(f"Invalid lit: {lit}")
 
     size = int(m.group("Size"))
