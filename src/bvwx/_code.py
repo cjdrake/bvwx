@@ -42,7 +42,7 @@ def encode_onehot(x: BitsLike) -> Vector:
     x = expect_bits(x)
 
     n = clog2(x.size)
-    vec = Vector[n]
+    vec = vec_size(n)
 
     # X/DC propagation
     if x.has_x():
@@ -87,7 +87,7 @@ def encode_priority(x: BitsLike) -> tuple[Vector, Scalar]:
     x = expect_bits(x)
 
     n = clog2(x.size)
-    vec = Vector[n]
+    vec = vec_size(n)
 
     # X propagation
     if x.has_x():
