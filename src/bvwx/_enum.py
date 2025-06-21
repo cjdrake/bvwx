@@ -19,23 +19,7 @@ class _EnumMeta(type):
         # TODO(cjdrake): Support multiple inheritance?
         assert len(bases) == 1
 
-        enum_attrs, data2key, size = mcs.parse_attrs(attrs)
-
-        # Empty Enum
-        if size is None:
-            raise ValueError("Empty Enum is not supported")
-
-        # Add X/DC members
-        data2key[(0, 0)] = "X"
-        dmax = mask(size)
-        data2key[(dmax, dmax)] = "DC"
-
-        # Create Enum class
-        vec = vec_size(size)
-        enum = super().__new__(mcs, name, bases + (vec,), enum_attrs)
-
-        # Help the type checker
-        assert issubclass(enum, Vector)
+        data2key, vec, enum = mcs.parse_attrs(name, bases, attrs)
 
         # Instantiate members
         for (d0, d1), key in data2key.items():
@@ -95,15 +79,15 @@ class _EnumMeta(type):
 
     @classmethod
     def parse_attrs(
-        mcs, attrs: dict[str, Any]
-    ) -> tuple[dict[str, Any], dict[tuple[int, int], str], int | None]:
-        enum_attrs: dict[str, Any] = {}
+        mcs, name: str, bases: tuple[type], attrs: dict[str, Any]
+    ) -> tuple[dict[tuple[int, int], str], type[Vector], type[Vector]]:
+        _attrs: dict[str, Any] = {}
         data2key: dict[tuple[int, int], str] = {}
         size: int | None = None
 
         for key, val in attrs.items():
             if key.startswith("__"):
-                enum_attrs[key] = val
+                _attrs[key] = val
             # NAME = lit
             else:
                 if size is None:
@@ -122,7 +106,21 @@ class _EnumMeta(type):
                     raise ValueError(f"Duplicate value: {val}")
                 data2key[data] = key
 
-        return enum_attrs, data2key, size
+        # Empty Enum
+        if size is None:
+            raise ValueError("Empty Enum is not supported")
+
+        # Add X/DC members
+        data2key[(0, 0)] = "X"
+        dmax = mask(size)
+        data2key[(dmax, dmax)] = "DC"
+
+        vec = vec_size(size)
+
+        # Create Enum class
+        enum = super().__new__(mcs, name, bases + (vec,), _attrs)
+
+        return data2key, vec, enum
 
 
 class Enum(metaclass=_EnumMeta):
