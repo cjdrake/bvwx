@@ -262,7 +262,7 @@ def mux(s: tuple[lbv, ...], xs: dict[int, lbv], default: lbv) -> lbv:
 
     x1 = default
 
-    if n == 2:
+    if n == 2:  # noqa: PLR2004
         for i, x in xs.items():
             assert i < n
             if i:

@@ -1749,10 +1749,10 @@ def _norm_slice(n: int, sl: slice) -> tuple[int, int]:
 
 def _get_sep(indent: str, x: Array) -> str:
     # 2-D Matrix
-    if len(x.shape) == 2:
+    if len(x.shape) == 2:  # noqa: PLR2004
         return ", "
     # 3-D
-    if len(x.shape) == 3:
+    if len(x.shape) == 3:  # noqa: PLR2004
         return ",\n" + indent
     # N-D
     return ",\n\n" + indent
