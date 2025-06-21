@@ -361,6 +361,9 @@ class Bits(_SizedIf):
         return self.to_int()
 
     # Comparison
+    def __hash__(self) -> int:
+        raise NotImplementedError()  # pragma: no cover
+
     def __eq__(self, obj: object) -> bool:
         if isinstance(obj, str):
             size, data = lb.parse_lit(obj)
