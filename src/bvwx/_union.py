@@ -97,7 +97,7 @@ class Union(Composite, metaclass=_UnionMeta):
 
     Compose a type from the union of other types.
 
-    Extend from ``Union`` to define a struct:
+    Extend from ``Union`` to define a union:
 
     >>> from bvwx import Vec
     >>> class Response(Union):
