@@ -6,6 +6,7 @@ import math
 import random
 from collections.abc import Callable, Generator
 from functools import cached_property, partial
+from typing import Self
 
 from . import _lbool as lb
 from ._lbool import lbv
@@ -201,7 +202,7 @@ class Bits(_SizedIf):
     """
 
     @classmethod
-    def cast(cls, x: Bits) -> Bits:
+    def cast(cls, x: Bits) -> Self:
         """Convert Bits object to an instance of this class.
 
         For example, to cast an ``Array[2,2]`` to a ``Vector[4]``:
@@ -218,13 +219,13 @@ class Bits(_SizedIf):
         return cls._cast_data(x.data[0], x.data[1])
 
     @classmethod
-    def _cast_data(cls, d0: int, d1: int) -> Bits:
+    def _cast_data(cls, d0: int, d1: int) -> Self:
         obj = object.__new__(cls)
         obj._data = (d0, d1)
         return obj
 
     @classmethod
-    def xes(cls) -> Bits:
+    def xes(cls) -> Self:
         """Return an instance filled with ``X`` bits.
 
         For example:
@@ -235,7 +236,7 @@ class Bits(_SizedIf):
         return cls._cast_data(0, 0)
 
     @classmethod
-    def zeros(cls) -> Bits:
+    def zeros(cls) -> Self:
         """Return an instance filled with ``0`` bits.
 
         For example:
@@ -246,7 +247,7 @@ class Bits(_SizedIf):
         return cls._cast_data(cls._dmax, 0)
 
     @classmethod
-    def ones(cls) -> Bits:
+    def ones(cls) -> Self:
         """Return an instance filled with ``1`` bits.
 
         For example:
@@ -257,7 +258,7 @@ class Bits(_SizedIf):
         return cls._cast_data(0, cls._dmax)
 
     @classmethod
-    def dcs(cls) -> Bits:
+    def dcs(cls) -> Self:
         """Return an instance filled with ``-`` bits.
 
         For example:
@@ -268,13 +269,13 @@ class Bits(_SizedIf):
         return cls._cast_data(cls._dmax, cls._dmax)
 
     @classmethod
-    def rand(cls) -> Bits:
+    def rand(cls) -> Self:
         """Return an instance filled with random bits."""
         d1 = random.getrandbits(cls.size)
         return cls._cast_data(cls._dmax ^ d1, d1)
 
     @classmethod
-    def xprop(cls, sel: Bits) -> Bits:
+    def xprop(cls, sel: Bits) -> Self:
         """Propagate ``X`` in a wildcard pattern (default case).
 
         If ``sel`` contains an ``X``, propagate ``X``.
