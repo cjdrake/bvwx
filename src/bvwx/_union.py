@@ -22,7 +22,7 @@ class _UnionMeta(type):
 
         # Create Union class
         size = max(field_type.size for _, field_type in fields)
-        union = super().__new__(mcs, name, bases + (Composite,), {})
+        union = super().__new__(mcs, name, bases, {})
 
         # Class properties
         union.size = classproperty(lambda _: size)
@@ -83,7 +83,7 @@ class _UnionMeta(type):
         return union
 
 
-class Union(metaclass=_UnionMeta):
+class Union(Composite, metaclass=_UnionMeta):
     """User defined union data type.
 
     Compose a type from the union of other types.
