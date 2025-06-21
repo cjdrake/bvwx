@@ -21,15 +21,9 @@ def _struct_init_source(fields: list[tuple[str, type]]) -> str:
 class _StructMeta(type):
     """Struct Metaclass: Create struct base classes."""
 
-    def __new__(
-        mcs,
-        name: str,
-        bases: tuple[()] | tuple[type[Struct]],
-        attrs: dict[str, type[Bits]],
-    ):
+    def __new__(mcs, name: str, bases: tuple[type], attrs: dict[str, type[Bits]]):
         # Base case for API
         if name == "Struct":
-            assert not bases
             return super().__new__(mcs, name, bases, attrs)
 
         # TODO(cjdrake): Support multiple inheritance?
@@ -52,7 +46,7 @@ class _StructMeta(type):
 
         # Create Struct class
         size = sum(field_type.size for _, field_type in fields)
-        struct = super().__new__(mcs, name, bases + (Composite,), {})
+        struct = super().__new__(mcs, name, bases, {})
 
         # Class properties
         struct.size = classproperty(lambda _: size)
@@ -118,7 +112,7 @@ class _StructMeta(type):
         return struct
 
 
-class Struct(metaclass=_StructMeta):
+class Struct(Composite, metaclass=_StructMeta):
     """User defined struct data type.
 
     Compose a type from a sequence of other types.
