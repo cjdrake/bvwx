@@ -47,7 +47,7 @@ def parse_lit(lit: str) -> tuple[int, lbv]:
         raise ValueError(f"Invalid lit: {lit}")
 
     size = int(m.group("Size"))
-    base = m.group("Base")
+    base: str = m.group("Base")
     prefix_len = len(m.group())
     digits = lit[prefix_len:]
 
