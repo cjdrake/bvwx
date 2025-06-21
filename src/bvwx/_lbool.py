@@ -272,7 +272,8 @@ def mux(s: tuple[lbv, ...], xs: dict[int, lbv], default: lbv) -> lbv:
         return _mux(s[0], x0, x1)
 
     mask0 = (n >> 1) - 1
-    xs_0, xs_1 = {}, {}
+    xs_0: dict[int, lbv] = {}
+    xs_1: dict[int, lbv] = {}
     for i, x in xs.items():
         assert i < n
         if i > mask0:
