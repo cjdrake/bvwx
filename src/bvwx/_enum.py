@@ -2,7 +2,7 @@
 
 from typing import Any
 
-from ._bits import Bits, BitsLike, Vector, expect_bits_size, vec_size
+from ._bits import BitsLike, Vector, expect_bits_size, vec_size
 from ._lbool import parse_lit
 from ._util import mask
 
@@ -19,14 +19,20 @@ class _EnumMeta(type):
         # TODO(cjdrake): Support multiple inheritance?
         assert len(bases) == 1
 
-        data2key, vec, enum = mcs._parse_attrs(name, bases, attrs)
+        _attrs, data2key, vec = mcs._parse_attrs(attrs)
+
+        # Create Enum class
+        enum = super().__new__(mcs, name, bases + (vec,), _attrs)
+
+        # Help the type checker
+        assert issubclass(enum, vec)
 
         # Instantiate members
         for (d0, d1), key in data2key.items():
             setattr(enum, key, enum._cast_data(d0, d1))
 
         # Override Vector._cast_data method
-        def _cast_data(cls, d0: int, d1: int) -> Bits:
+        def _cast_data(cls, d0: int, d1: int):
             data = (d0, d1)
             try:
                 obj = getattr(cls, data2key[data])
@@ -35,14 +41,14 @@ class _EnumMeta(type):
                 obj._data = data
             return obj
 
-        enum._cast_data = classmethod(_cast_data)
+        enum._cast_data = classmethod(_cast_data)  # pyright: ignore[reportAttributeAccessIssue]
 
         # Override Vector.__new__ method
         def _new(cls, arg: BitsLike):
             x = expect_bits_size(arg, cls.size)
             return cls.cast(x)
 
-        enum.__new__ = _new
+        enum.__new__ = _new  # pyright: ignore[reportAttributeAccessIssue]
 
         # Override Vector.__repr__ method
         def _repr(self) -> str:
@@ -69,18 +75,21 @@ class _EnumMeta(type):
             except KeyError:
                 return f"{name}({vec.__str__(self)})"
 
-        enum.name = property(fget=_name)
+        enum.name = property(fget=_name)  # pyright: ignore[reportAttributeAccessIssue]
 
         # Override VCD methods
-        enum.vcd_var = lambda _: "string"
+        def _vcd_var(self) -> str:
+            return "string"
+
+        enum.vcd_var = _vcd_var
         enum.vcd_val = _name
 
         return enum
 
     @classmethod
     def _parse_attrs(
-        mcs, name: str, bases: tuple[type], attrs: dict[str, Any]
-    ) -> tuple[dict[tuple[int, int], str], type[Vector], type[Vector]]:
+        mcs, attrs: dict[str, Any]
+    ) -> tuple[dict[str, Any], dict[tuple[int, int], str], type[Vector]]:
         _attrs: dict[str, Any] = {}
         data2key: dict[tuple[int, int], str] = {}
         size: int | None = None
@@ -118,10 +127,7 @@ class _EnumMeta(type):
         # Get Vector[N] base class
         vec = vec_size(size)
 
-        # Create Enum(Vector[N]) class
-        enum = super().__new__(mcs, name, bases + (vec,), _attrs)
-
-        return data2key, vec, enum
+        return _attrs, data2key, vec
 
 
 class Enum(metaclass=_EnumMeta):

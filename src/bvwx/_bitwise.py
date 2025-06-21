@@ -114,8 +114,7 @@ def or_(x0: BitsLike, *xs: BitsLike) -> Bits:
     x0 = expect_bits(x0)
     y = x0
     for x in xs:
-        _x = expect_bits_size(x, x0.size)
-        y = _or_(y, _x)
+        y = _or_(y, expect_bits_size(x, x0.size))
     return y
 
 
@@ -170,8 +169,7 @@ def and_(x0: BitsLike, *xs: BitsLike) -> Bits:
     x0 = expect_bits(x0)
     y = x0
     for x in xs:
-        _x = expect_bits_size(x, x0.size)
-        y = _and_(y, _x)
+        y = _and_(y, expect_bits_size(x, x0.size))
     return y
 
 
@@ -224,8 +222,7 @@ def xor(x0: BitsLike, *xs: BitsLike) -> Bits:
     x0 = expect_bits(x0)
     y = x0
     for x in xs:
-        _x = expect_bits_size(x, x0.size)
-        y = _xor_(y, _x)
+        y = _xor_(y, expect_bits_size(x, x0.size))
     return y
 
 
@@ -357,7 +354,7 @@ def mux(s: BitsLike, **xs: BitsLike) -> Bits:
 
     # Parse and check inputs
     t = None
-    i2x = {}
+    i2x: dict[int, Bits] = {}
     for name, value in xs.items():
         if m := _MUX_XN_RE.match(name):
             i = int(m.group(1))

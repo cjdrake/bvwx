@@ -56,6 +56,8 @@ def test_basic():
     assert repr(Color("2b11")) == 'Color("2b11")'
     assert str(Color("2b11")) == "Color(2b11)"
 
+    assert Color.BLUE.vcd_var() == "string"
+
 
 def test_typing():
     """Advanced type behavior."""

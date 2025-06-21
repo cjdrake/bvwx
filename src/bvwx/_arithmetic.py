@@ -1,6 +1,7 @@
 """Arithmetic Operators"""
 
 from ._bits import (
+    Array,
     ArrayLike,
     Bits,
     BitsLike,
@@ -87,7 +88,9 @@ def adc(a: BitsLike, b: BitsLike, ci: ScalarLike | None = None) -> Vector:
     b = expect_bits(b)
     ci = scalar0 if ci is None else expect_scalar(ci)
     s, co = _add(a, b, ci)
-    return _cat(s, co)
+    v = _cat(s, co)
+    assert isinstance(v, Vector)
+    return v
 
 
 def sub(a: BitsLike, b: BitsLike) -> Bits:
@@ -130,7 +133,9 @@ def sbc(a: BitsLike, b: BitsLike) -> Vector:
     a = expect_bits(a)
     b = expect_bits_size(b, a.size)
     s, co = _sub(a, b)
-    return _cat(s, co)
+    v = _cat(s, co)
+    assert isinstance(v, Vector)
+    return v
 
 
 def neg(x: BitsLike) -> Bits:
@@ -167,7 +172,9 @@ def ngc(x: BitsLike) -> Vector:
     """
     x = expect_bits(x)
     s, co = _neg(x)
-    return _cat(s, co)
+    v = _cat(s, co)
+    assert isinstance(v, Vector)
+    return v
 
 
 def mul(a: BitsLike, b: BitsLike) -> Vector:
@@ -237,7 +244,7 @@ def mod(a: BitsLike, b: BitsLike) -> Bits:
     return _mod(a, b)
 
 
-def matmul(a: ArrayLike, b: ArrayLike) -> Bits:
+def matmul(a: ArrayLike, b: ArrayLike) -> Array:
     """Matrix multiply.
 
     Args:

@@ -26,11 +26,3 @@ def clog2(x: int) -> int:
 def mask(n: int) -> int:
     """Return n bit mask."""
     return (1 << n) - 1
-
-
-class classproperty:
-    def __init__(self, func):
-        self._f = func
-
-    def __get__(self, unused_obj, cls):
-        return self._f(cls)

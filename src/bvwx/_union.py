@@ -4,7 +4,7 @@ from functools import partial
 from typing import Any
 
 from ._bits import Bits, BitsLike, Composite, expect_bits
-from ._util import classproperty, mask
+from ._util import mask
 
 
 class _UnionMeta(type):
@@ -28,13 +28,10 @@ class _UnionMeta(type):
 
         # Create Union class
         size = max(field_type.size for _, field_type in fields)
-        union = super().__new__(mcs, name, bases, {})
+        union = super().__new__(mcs, name, bases, {"size": size})
 
         # Help the type checker
         assert issubclass(union, Composite)
-
-        # Class properties
-        union.size = classproperty(lambda _: size)
 
         # Override Bits.__init__ method
         def _init(self, arg: BitsLike):
@@ -46,7 +43,7 @@ class _UnionMeta(type):
                 raise TypeError(s)
             self._data = x.data
 
-        union.__init__ = _init
+        union.__init__ = _init  # pyright: ignore[reportAttributeAccessIssue]
 
         # Override Bits.__str__ method
         def _str(self) -> str:
@@ -73,7 +70,7 @@ class _UnionMeta(type):
         union.__repr__ = _repr
 
         # Create Union fields
-        def _fget(ft: type[Bits], self) -> Bits:
+        def _fget(ft, self):
             m = mask(ft.size)
             d0 = self._data[0] & m
             d1 = self._data[1] & m

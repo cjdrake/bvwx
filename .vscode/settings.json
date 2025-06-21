@@ -1,5 +1,5 @@
 {
-    "python.analysis.typeCheckingMode": "off",
+    "python.analysis.typeCheckingMode": "standard",
     "python.testing.pytestEnabled": true,
     "python.testing.pytestArgs": ["--cov=src/bvwx", "--cov-branch"],
     "python.testing.unittestEnabled": false,

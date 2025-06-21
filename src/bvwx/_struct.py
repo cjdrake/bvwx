@@ -4,12 +4,12 @@ from functools import partial
 from typing import Any
 
 from ._bits import Bits, Composite, expect_bits_size
-from ._util import classproperty, mask
+from ._util import mask
 
 
 def _struct_init_source(fields: list[tuple[str, type]]) -> str:
     """Return source code for Struct __init__ method w/ fields."""
-    lines = []
+    lines: list[str] = []
     s = ", ".join(f"{fn}=None" for fn, _ in fields)
     lines.append(f"def init(self, {s}):\n")
     s = ", ".join(fn for fn, _ in fields)
@@ -45,13 +45,10 @@ class _StructMeta(type):
 
         # Create Struct class
         size = sum(field_type.size for _, field_type in fields)
-        struct = super().__new__(mcs, name, bases, {})
+        struct = super().__new__(mcs, name, bases, {"size": size})
 
         # Help the type checker
         assert issubclass(struct, Composite)
-
-        # Class properties
-        struct.size = classproperty(lambda _: size)
 
         # Override Bits.__init__ method
         def _init_body(obj, *args):
@@ -95,7 +92,7 @@ class _StructMeta(type):
         struct.__repr__ = _repr
 
         # Create Struct fields
-        def _fget(fn: str, ft: type[Bits], self) -> Bits:
+        def _fget(fn: str, ft, self):
             m = mask(ft.size)
             d0 = (self._data[0] >> offsets[fn]) & m
             d1 = (self._data[1] >> offsets[fn]) & m

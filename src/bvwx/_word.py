@@ -4,7 +4,6 @@ from ._bits import (
     Bits,
     BitsLike,
     UintLike,
-    Vector,
     _cat,
     _lrot,
     _pack,
@@ -124,7 +123,7 @@ def rrot(x: BitsLike, n: UintLike) -> Bits:
     return _rrot(x, n)
 
 
-def cat(*objs: BitsLike) -> Vector:
+def cat(*objs: BitsLike) -> Bits:
     """Concatenate a sequence of Vectors.
 
     Args:
@@ -137,9 +136,9 @@ def cat(*objs: BitsLike) -> Vector:
         TypeError: If input obj is invalid.
     """
     # Convert inputs
-    xs = []
+    xs: list[Bits] = []
     for obj in objs:
-        if obj in (0, 1):
+        if isinstance(obj, int) and obj in (0, 1):
             xs.append(bool2scalar[obj])
         elif isinstance(obj, str):
             x = lit2bv(obj)
@@ -152,7 +151,7 @@ def cat(*objs: BitsLike) -> Vector:
     return _cat(*xs)
 
 
-def rep(obj: BitsLike, n: int) -> Vector:
+def rep(obj: BitsLike, n: int) -> Bits:
     """Repeat a Vector n times."""
     objs = [obj] * n
     return cat(*objs)
