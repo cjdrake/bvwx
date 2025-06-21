@@ -1441,9 +1441,9 @@ def _bools2vec(x0: int, *xs: int) -> Vector:
 def _rank2(fst: Vector, *rst: VectorLike) -> Array:
     d0, d1 = fst.data
     for i, x in enumerate(rst, start=1):
-        x = _expect_vec_size(x, fst.size)
-        d0 |= x.data[0] << (fst.size * i)
-        d1 |= x.data[1] << (fst.size * i)
+        _x = _expect_vec_size(x, fst.size)
+        d0 |= _x.data[0] << (fst.size * i)
+        d1 |= _x.data[1] << (fst.size * i)
     if fst.shape == (1,):
         size = len(rst) + 1
         return _get_vec_size(size)(d0, d1)

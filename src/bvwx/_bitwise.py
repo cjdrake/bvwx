@@ -114,8 +114,8 @@ def or_(x0: BitsLike, *xs: BitsLike) -> Bits:
     x0 = expect_bits(x0)
     y = x0
     for x in xs:
-        x = expect_bits_size(x, x0.size)
-        y = _or_(y, x)
+        _x = expect_bits_size(x, x0.size)
+        y = _or_(y, _x)
     return y
 
 
@@ -170,8 +170,8 @@ def and_(x0: BitsLike, *xs: BitsLike) -> Bits:
     x0 = expect_bits(x0)
     y = x0
     for x in xs:
-        x = expect_bits_size(x, x0.size)
-        y = _and_(y, x)
+        _x = expect_bits_size(x, x0.size)
+        y = _and_(y, _x)
     return y
 
 
@@ -224,8 +224,8 @@ def xor(x0: BitsLike, *xs: BitsLike) -> Bits:
     x0 = expect_bits(x0)
     y = x0
     for x in xs:
-        x = expect_bits_size(x, x0.size)
-        y = _xor_(y, x)
+        _x = expect_bits_size(x, x0.size)
+        y = _xor_(y, _x)
     return y
 
 

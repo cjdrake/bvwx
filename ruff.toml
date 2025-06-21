@@ -15,5 +15,4 @@ ignore = [
     "PLR0911",  # too-many-return-statements
     "PLR0915",  # too-many-statements
     "PLR2004",  # magic-value-comparison
-    "PLW2901",  # redefined-loop-name
 ]
