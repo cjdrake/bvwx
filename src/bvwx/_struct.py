@@ -3,7 +3,7 @@
 from functools import partial
 from typing import Any
 
-from ._bits import Bits, Composite, Key, Vector, expect_bits_size, vec_size
+from ._bits import Bits, Composite, expect_bits_size
 from ._util import classproperty, mask
 
 
@@ -69,13 +69,6 @@ class _StructMeta(type):
         locals_ = {}
         exec(source, globals_, locals_)
         struct.__init__ = locals_["init"]
-
-        # Override Bits.__getitem__ method
-        def _getitem(self, key: Key) -> Vector:
-            size, (d0, d1) = self._get_key(key)
-            return vec_size(size)(d0, d1)
-
-        struct.__getitem__ = _getitem
 
         # Override Bits.__str__ method
         def _str(self) -> str:

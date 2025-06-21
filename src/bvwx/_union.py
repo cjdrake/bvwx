@@ -48,13 +48,6 @@ class _UnionMeta(type):
 
         union.__init__ = _init
 
-        # Override Bits.__getitem__ method
-        def _getitem(self, key: Key) -> Vector:
-            size, (d0, d1) = self._get_key(key)
-            return vec_size(size)(d0, d1)
-
-        union.__getitem__ = _getitem
-
         # Override Bits.__str__ method
         def _str(self) -> str:
             parts = [f"{name}("]

@@ -626,6 +626,10 @@ class Composite(Bits, _SizedIf):
     def __hash__(self) -> int:
         return hash(self.size) ^ hash(self._data)
 
+    def __getitem__(self, key: Key) -> Vector:
+        size, (d0, d1) = self._get_key(key)
+        return vec_size(size)(d0, d1)
+
 
 class Array(Shaped):
     """Multi dimensional array of bits.
