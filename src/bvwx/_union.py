@@ -1,6 +1,7 @@
 """Bits Union data type."""
 
 from functools import partial
+from typing import Any
 
 from ._bits import Bits, BitsLike, Composite, Key, Vector, expect_bits, vec_size
 from ._util import classproperty, mask
@@ -9,7 +10,7 @@ from ._util import classproperty, mask
 class _UnionMeta(type):
     """Union Metaclass: Create union base classes."""
 
-    def __new__(mcs, name: str, bases: tuple[type], attrs: dict[str, type[Bits]]):
+    def __new__(mcs, name: str, bases: tuple[type], attrs: dict[str, Any]):
         # Base case for API
         if name == "Union":
             return super().__new__(mcs, name, bases, attrs)
@@ -28,6 +29,9 @@ class _UnionMeta(type):
         # Create Union class
         size = max(field_type.size for _, field_type in fields)
         union = super().__new__(mcs, name, bases, {})
+
+        # Help the type checker
+        assert issubclass(union, Composite)
 
         # Class properties
         union.size = classproperty(lambda _: size)

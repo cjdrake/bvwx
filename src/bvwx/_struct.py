@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from functools import partial
+from typing import Any
 
 from ._bits import Bits, Composite, Key, Vector, expect_bits_size, vec_size
 from ._util import classproperty, mask
@@ -21,7 +22,7 @@ def _struct_init_source(fields: list[tuple[str, type]]) -> str:
 class _StructMeta(type):
     """Struct Metaclass: Create struct base classes."""
 
-    def __new__(mcs, name: str, bases: tuple[type], attrs: dict[str, type[Bits]]):
+    def __new__(mcs, name: str, bases: tuple[type], attrs: dict[str, Any]):
         # Base case for API
         if name == "Struct":
             return super().__new__(mcs, name, bases, attrs)
@@ -47,6 +48,9 @@ class _StructMeta(type):
         # Create Struct class
         size = sum(field_type.size for _, field_type in fields)
         struct = super().__new__(mcs, name, bases, {})
+
+        # Help the type checker
+        assert issubclass(struct, Composite)
 
         # Class properties
         struct.size = classproperty(lambda _: size)

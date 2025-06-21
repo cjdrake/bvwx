@@ -11,9 +11,7 @@ select = [
     "PL",   # pylint
 ]
 
-ignore = [
-    "PLR0915",  # too-many-statements
-]
+ignore = []
 
 # Ignore PyLint Refactor/Warning rules for examples and tests
 [lint.per-file-ignores]
