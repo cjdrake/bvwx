@@ -46,12 +46,14 @@ Data Types
     .. automethod:: bvwx.Bits.has_dc
     .. automethod:: bvwx.Bits.has_unknown
 
-.. autoclass:: bvwx.Empty
-.. autoclass:: bvwx.Scalar
-.. autoclass:: bvwx.Vector
 .. autoclass:: bvwx.Array
+.. autoclass:: bvwx.Vector
+.. autoclass:: bvwx.Scalar
+.. autoclass:: bvwx.Empty
 
 .. autoclass:: bvwx.Enum
+
+.. autoclass:: bvwx.Composite
 .. autoclass:: bvwx.Struct
 .. autoclass:: bvwx.Union
 

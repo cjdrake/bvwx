@@ -1,7 +1,7 @@
 """Bit Vectors With Xes"""
 
 from ._arithmetic import adc, add, div, lsh, matmul, mod, mul, neg, ngc, rsh, sbc, srsh, sub
-from ._bits import Array, Bits, Empty, Scalar, Vector, bits, i2bv, lit2bv, stack, u2bv
+from ._bits import Array, Bits, Composite, Empty, Scalar, Vector, bits, i2bv, lit2bv, stack, u2bv
 from ._bitwise import and_, impl, ite, mux, not_, or_, xor
 from ._code import decode, encode_onehot, encode_priority
 from ._count import clz, cpop, ctz
@@ -20,12 +20,13 @@ Vec = Vector
 __all__ = [
     # bits
     "Bits",
-    "Empty",
-    "Scalar",
+    "Array",
     "Vector",
     "Vec",
-    "Array",
+    "Scalar",
+    "Empty",
     "Enum",
+    "Composite",
     "Struct",
     "Union",
     # bitwise
