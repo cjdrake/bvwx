@@ -115,9 +115,10 @@ class _EnumMeta(type):
         dmax = mask(size)
         data2key[(dmax, dmax)] = "DC"
 
+        # Get Vector[N] base class
         vec = vec_size(size)
 
-        # Create Enum class
+        # Create Enum(Vector[N]) class
         enum = super().__new__(mcs, name, bases + (vec,), _attrs)
 
         return data2key, vec, enum
