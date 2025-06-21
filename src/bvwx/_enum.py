@@ -19,7 +19,7 @@ class _EnumMeta(type):
         # TODO(cjdrake): Support multiple inheritance?
         assert len(bases) == 1
 
-        data2key, vec, enum = mcs.parse_attrs(name, bases, attrs)
+        data2key, vec, enum = mcs._parse_attrs(name, bases, attrs)
 
         # Instantiate members
         for (d0, d1), key in data2key.items():
@@ -78,7 +78,7 @@ class _EnumMeta(type):
         return enum
 
     @classmethod
-    def parse_attrs(
+    def _parse_attrs(
         mcs, name: str, bases: tuple[type], attrs: dict[str, Any]
     ) -> tuple[dict[tuple[int, int], str], type[Vector], type[Vector]]:
         _attrs: dict[str, Any] = {}
