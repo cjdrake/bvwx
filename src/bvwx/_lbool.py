@@ -41,44 +41,51 @@ _LIT_PREFIX_RE = re.compile(r"(?P<Size>[1-9][0-9]*)(?P<Base>[bdh])")
 
 
 def parse_lit(lit: str) -> tuple[int, lbv]:
-    if m := _LIT_PREFIX_RE.match(lit):
-        size = int(m.group("Size"))
-        base = m.group("Base")
-        prefix_len = len(m.group())
-        digits = lit[prefix_len:]
-        # Binary
-        if base == "b":
-            digits = digits.replace("_", "")
-            if len(digits) != size:
-                s = f"Expected {size} digits, got {len(digits)}"
-                raise ValueError(s)
-            d0, d1 = 0, 0
-            for i, c in enumerate(reversed(digits)):
-                try:
-                    x = from_char[c]
-                except KeyError as e:
-                    raise ValueError(f"Invalid lit: {lit}") from e
-                d0 |= x[0] << i
-                d1 |= x[1] << i
-            return size, (d0, d1)
-        # Decimal
-        if base == "d":
-            d1 = int(digits, base=10)
-            dmax = mask(size)
-            if d1 > dmax:
-                s = f"Expected digits in range [0, {dmax}], got {digits}"
-                raise ValueError(s)
-            return size, (d1 ^ dmax, d1)
-        # Hexadecimal
-        if base == "h":
-            d1 = int(digits, base=16)
-            dmax = mask(size)
-            if d1 > dmax:
-                s = f"Expected digits in range [0, {dmax}], got {digits}"
-                raise ValueError(s)
-            return size, (d1 ^ dmax, d1)
-        assert False  # pragma: no cover
-    raise ValueError(f"Invalid lit: {lit}")
+    m = _LIT_PREFIX_RE.match(lit)
+
+    if not m:
+        raise ValueError(f"Invalid lit: {lit}")
+
+    size = int(m.group("Size"))
+    base = m.group("Base")
+    prefix_len = len(m.group())
+    digits = lit[prefix_len:]
+
+    # Binary
+    if base == "b":
+        digits = digits.replace("_", "")
+        if len(digits) != size:
+            s = f"Expected {size} digits, got {len(digits)}"
+            raise ValueError(s)
+        d0, d1 = 0, 0
+        for i, c in enumerate(reversed(digits)):
+            try:
+                x = from_char[c]
+            except KeyError as e:
+                raise ValueError(f"Invalid lit: {lit}") from e
+            d0 |= x[0] << i
+            d1 |= x[1] << i
+        return size, (d0, d1)
+
+    # Decimal
+    if base == "d":
+        d1 = int(digits, base=10)
+        dmax = mask(size)
+        if d1 > dmax:
+            s = f"Expected digits in range [0, {dmax}], got {digits}"
+            raise ValueError(s)
+        return size, (d1 ^ dmax, d1)
+
+    # Hexadecimal
+    if base == "h":
+        d1 = int(digits, base=16)
+        dmax = mask(size)
+        if d1 > dmax:
+            s = f"Expected digits in range [0, {dmax}], got {digits}"
+            raise ValueError(s)
+        return size, (d1 ^ dmax, d1)
+
+    assert False  # pragma: no cover
 
 
 def not_(a: lbv) -> lbv:
