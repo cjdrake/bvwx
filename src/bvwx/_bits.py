@@ -22,9 +22,9 @@ def _get_vec_size(size: int) -> type[Vector]:
         return _VectorSize[size]
     except KeyError:
         name = f"Vector[{size}]"
-        vec = type(name, (Vector,), {"size": size, "shape": (size,)})
-        _VectorSize[size] = vec
-        return vec
+        V = type(name, (Vector,), {"size": size, "shape": (size,)})
+        _VectorSize[size] = V
+        return V
 
 
 def vec_size(size: int) -> type[Vector]:
@@ -952,49 +952,49 @@ def _not_(x: Bits) -> Bits:
 
 def _or_(x0: Bits, x1: Bits) -> Bits:
     d0, d1 = lb.or_(x0.data, x1.data)
-    t = resolve_type(type(x0), type(x1))
-    return t._cast_data(d0, d1)
+    T = resolve_type(type(x0), type(x1))
+    return T._cast_data(d0, d1)
 
 
 def _and_(x0: Bits, x1: Bits) -> Bits:
     d0, d1 = lb.and_(x0.data, x1.data)
-    t = resolve_type(type(x0), type(x1))
-    return t._cast_data(d0, d1)
+    T = resolve_type(type(x0), type(x1))
+    return T._cast_data(d0, d1)
 
 
 def _xnor_(x0: Bits, x1: Bits) -> Bits:
     d0, d1 = lb.xnor(x0.data, x1.data)
-    t = resolve_type(type(x0), type(x1))
-    return t._cast_data(d0, d1)
+    T = resolve_type(type(x0), type(x1))
+    return T._cast_data(d0, d1)
 
 
 def _xor_(x0: Bits, x1: Bits) -> Bits:
     d0, d1 = lb.xor(x0.data, x1.data)
-    t = resolve_type(type(x0), type(x1))
-    return t._cast_data(d0, d1)
+    T = resolve_type(type(x0), type(x1))
+    return T._cast_data(d0, d1)
 
 
 def _impl_(p: Bits, q: Bits) -> Bits:
     d0, d1 = lb.impl(p.data, q.data)
-    t = resolve_type(type(p), type(q))
-    return t._cast_data(d0, d1)
+    T = resolve_type(type(p), type(q))
+    return T._cast_data(d0, d1)
 
 
 def _ite_(s: Bits, x1: Bits, x0: Bits) -> Bits:
     s0 = mask(x1.size) * s.data[0]
     s1 = mask(x1.size) * s.data[1]
     d0, d1 = lb.ite((s0, s1), x1.data, x0.data)
-    t = resolve_type(type(x0), type(x1))
-    return t._cast_data(d0, d1)
+    T = resolve_type(type(x0), type(x1))
+    return T._cast_data(d0, d1)
 
 
-def _mux_(s: Bits, t: type[Bits], xs: dict[int, Bits]) -> Bits:
-    m = mask(t.size)
+def _mux_(s: Bits, T: type[Bits], xs: dict[int, Bits]) -> Bits:
+    m = mask(T.size)
     si = (s._get_index(i) for i in range(s.size))
     _s = tuple((m * d0, m * d1) for d0, d1 in si)
-    dc = t.dcs()
+    dc = T.dcs()
     d0, d1 = lb.mux(_s, {i: x.data for i, x in xs.items()}, dc.data)
-    return t._cast_data(d0, d1)
+    return T._cast_data(d0, d1)
 
 
 # Logical
@@ -1051,22 +1051,22 @@ def _uxor(x: Bits) -> Scalar:
 # Arithmetic
 def _add(a: Bits, b: Bits, ci: Scalar) -> tuple[Bits, Scalar]:
     if a.size == b.size:
-        t = resolve_type(type(a), type(b))
+        T = resolve_type(type(a), type(b))
     else:
-        t = vec_size(max(a.size, b.size))
+        T = vec_size(max(a.size, b.size))
 
     # X/DC propagation
     if a._has_x or b._has_x or ci._has_x:
-        return t.xes(), scalarX
+        return T.xes(), scalarX
     if a._has_w or b._has_w or ci._has_w:
-        return t.dcs(), scalarW
+        return T.dcs(), scalarW
 
-    dmax = mask(t.size)
+    dmax = mask(T.size)
     s = a.data[1] + b.data[1] + ci.data[1]
     co = bool2scalar[s > dmax]
     s &= dmax
 
-    return t._cast_data(s ^ dmax, s), co
+    return T._cast_data(s ^ dmax, s), co
 
 
 def _inc(a: Bits) -> tuple[Bits, Scalar]:
@@ -1093,18 +1093,18 @@ def _neg(x: Bits) -> tuple[Bits, Scalar]:
 
 
 def _mul(a: Bits, b: Bits) -> Vector:
-    t = vec_size(a.size + b.size)
+    V = vec_size(a.size + b.size)
 
     # X/DC propagation
     if a._has_x or b._has_x:
-        return t.xes()
+        return V.xes()
     if a._has_w or b._has_w:
-        return t.dcs()
+        return V.dcs()
 
-    dmax = mask(t.size)
+    dmax = mask(V.size)
     p = a.data[1] * b.data[1]
 
-    return t(p ^ dmax, p)
+    return V(p ^ dmax, p)
 
 
 def _div(a: Bits, b: Bits) -> Bits:
@@ -1631,7 +1631,8 @@ def i2bv(n: int, size: int | None = None) -> Vector:
         s = f"Overflow: n = {n} required size ≥ {min_size}, got {size}"
         raise ValueError(s)
 
-    x = vec_size(size)(d1 ^ mask(size), d1)
+    V = vec_size(size)
+    x = V(d1 ^ mask(size), d1)
     if negative:
         x_n, _ = _neg(x)
         assert isinstance(x_n, Vector)
@@ -1658,19 +1659,19 @@ def _sel(x: Array, key: tuple[tuple[int, int], ...]) -> Array:
             return vec_size(size)(d0, d1)
 
         if len(key_r) == 1:
-            vec = _get_vec_size(x.shape[1])
-            xs = []
+            V = _get_vec_size(x.shape[1])
+            vecs: list[Vector] = []
             for i in range(start, stop):
-                d0, d1 = _chunk(x.data, vec.size * i, vec.size)
-                xs.append(vec(d0, d1))
-            return _stack(*[_sel(x, key_r) for x in xs])
+                d0, d1 = _chunk(x.data, V.size * i, V.size)
+                vecs.append(V(d0, d1))
+            return _stack(*[_sel(vec, key_r) for vec in vecs])
 
-        array = _get_array_shape(x.shape[1:])
-        xs = []
+        A = _get_array_shape(x.shape[1:])
+        arrays: list[Array] = []
         for i in range(start, stop):
-            d0, d1 = _chunk(x.data, array.size * i, array.size)
-            xs.append(array(d0, d1))
-        return _stack(*[_sel(x, key_r) for x in xs])
+            d0, d1 = _chunk(x.data, A.size * i, A.size)
+            arrays.append(A(d0, d1))
+        return _stack(*[_sel(array, key_r) for array in arrays])
 
     # Full select 0:n
     if key_r:

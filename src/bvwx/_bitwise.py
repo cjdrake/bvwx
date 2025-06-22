@@ -353,24 +353,24 @@ def mux(s: BitsLike, **xs: BitsLike) -> Bits:
     n = 1 << s.size
 
     # Parse and check inputs
-    t = None
+    T = None
     i2x: dict[int, Bits] = {}
     for name, value in xs.items():
         if m := _MUX_XN_RE.match(name):
             i = int(m.group(1))
             if not 0 <= i < n:
                 raise ValueError(f"Expected x in [x0, ..., x{n - 1}]; got {name}")
-            if t is None:
+            if T is None:
                 x = expect_bits(value)
-                t = type(x)
+                T = type(x)
             else:
-                x = expect_bits_size(value, t.size)
-                t = resolve_type(t, type(x))
+                x = expect_bits_size(value, T.size)
+                T = resolve_type(T, type(x))
             i2x[i] = x
         else:
             raise ValueError(f"Invalid input name: {name}")
 
-    if t is None:
+    if T is None:
         raise ValueError("Expected at least one mux input")
 
-    return _mux_(s, t, i2x)
+    return _mux_(s, T, i2x)

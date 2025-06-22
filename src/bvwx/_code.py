@@ -42,13 +42,13 @@ def encode_onehot(x: BitsLike) -> Vector:
     x = expect_bits(x)
 
     n = clog2(x.size)
-    vec = vec_size(n)
+    V = vec_size(n)
 
     # X/DC propagation
     if x.has_x():
-        return vec.xes()
+        return V.xes()
     if x.has_dc():
-        return vec.dcs()
+        return V.dcs()
 
     d1 = x.data[1]
     is_onehot = d1 != 0 and d1 & (d1 - 1) == 0
@@ -56,7 +56,7 @@ def encode_onehot(x: BitsLike) -> Vector:
         raise ValueError(f"Expected x to be one-hot encoded, got {x}")
 
     y = clog2(d1)
-    return vec(y ^ mask(n), y)
+    return V(y ^ mask(n), y)
 
 
 def encode_priority(x: BitsLike) -> tuple[Vector, Scalar]:
@@ -87,11 +87,11 @@ def encode_priority(x: BitsLike) -> tuple[Vector, Scalar]:
     x = expect_bits(x)
 
     n = clog2(x.size)
-    vec = vec_size(n)
+    V = vec_size(n)
 
     # X propagation
     if x.has_x():
-        return vec.xes(), scalarX
+        return V.xes(), scalarX
 
     # Handle DC
     if x.has_dc():
@@ -99,10 +99,10 @@ def encode_priority(x: BitsLike) -> tuple[Vector, Scalar]:
             x_i = x._get_index(i)
             # 0*1{0,1,-}*
             if x_i == _1:
-                return vec(i ^ mask(n), i), scalar1
+                return V(i ^ mask(n), i), scalar1
             # 0*-{0,1,-}* => DC
             if x_i == _W:
-                return vec.dcs(), scalarW
+                return V.dcs(), scalarW
 
         # Not possible to get here
         assert False  # pragma: no cover
@@ -110,10 +110,10 @@ def encode_priority(x: BitsLike) -> tuple[Vector, Scalar]:
     d1 = x.data[1]
 
     if d1 == 0:
-        return vec.dcs(), scalar0
+        return V.dcs(), scalar0
 
     y = clog2(d1 + 1) - 1
-    return vec(y ^ mask(n), y), scalar1
+    return V(y ^ mask(n), y), scalar1
 
 
 def decode(x: BitsLike) -> Vector:
@@ -150,13 +150,13 @@ def decode(x: BitsLike) -> Vector:
 
     # Output has 2^N bits
     n = 1 << x.size
-    vec = vec_size(n)
+    V = vec_size(n)
 
     # X/DC propagation
     if x.has_x():
-        return vec.xes()
+        return V.xes()
     if x.has_dc():
-        return vec.dcs()
+        return V.dcs()
 
     d1 = 1 << x.to_uint()
-    return vec(d1 ^ mask(n), d1)
+    return V(d1 ^ mask(n), d1)

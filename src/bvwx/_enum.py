@@ -19,13 +19,13 @@ class _EnumMeta(type):
         # TODO(cjdrake): Support multiple inheritance?
         assert len(bases) == 1
 
-        _attrs, data2key, vec = mcs._parse_attrs(attrs)
+        _attrs, data2key, V = mcs._parse_attrs(attrs)
 
         # Create Enum class
-        enum = super().__new__(mcs, name, bases + (vec,), _attrs)
+        enum = super().__new__(mcs, name, bases + (V,), _attrs)
 
         # Help the type checker
-        assert issubclass(enum, vec)
+        assert issubclass(enum, V)
 
         # Instantiate members
         for (d0, d1), key in data2key.items():
@@ -55,7 +55,7 @@ class _EnumMeta(type):
             try:
                 return f"{name}.{data2key[self._data]}"
             except KeyError:
-                return f'{name}("{vec.__str__(self)}")'
+                return f'{name}("{V.__str__(self)}")'
 
         enum.__repr__ = _repr
 
@@ -64,7 +64,7 @@ class _EnumMeta(type):
             try:
                 return f"{name}.{data2key[self._data]}"
             except KeyError:
-                return f"{name}({vec.__str__(self)})"
+                return f"{name}({V.__str__(self)})"
 
         enum.__str__ = _str
 
@@ -73,7 +73,7 @@ class _EnumMeta(type):
             try:
                 return data2key[self._data]
             except KeyError:
-                return f"{name}({vec.__str__(self)})"
+                return f"{name}({V.__str__(self)})"
 
         enum.name = property(fget=_name)  # pyright: ignore[reportAttributeAccessIssue]
 
@@ -125,9 +125,9 @@ class _EnumMeta(type):
         data2key[(dmax, dmax)] = "DC"
 
         # Get Vector[N] base class
-        vec = vec_size(size)
+        V = vec_size(size)
 
-        return _attrs, data2key, vec
+        return _attrs, data2key, V
 
 
 class Enum(metaclass=_EnumMeta):

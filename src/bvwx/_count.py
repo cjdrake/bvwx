@@ -9,15 +9,15 @@ def cpop(x: BitsLike) -> Vector:
     x = expect_bits(x)
 
     n = clog2(x.size + 1)
-    vec = vec_size(n)
+    V = vec_size(n)
 
     if x.has_x():
-        return vec.xes()
+        return V.xes()
     if x.has_dc():
-        return vec.dcs()
+        return V.dcs()
 
     d1 = x.data[1].bit_count()
-    return vec(d1 ^ mask(n), d1)
+    return V(d1 ^ mask(n), d1)
 
 
 def clz(x: BitsLike) -> Vector:
@@ -25,15 +25,15 @@ def clz(x: BitsLike) -> Vector:
     x = expect_bits(x)
 
     n = clog2(x.size + 1)
-    vec = vec_size(n)
+    V = vec_size(n)
 
     if x.has_x():
-        return vec.xes()
+        return V.xes()
     if x.has_dc():
-        return vec.dcs()
+        return V.dcs()
 
     d1 = x.size - clog2(x.data[1] + 1)
-    return vec(d1 ^ mask(n), d1)
+    return V(d1 ^ mask(n), d1)
 
 
 def ctz(x: BitsLike) -> Vector:
@@ -41,13 +41,13 @@ def ctz(x: BitsLike) -> Vector:
     x = expect_bits(x)
 
     n = clog2(x.size + 1)
-    vec = vec_size(n)
+    V = vec_size(n)
 
     if x.has_x():
-        return vec.xes()
+        return V.xes()
     if x.has_dc():
-        return vec.dcs()
+        return V.dcs()
 
     d = (1 << x.size) - x.data[1]
     d1 = clog2(-d & d)
-    return vec(d1 ^ mask(n), d1)
+    return V(d1 ^ mask(n), d1)
