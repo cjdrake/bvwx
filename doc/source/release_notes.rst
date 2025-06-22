@@ -8,6 +8,40 @@ This chapter lists new features, API changes, and bug fixes.
 For a complete history, see the Git commit log.
 
 
+Version 0.13.0
+==============
+
+Updated class inheritance of ``Array``, ``Vector``, ``Scalar``, and ``Empty``.
+Now ``Array`` is a subclass of ``Bits``,
+``Vector`` is a subclass of ``Array``,
+``Scalar`` and ``Empty`` are subclasses of ``Vector``.
+
+For example::
+
+    >>> from bvwx import *
+    >>> x = bits("1b1")
+    >>> type(x)
+    bvwx._bits.Scalar
+    >>> isinstance(x, Array)
+    True
+    >>> isinstance(x, Vector)
+    True
+    >>> isinstance(x, Scalar)
+    True
+    >>> isinstance(x, Vec[4])
+    False
+    >>> isinstance(x, Vec[1])
+    True
+
+Changed the ``matmul`` operator so it only works for ``Array`` instances.
+It didn't make any sense for ``Composite`` instances.
+
+Added ``Composite`` class to top level namespace.
+Consolidated some of the code related to ``Struct`` and ``Union``.
+
+Lots of internal type annotation work.
+
+
 Version 0.12.0
 ==============
 
