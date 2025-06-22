@@ -349,12 +349,12 @@ def mux(s: BitsLike, **xs: BitsLike) -> Bits:
                    or ``xN`` mismatching size.
         ValueError: Error parsing string literal.
     """
-    s = expect_bits(s)
-    n = 1 << s.size
+    _s = expect_bits(s)
+    n = 1 << _s.size
 
     # Parse and check inputs
     T = None
-    i2x: dict[int, Bits] = {}
+    _xs: dict[int, Bits] = {}
     for name, value in xs.items():
         if m := _MUX_XN_RE.match(name):
             i = int(m.group(1))
@@ -366,11 +366,11 @@ def mux(s: BitsLike, **xs: BitsLike) -> Bits:
             else:
                 x = expect_bits_size(value, T.size)
                 T = resolve_type(T, type(x))
-            i2x[i] = x
+            _xs[i] = x
         else:
             raise ValueError(f"Invalid input name: {name}")
 
     if T is None:
         raise ValueError("Expected at least one mux input")
 
-    return _mux_(s, T, i2x)
+    return _mux_(T, _s, _xs)

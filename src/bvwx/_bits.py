@@ -988,12 +988,13 @@ def _ite_(s: Bits, x1: Bits, x0: Bits) -> Bits:
     return T._cast_data(d0, d1)
 
 
-def _mux_(s: Bits, T: type[Bits], xs: dict[int, Bits]) -> Bits:
+def _mux_(T: type[Bits], s: Bits, xs: dict[int, Bits]) -> Bits:
     m = mask(T.size)
     si = (s._get_index(i) for i in range(s.size))
     _s = tuple((m * d0, m * d1) for d0, d1 in si)
+    _xs = {i: x.data for i, x in xs.items()}
     dc = T.dcs()
-    d0, d1 = lb.mux(_s, {i: x.data for i, x in xs.items()}, dc.data)
+    d0, d1 = lb.mux(_s, _xs, dc.data)
     return T._cast_data(d0, d1)
 
 
