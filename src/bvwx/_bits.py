@@ -124,7 +124,7 @@ def _expect_vec_size(arg: VectorLike, size: int) -> Bits:
         return u2bv(arg, size)
     if isinstance(arg, str):
         return _expect_size(lit2bv(arg), size)
-    if isinstance(arg, (Empty, Scalar, Vector)):
+    if isinstance(arg, Vector):
         return _expect_size(arg, size)
     raise TypeError("Expected arg to be: Vector, str literal, or int")
 
