@@ -135,7 +135,7 @@ def _expect_size(arg: Bits, size: int) -> Bits:
     return arg
 
 
-def resolve_type(x0: Bits, x1: Bits) -> type[Bits]:
+def resolve_type[T: Bits](x0: T, x1: Bits) -> type[T] | type[Vector]:
     t = type(x0)
 
     # T (op) T -> T
