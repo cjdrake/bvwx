@@ -135,13 +135,15 @@ def _expect_size(arg: Bits, size: int) -> Bits:
     return arg
 
 
-def resolve_type(t0: type[Bits], t1: type[Bits]) -> type[Bits]:
+def resolve_type(x0: Bits, x1: Bits) -> type[Bits]:
+    t = type(x0)
+
     # T (op) T -> T
-    if t0 == t1:
-        return t0
+    if t is type(x1):
+        return t
 
     # Otherwise, downgrade to Scalar/Vector
-    return vec_size(t0.size)
+    return vec_size(x0.size)
 
 
 class Bits:
@@ -952,31 +954,31 @@ def _not_(x: Bits) -> Bits:
 
 def _or_(x0: Bits, x1: Bits) -> Bits:
     d0, d1 = lb.or_(x0.data, x1.data)
-    T = resolve_type(type(x0), type(x1))
+    T = resolve_type(x0, x1)
     return T._cast_data(d0, d1)
 
 
 def _and_(x0: Bits, x1: Bits) -> Bits:
     d0, d1 = lb.and_(x0.data, x1.data)
-    T = resolve_type(type(x0), type(x1))
+    T = resolve_type(x0, x1)
     return T._cast_data(d0, d1)
 
 
 def _xnor_(x0: Bits, x1: Bits) -> Bits:
     d0, d1 = lb.xnor(x0.data, x1.data)
-    T = resolve_type(type(x0), type(x1))
+    T = resolve_type(x0, x1)
     return T._cast_data(d0, d1)
 
 
 def _xor_(x0: Bits, x1: Bits) -> Bits:
     d0, d1 = lb.xor(x0.data, x1.data)
-    T = resolve_type(type(x0), type(x1))
+    T = resolve_type(x0, x1)
     return T._cast_data(d0, d1)
 
 
 def _impl_(p: Bits, q: Bits) -> Bits:
     d0, d1 = lb.impl(p.data, q.data)
-    T = resolve_type(type(p), type(q))
+    T = resolve_type(p, q)
     return T._cast_data(d0, d1)
 
 
@@ -984,7 +986,7 @@ def _ite_(s: Bits, x1: Bits, x0: Bits) -> Bits:
     s0 = mask(x1.size) * s.data[0]
     s1 = mask(x1.size) * s.data[1]
     d0, d1 = lb.ite((s0, s1), x1.data, x0.data)
-    T = resolve_type(type(x0), type(x1))
+    T = resolve_type(x0, x1)
     return T._cast_data(d0, d1)
 
 
@@ -1052,7 +1054,7 @@ def _uxor(x: Bits) -> Scalar:
 # Arithmetic
 def _add(a: Bits, b: Bits, ci: Scalar) -> tuple[Bits, Scalar]:
     if a.size == b.size:
-        T = resolve_type(type(a), type(b))
+        T = resolve_type(a, b)
     else:
         T = vec_size(max(a.size, b.size))
 
