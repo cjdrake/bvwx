@@ -83,8 +83,8 @@ def expect_scalar(arg: ScalarLike) -> Scalar:
     if isinstance(arg, int) and arg in (0, 1):
         return bool2scalar[arg]
     if isinstance(arg, str):
-        v = lit2bv(arg)
-        s = _expect_size(v, 1)
+        x = lit2bv(arg)
+        s = _expect_size(x, 1)
         assert isinstance(s, Scalar)
         return s
     if isinstance(arg, Scalar):
@@ -110,26 +110,28 @@ def expect_bits_size(arg: BitsLike, size: int) -> Bits:
             return i2bv(arg, size)
         return u2bv(arg, size)
     if isinstance(arg, str):
-        return _expect_size(lit2bv(arg), size)
+        x = lit2bv(arg)
+        return _expect_size(x, size)
     if isinstance(arg, Bits):
         return _expect_size(arg, size)
     raise TypeError("Expected arg to be: Bits, str literal, or int")
 
 
-def _expect_vec_size(arg: VectorLike, size: int) -> Bits:
+def _expect_vec_size(arg: VectorLike, size: int) -> Vector:
     """Any Vector-Like object that may or may not define its own size"""
     if isinstance(arg, int):
         if arg < 0:
             return i2bv(arg, size)
         return u2bv(arg, size)
     if isinstance(arg, str):
-        return _expect_size(lit2bv(arg), size)
+        x = lit2bv(arg)
+        return _expect_size(x, size)
     if isinstance(arg, Vector):
         return _expect_size(arg, size)
     raise TypeError("Expected arg to be: Vector, str literal, or int")
 
 
-def _expect_size(arg: Bits, size: int) -> Bits:
+def _expect_size[T: Bits](arg: T, size: int) -> T:
     if arg.size != size:
         raise TypeError(f"Expected size {size}, got {arg.size}")
     return arg
@@ -366,10 +368,10 @@ class Bits:
         return False
 
     # Bitwise Operations
-    def __invert__(self) -> Bits:
+    def __invert__(self) -> Self:
         return _not_(self)
 
-    def __or__(self, other: BitsLike) -> Bits:
+    def __or__(self, other: BitsLike) -> Self | Vector:
         other = expect_bits_size(other, self.size)
         return _or_(self, other)
 
@@ -377,7 +379,7 @@ class Bits:
         other = expect_bits_size(other, self.size)
         return _or_(other, self)
 
-    def __and__(self, other: BitsLike) -> Bits:
+    def __and__(self, other: BitsLike) -> Self | Vector:
         other = expect_bits_size(other, self.size)
         return _and_(self, other)
 
@@ -385,7 +387,7 @@ class Bits:
         other = expect_bits_size(other, self.size)
         return _and_(other, self)
 
-    def __xor__(self, other: BitsLike) -> Bits:
+    def __xor__(self, other: BitsLike) -> Self | Vector:
         other = expect_bits_size(other, self.size)
         return _xor_(self, other)
 
@@ -394,7 +396,7 @@ class Bits:
         return _xor_(other, self)
 
     # Note: Drop carry-out
-    def __lshift__(self, n: UintLike) -> Bits:
+    def __lshift__(self, n: UintLike) -> Self:
         n = expect_uint(n)
         return _lsh(self, n)
 
@@ -403,7 +405,7 @@ class Bits:
         return _lsh(other, self)
 
     # Note: Drop carry-out
-    def __rshift__(self, n: UintLike) -> Bits:
+    def __rshift__(self, n: UintLike) -> Self:
         n = expect_uint(n)
         return _rsh(self, n)
 
@@ -456,7 +458,7 @@ class Bits:
         other = expect_bits(other)
         return _mul(other, self)
 
-    def __floordiv__(self, other: BitsLike) -> Bits:
+    def __floordiv__(self, other: BitsLike) -> Self:
         other = expect_bits(other)
         return _div(self, other)
 
@@ -947,57 +949,57 @@ type Key = int | slice | Bits | str
 
 
 # Bitwise
-def _not_(x: Bits) -> Bits:
+def _not_[T: Bits](x: T) -> T:
     d0, d1 = lb.not_(x.data)
     return x._cast_data(d0, d1)
 
 
-def _or_(x0: Bits, x1: Bits) -> Bits:
+def _or_[T: Bits](x0: T, x1: Bits) -> T | Vector:
     d0, d1 = lb.or_(x0.data, x1.data)
-    T = resolve_type(x0, x1)
-    return T._cast_data(d0, d1)
+    t = resolve_type(x0, x1)
+    return t._cast_data(d0, d1)
 
 
-def _and_(x0: Bits, x1: Bits) -> Bits:
+def _and_[T: Bits](x0: T, x1: Bits) -> T | Vector:
     d0, d1 = lb.and_(x0.data, x1.data)
-    T = resolve_type(x0, x1)
-    return T._cast_data(d0, d1)
+    t = resolve_type(x0, x1)
+    return t._cast_data(d0, d1)
 
 
-def _xnor_(x0: Bits, x1: Bits) -> Bits:
+def _xnor_[T: Bits](x0: T, x1: Bits) -> T | Vector:
     d0, d1 = lb.xnor(x0.data, x1.data)
-    T = resolve_type(x0, x1)
-    return T._cast_data(d0, d1)
+    t = resolve_type(x0, x1)
+    return t._cast_data(d0, d1)
 
 
-def _xor_(x0: Bits, x1: Bits) -> Bits:
+def _xor_[T: Bits](x0: T, x1: Bits) -> T | Vector:
     d0, d1 = lb.xor(x0.data, x1.data)
-    T = resolve_type(x0, x1)
-    return T._cast_data(d0, d1)
+    t = resolve_type(x0, x1)
+    return t._cast_data(d0, d1)
 
 
-def _impl_(p: Bits, q: Bits) -> Bits:
+def _impl_[T: Bits](p: T, q: Bits) -> T | Vector:
     d0, d1 = lb.impl(p.data, q.data)
-    T = resolve_type(p, q)
-    return T._cast_data(d0, d1)
+    t = resolve_type(p, q)
+    return t._cast_data(d0, d1)
 
 
-def _ite_(s: Bits, x1: Bits, x0: Bits) -> Bits:
+def _ite_[T: Bits](s: Bits, x1: Bits, x0: T) -> T | Vector:
     s0 = mask(x1.size) * s.data[0]
     s1 = mask(x1.size) * s.data[1]
     d0, d1 = lb.ite((s0, s1), x1.data, x0.data)
-    T = resolve_type(x0, x1)
-    return T._cast_data(d0, d1)
+    t = resolve_type(x0, x1)
+    return t._cast_data(d0, d1)
 
 
-def _mux_(T: type[Bits], s: Bits, xs: dict[int, Bits]) -> Bits:
-    m = mask(T.size)
+def _mux_[T: Bits](t: type[T], s: Bits, xs: dict[int, Bits]) -> T:
+    m = mask(t.size)
     si = (s._get_index(i) for i in range(s.size))
     _s = tuple((m * d0, m * d1) for d0, d1 in si)
     _xs = {i: x.data for i, x in xs.items()}
-    dc = T.dcs()
+    dc = t.dcs()
     d0, d1 = lb.mux(_s, _xs, dc.data)
-    return T._cast_data(d0, d1)
+    return t._cast_data(d0, d1)
 
 
 # Logical
@@ -1052,27 +1054,27 @@ def _uxor(x: Bits) -> Scalar:
 
 
 # Arithmetic
-def _add(a: Bits, b: Bits, ci: Scalar) -> tuple[Bits, Scalar]:
+def _add[T: Bits](a: T, b: Bits, ci: Scalar) -> tuple[T | Vector, Scalar]:
     if a.size == b.size:
-        T = resolve_type(a, b)
+        t = resolve_type(a, b)
     else:
-        T = vec_size(max(a.size, b.size))
+        t = vec_size(max(a.size, b.size))
 
     # X/DC propagation
     if a._has_x or b._has_x or ci._has_x:
-        return T.xes(), scalarX
+        return t.xes(), scalarX
     if a._has_w or b._has_w or ci._has_w:
-        return T.dcs(), scalarW
+        return t.dcs(), scalarW
 
-    dmax = mask(T.size)
+    dmax = mask(t.size)
     s = a.data[1] + b.data[1] + ci.data[1]
     co = bool2scalar[s > dmax]
     s &= dmax
 
-    return T._cast_data(s ^ dmax, s), co
+    return t._cast_data(s ^ dmax, s), co
 
 
-def _inc(a: Bits) -> tuple[Bits, Scalar]:
+def _inc[T: Bits](a: T) -> tuple[T, Scalar]:
     # X/DC propagation
     if a._has_x:
         return a.xes(), scalarX
@@ -1087,11 +1089,11 @@ def _inc(a: Bits) -> tuple[Bits, Scalar]:
     return a._cast_data(s ^ dmax, s), co
 
 
-def _sub(a: Bits, b: Bits) -> tuple[Bits, Scalar]:
+def _sub[T: Bits](a: T, b: Bits) -> tuple[T | Vector, Scalar]:
     return _add(a, _not_(b), ci=scalar1)
 
 
-def _neg(x: Bits) -> tuple[Bits, Scalar]:
+def _neg[T: Bits](x: T) -> tuple[T, Scalar]:
     return _inc(_not_(x))
 
 
@@ -1110,7 +1112,7 @@ def _mul(a: Bits, b: Bits) -> Vector:
     return V(p ^ dmax, p)
 
 
-def _div(a: Bits, b: Bits) -> Bits:
+def _div[T: Bits](a: T, b: Bits) -> T:
     if not a.size >= b.size > 0:
         raise ValueError("Expected a.size ≥ b.size > 0")
 
@@ -1126,7 +1128,7 @@ def _div(a: Bits, b: Bits) -> Bits:
     return a._cast_data(q ^ dmax, q)
 
 
-def _mod(a: Bits, b: Bits) -> Bits:
+def _mod[T: Bits](a: Bits, b: T) -> T:
     if not a.size >= b.size > 0:
         raise ValueError("Expected a.size ≥ b.size > 0")
 
@@ -1168,7 +1170,7 @@ def _matmul(a: Array, b: Array) -> Array:
             raise TypeError(s)
 
 
-def _lsh(x: Bits, n: Bits) -> Bits:
+def _lsh[T: Bits](x: T, n: Bits) -> T:
     if n._has_x:
         return x.xes()
     if n._has_w:
@@ -1188,7 +1190,7 @@ def _lsh(x: Bits, n: Bits) -> Bits:
     return y
 
 
-def _rsh(x: Bits, n: Bits) -> Bits:
+def _rsh[T: Bits](x: T, n: Bits) -> T:
     if n._has_x:
         return x.xes()
     if n._has_w:
@@ -1208,7 +1210,7 @@ def _rsh(x: Bits, n: Bits) -> Bits:
     return y
 
 
-def _srsh(x: Bits, n: Bits) -> Bits:
+def _srsh[T: Bits](x: T, n: Bits) -> T:
     if n._has_x:
         return x.xes()
     if n._has_w:
@@ -1232,7 +1234,7 @@ def _srsh(x: Bits, n: Bits) -> Bits:
 
 
 # Word
-def _xt(x: Bits, n: Bits) -> Bits:
+def _xt[T: Bits](x: T, n: Bits) -> T | Vector:
     if n._has_x:
         return x.xes()
     if n._has_w:
@@ -1248,7 +1250,7 @@ def _xt(x: Bits, n: Bits) -> Bits:
     return vec_size(x.size + _n)(d0, d1)
 
 
-def _sxt(x: Bits, n: Bits) -> Bits:
+def _sxt[T: Bits](x: T, n: Bits) -> T | Vector:
     # Empty does not have a sign
     if x.size == 0:
         raise TypeError("Cannot sign extend empty")
@@ -1270,7 +1272,7 @@ def _sxt(x: Bits, n: Bits) -> Bits:
     return vec_size(x.size + _n)(d0, d1)
 
 
-def _lrot(x: Bits, n: Bits) -> Bits:
+def _lrot[T: Bits](x: T, n: Bits) -> T:
     if n._has_x:
         return x.xes()
     if n._has_w:
@@ -1289,7 +1291,7 @@ def _lrot(x: Bits, n: Bits) -> Bits:
     return x._cast_data(d0, d1)
 
 
-def _rrot(x: Bits, n: Bits) -> Bits:
+def _rrot[T: Bits](x: T, n: Bits) -> T:
     if n._has_x:
         return x.xes()
     if n._has_w:
@@ -1323,7 +1325,7 @@ def _cat(*xs: Bits) -> Bits:
     return vec_size(size)(d0, d1)
 
 
-def _pack(x: Bits, n: int) -> Bits:
+def _pack[T: Bits](x: T, n: int) -> T:
     if n < 1:
         raise ValueError(f"Expected n ≥ 1, got {n}")
     if x.size % n != 0:

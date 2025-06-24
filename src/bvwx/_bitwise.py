@@ -363,8 +363,7 @@ def mux(s: BitsLike, **xs: BitsLike) -> Bits:
                 raise ValueError(f"Expected x in [x0, ..., x{n - 1}]; got {name}")
             if x0 is None:
                 x = expect_bits(value)
-                x0 = x
-                t = type(x0)
+                x0, t = x, type(x)
             else:
                 x = expect_bits_size(value, x0.size)
                 t = resolve_type(x0, x)
