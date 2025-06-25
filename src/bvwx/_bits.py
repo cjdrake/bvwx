@@ -984,11 +984,11 @@ def _impl_[T: Bits](p: T, q: Bits) -> T | Vector:
     return t._cast_data(d0, d1)
 
 
-def _ite_[T: Bits](s: Bits, x1: Bits, x0: T) -> T | Vector:
+def _ite_[T: Bits](s: Bits, x1: T, x0: Bits) -> T | Vector:
     s0 = mask(x1.size) * s.data[0]
     s1 = mask(x1.size) * s.data[1]
     d0, d1 = lb.ite((s0, s1), x1.data, x0.data)
-    t = resolve_type(x0, x1)
+    t = resolve_type(x1, x0)
     return t._cast_data(d0, d1)
 
 
