@@ -11,6 +11,7 @@ Data Types
 .. autoclass:: bvwx.Bits
 
     .. py:property:: size
+        :type: int
 
         Number of bits
 
@@ -20,6 +21,7 @@ Data Types
     .. automethod:: bvwx.Bits.zeros
     .. automethod:: bvwx.Bits.ones
     .. automethod:: bvwx.Bits.dcs
+    .. automethod:: bvwx.Bits.rand
 
     .. automethod:: bvwx.Bits.xprop
 
@@ -46,16 +48,40 @@ Data Types
     .. automethod:: bvwx.Bits.has_dc
     .. automethod:: bvwx.Bits.has_unknown
 
+    .. automethod:: bvwx.Bits.vcd_var
+    .. automethod:: bvwx.Bits.vcd_val
+
 .. autoclass:: bvwx.Array
+    :show-inheritance:
+
+    .. automethod:: bvwx.Array.reshape
+    .. automethod:: bvwx.Array.flatten
+
 .. autoclass:: bvwx.Vector
+    :show-inheritance:
+
 .. autoclass:: bvwx.Scalar
+    :show-inheritance:
+
 .. autoclass:: bvwx.Empty
+    :show-inheritance:
 
 .. autoclass:: bvwx.Enum
+    :show-inheritance:
+
+    .. py:property:: name
+        :type: str
 
 .. autoclass:: bvwx.Composite
+    :show-inheritance:
+
+    .. automethod:: bvwx.Composite.__getitem__
+
 .. autoclass:: bvwx.Struct
+    :show-inheritance:
+
 .. autoclass:: bvwx.Union
+    :show-inheritance:
 
 
 Operators
