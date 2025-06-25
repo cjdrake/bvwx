@@ -1,5 +1,7 @@
 """Test bvwx bitwise operators"""
 
+# pyright: reportArgumentType=false
+
 import pytest
 
 from bvwx import and_, bits, impl, ite, mux, not_, or_, xor

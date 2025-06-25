@@ -1,5 +1,9 @@
 """Test bvwx Enum"""
 
+# pyright: reportAttributeAccessIssue=false
+# pyright: reportCallIssue=false
+# pyright: reportOperatorIssue=false
+
 import pytest
 
 from bvwx import Enum, Vec

@@ -1,5 +1,7 @@
 """Test bvwx Union"""
 
+# pyright: reportCallIssue=false
+
 import pytest
 
 from bvwx import Union, Vec, bits

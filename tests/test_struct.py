@@ -1,5 +1,7 @@
 """Test bvwx Struct"""
 
+# pyright: reportCallIssue=false
+
 import pytest
 
 from bvwx import Struct, Vec
