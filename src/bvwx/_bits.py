@@ -1355,7 +1355,7 @@ def _ne(x0: Bits, x1: Bits) -> Scalar:
     return _uor(_xor_(x0, x1))
 
 
-def _cmp(op: Callable, x0: Bits, x1: Bits) -> Scalar:
+def _cmp(op: Callable[[int, int], bool], x0: Bits, x1: Bits) -> Scalar:
     # X/DC propagation
     if x0._has_x or x1._has_x:
         return scalarX
@@ -1364,7 +1364,7 @@ def _cmp(op: Callable, x0: Bits, x1: Bits) -> Scalar:
     return bool2scalar[op(x0.to_uint(), x1.to_uint())]
 
 
-def _scmp(op: Callable, x0: Bits, x1: Bits) -> Scalar:
+def _scmp(op: Callable[[int, int], bool], x0: Bits, x1: Bits) -> Scalar:
     # X/DC propagation
     if x0._has_x or x1._has_x:
         return scalarX
