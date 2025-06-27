@@ -6,7 +6,7 @@ import math
 import random
 from collections.abc import Callable, Generator
 from functools import cached_property, partial
-from typing import Self, override
+from typing import Any, Self, override
 
 from . import _lbool as lb
 from ._lbool import lbv
@@ -359,7 +359,7 @@ class Bits:
     def __hash__(self) -> int:
         raise NotImplementedError()  # pragma: no cover
 
-    def __eq__(self, obj: object) -> bool:
+    def __eq__(self, obj: Any) -> bool:
         if isinstance(obj, str):
             size, data = lb.parse_lit(obj)
             return self.size == size and self._data == data
@@ -1417,7 +1417,7 @@ def _rank2(fst: Vector, *rst: VectorLike) -> Array:
     return _get_array_shape(shape)(d0, d1)
 
 
-def bits(obj=None) -> Array:  # noqa: PLR0911
+def bits(obj: Any = None) -> Array:  # noqa: PLR0911
     """Create a shaped Bits object using standard input formats.
 
     For example, empty input returns an ``Empty`` instance.
