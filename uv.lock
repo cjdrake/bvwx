@@ -79,7 +79,7 @@ wheels = [
 
 [[package]]
 name = "bvwx"
-version = "0.13.3"
+version = "0.13.4"
 source = { virtual = "." }
 
 [package.dev-dependencies]

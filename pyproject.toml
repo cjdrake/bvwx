@@ -1,6 +1,6 @@
 [project]
 name = "bvwx"
-version = "0.13.3"
+version = "0.13.4"
 description = "Bit Vectors With Xes"
 readme = "README.md"
 
