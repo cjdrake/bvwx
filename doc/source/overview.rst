@@ -123,28 +123,27 @@ we must be able to precisely specify variable size, shape, composition, and sema
 
 The following diagram shows the BVWX family of data types::
 
-                             Bits
-                               |
-               +---------------+---------------+
-               |                               |
-            Shaped                         Composite
-               |                               |
-      +--------+--------+-------+         +----+----+
-      |        |        |       |         |         |
-    Array > Vector > Scalar > Empty    Struct     Union
-               |
-             Enum
+                        Bits
+                          |
+             +------------+------------+
+             |                         |
+           Array                   Composite
+             |                         |
+          Vector                  +----+----+
+             |                    |         |
+      +------+------+          Struct     Union
+      |      |      |
+    Enum  Scalar  Empty
 
 The base class for all variables is ``Bits``.
 A ``Bits`` object is an arbitrary-sized sequence of {``0``, ``1``, ``W``, ``X``} values.
-Shaped subclasses (``Empty``, ``Scalar``, ``Vector``, ``Array``, ``Enum``)
-have a ``shape`` attribute.
+Array subclasses (``Vector``, ``Enum``, ``Scalar``, ``Empty``) have a ``shape`` attribute.
 Composite subclasses (``Struct``, ``Union``) have user-defined attributes.
 
-Multi-dimensional arrays allow you to organize information into any size and shape imaginable,
-and pack the data into exactly the required number of bits.
-C-style ``Enum``, ``Struct``, and ``Union`` allow you to create abstract data
-types of arbitrary complexity.
+Multi-dimensional arrays can organize information into any size and shape imaginable,
+and pack it into exactly the required number of bits.
+C-style ``Enum``, ``Struct``, and ``Union`` enable hierarchical composition of
+arbitrarily complex, abstract data types.
 
 
 Operator Performance
