@@ -10,14 +10,14 @@ type lbv = tuple[int, int]
 
 # Scalars
 X: lbv = (0, 0)
-_0: lbv = (1, 0)
+F: lbv = (1, 0)
 _1: lbv = (0, 1)
 W: lbv = (1, 1)
 
 
 from_char: dict[str, lbv] = {
     "X": X,
-    "0": _0,
+    "0": F,
     "1": _1,
     "-": W,
     "W": W,
@@ -25,14 +25,14 @@ from_char: dict[str, lbv] = {
 
 to_char: dict[lbv, str] = {
     X: "X",
-    _0: "0",
+    F: "0",
     _1: "1",
     W: "-",
 }
 
 to_vcd_char: dict[lbv, str] = {
     X: "x",
-    _0: "0",
+    F: "0",
     _1: "1",
     W: "x",
 }

@@ -875,13 +875,13 @@ class Scalar(Vector):
 
 
 scalarX: Scalar = Scalar._cast_data(*lb.X)
-scalar0: Scalar = Scalar._cast_data(*lb._0)
+scalar0: Scalar = Scalar._cast_data(*lb.F)
 scalar1: Scalar = Scalar._cast_data(*lb._1)
 scalarW: Scalar = Scalar._cast_data(*lb.W)
 
 _scalars: dict[lbv, Scalar] = {
     lb.X: scalarX,
-    lb._0: scalar0,
+    lb.F: scalar0,
     lb._1: scalar1,
     lb.W: scalarW,
 }
@@ -1004,7 +1004,7 @@ def _mux_[T: Bits](t: type[T], s: Bits, xs: dict[int, Bits]) -> T:
 
 # Logical
 def _lor_(*xs: Scalar) -> Scalar:
-    y = lb._0
+    y = lb.F
     for x in xs:
         y = lb.or_(y, x.data)
     return _scalars[y]
@@ -1018,7 +1018,7 @@ def _land_(*xs: Scalar) -> Scalar:
 
 
 def _lxor_(*xs: Scalar) -> Scalar:
-    y = lb._0
+    y = lb.F
     for x in xs:
         y = lb.xor(y, x.data)
     return _scalars[y]
