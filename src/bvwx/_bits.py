@@ -874,13 +874,13 @@ class Scalar(Vector):
         return _scalars[(d0, d1)]
 
 
-scalarX: Scalar = Scalar._cast_data(*lb._X)
+scalarX: Scalar = Scalar._cast_data(*lb.X)
 scalar0: Scalar = Scalar._cast_data(*lb._0)
 scalar1: Scalar = Scalar._cast_data(*lb._1)
 scalarW: Scalar = Scalar._cast_data(*lb._W)
 
 _scalars: dict[lbv, Scalar] = {
-    lb._X: scalarX,
+    lb.X: scalarX,
     lb._0: scalar0,
     lb._1: scalar1,
     lb._W: scalarW,
