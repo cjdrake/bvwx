@@ -96,7 +96,7 @@ class _StructMeta(type):
             m = mask(ft.size)
             d0 = (self._data[0] >> offsets[fn]) & m
             d1 = (self._data[1] >> offsets[fn]) & m
-            return ft._cast_data(d0, d1)
+            return ft.cast_data(d0, d1)
 
         for fn, ft in fields:
             setattr(struct, fn, property(fget=partial(_fget, fn, ft)))

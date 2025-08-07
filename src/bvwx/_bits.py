@@ -210,10 +210,10 @@ class Bits:
         """
         if x.size != cls.size:
             raise TypeError(f"Expected size {cls.size}, got {x.size}")
-        return cls._cast_data(x.data[0], x.data[1])
+        return cls.cast_data(x.data[0], x.data[1])
 
     @classmethod
-    def _cast_data(cls, d0: int, d1: int) -> Self:
+    def cast_data(cls, d0: int, d1: int) -> Self:
         obj = object.__new__(cls)
         obj._data = (d0, d1)
         return obj
@@ -227,7 +227,7 @@ class Bits:
         >>> Vector[4].xes()
         bits("4bXXXX")
         """
-        return cls._cast_data(0, 0)
+        return cls.cast_data(0, 0)
 
     @classmethod
     def zeros(cls) -> Self:
@@ -238,7 +238,7 @@ class Bits:
         >>> Vector[4].zeros()
         bits("4b0000")
         """
-        return cls._cast_data(cls._dmax(), 0)
+        return cls.cast_data(cls._dmax(), 0)
 
     @classmethod
     def ones(cls) -> Self:
@@ -249,7 +249,7 @@ class Bits:
         >>> Vector[4].ones()
         bits("4b1111")
         """
-        return cls._cast_data(0, cls._dmax())
+        return cls.cast_data(0, cls._dmax())
 
     @classmethod
     def dcs(cls) -> Self:
@@ -260,13 +260,13 @@ class Bits:
         >>> Vector[4].dcs()
         bits("4b----")
         """
-        return cls._cast_data(cls._dmax(), cls._dmax())
+        return cls.cast_data(cls._dmax(), cls._dmax())
 
     @classmethod
     def rand(cls) -> Self:
         """Return an instance filled with random bits."""
         d1 = random.getrandbits(cls.size)
-        return cls._cast_data(cls._dmax() ^ d1, d1)
+        return cls.cast_data(cls._dmax() ^ d1, d1)
 
     @classmethod
     def xprop(cls, sel: Bits) -> Self:
@@ -667,7 +667,7 @@ class Array(Bits):
         raise TypeError(f"Invalid shape parameter: {shape}")
 
     def __new__(cls, d0: int, d1: int) -> Self:
-        return cls._cast_data(d0, d1)
+        return cls.cast_data(d0, d1)
 
     def __hash__(self) -> int:
         return hash(self.shape) ^ hash(self._data)
@@ -874,10 +874,10 @@ class Scalar(Vector):
         return _scalars[(d0, d1)]
 
 
-scalarX: Scalar = Scalar._cast_data(*lb.X)
-scalar0: Scalar = Scalar._cast_data(*lb.F)
-scalar1: Scalar = Scalar._cast_data(*lb.T)
-scalarW: Scalar = Scalar._cast_data(*lb.W)
+scalarX: Scalar = Scalar.cast_data(*lb.X)
+scalar0: Scalar = Scalar.cast_data(*lb.F)
+scalar1: Scalar = Scalar.cast_data(*lb.T)
+scalarW: Scalar = Scalar.cast_data(*lb.W)
 
 _scalars: dict[lbv, Scalar] = {
     lb.X: scalarX,
@@ -936,7 +936,7 @@ class Empty(Vector):
         return "[]"
 
 
-_empty = Empty._cast_data(0, 0)
+_empty = Empty.cast_data(0, 0)
 
 
 # Type Aliases
@@ -951,37 +951,37 @@ type Key = int | slice | Bits | str
 # Bitwise
 def _not_[T: Bits](x: T) -> T:
     d0, d1 = lb.not_(x.data)
-    return x._cast_data(d0, d1)
+    return x.cast_data(d0, d1)
 
 
 def _or_[T: Bits](x0: T, x1: Bits) -> T | Vector:
     d0, d1 = lb.or_(x0.data, x1.data)
     t = resolve_type(x0, x1)
-    return t._cast_data(d0, d1)
+    return t.cast_data(d0, d1)
 
 
 def _and_[T: Bits](x0: T, x1: Bits) -> T | Vector:
     d0, d1 = lb.and_(x0.data, x1.data)
     t = resolve_type(x0, x1)
-    return t._cast_data(d0, d1)
+    return t.cast_data(d0, d1)
 
 
 def _xnor_[T: Bits](x0: T, x1: Bits) -> T | Vector:
     d0, d1 = lb.xnor(x0.data, x1.data)
     t = resolve_type(x0, x1)
-    return t._cast_data(d0, d1)
+    return t.cast_data(d0, d1)
 
 
 def _xor_[T: Bits](x0: T, x1: Bits) -> T | Vector:
     d0, d1 = lb.xor(x0.data, x1.data)
     t = resolve_type(x0, x1)
-    return t._cast_data(d0, d1)
+    return t.cast_data(d0, d1)
 
 
 def _impl_[T: Bits](p: T, q: Bits) -> T | Vector:
     d0, d1 = lb.impl(p.data, q.data)
     t = resolve_type(p, q)
-    return t._cast_data(d0, d1)
+    return t.cast_data(d0, d1)
 
 
 def _ite_[T: Bits](s: Bits, x1: T, x0: Bits) -> T | Vector:
@@ -989,7 +989,7 @@ def _ite_[T: Bits](s: Bits, x1: T, x0: Bits) -> T | Vector:
     s1 = mask(x1.size) * s.data[1]
     d0, d1 = lb.ite((s0, s1), x1.data, x0.data)
     t = resolve_type(x1, x0)
-    return t._cast_data(d0, d1)
+    return t.cast_data(d0, d1)
 
 
 def _mux_[T: Bits](t: type[T], s: Bits, xs: dict[int, Bits]) -> T:
@@ -999,7 +999,7 @@ def _mux_[T: Bits](t: type[T], s: Bits, xs: dict[int, Bits]) -> T:
     _xs = {i: x.data for i, x in xs.items()}
     dc = t.dcs()
     d0, d1 = lb.mux(_s, _xs, dc.data)
-    return t._cast_data(d0, d1)
+    return t.cast_data(d0, d1)
 
 
 # Logical
@@ -1071,7 +1071,7 @@ def _add[T: Bits](a: T, b: Bits, ci: Scalar) -> tuple[T | Vector, Scalar]:
     co = bool2scalar[s > dmax]
     s &= dmax
 
-    return t._cast_data(s ^ dmax, s), co
+    return t.cast_data(s ^ dmax, s), co
 
 
 def _inc[T: Bits](a: T) -> tuple[T, Scalar]:
@@ -1086,7 +1086,7 @@ def _inc[T: Bits](a: T) -> tuple[T, Scalar]:
     co = bool2scalar[s > dmax]
     s &= dmax
 
-    return a._cast_data(s ^ dmax, s), co
+    return a.cast_data(s ^ dmax, s), co
 
 
 def _sub[T: Bits](a: T, b: Bits) -> tuple[T | Vector, Scalar]:
@@ -1125,7 +1125,7 @@ def _div[T: Bits](a: T, b: Bits) -> T:
     dmax = mask(a.size)
     q = a.data[1] // b.data[1]
 
-    return a._cast_data(q ^ dmax, q)
+    return a.cast_data(q ^ dmax, q)
 
 
 def _mod[T: Bits](a: Bits, b: T) -> T:
@@ -1141,7 +1141,7 @@ def _mod[T: Bits](a: Bits, b: T) -> T:
     dmax = mask(b.size)
     r = a.data[1] % b.data[1]
 
-    return b._cast_data(r ^ dmax, r)
+    return b.cast_data(r ^ dmax, r)
 
 
 def _and_or(a: Array, b: Array) -> Scalar:
@@ -1185,7 +1185,7 @@ def _lsh[T: Bits](x: T, n: Bits) -> T:
     _, (sh0, sh1) = x._get_slice(0, x.size - _n)
     d0 = mask(_n) | sh0 << _n
     d1 = sh1 << _n
-    y = x._cast_data(d0, d1)
+    y = x.cast_data(d0, d1)
 
     return y
 
@@ -1205,7 +1205,7 @@ def _rsh[T: Bits](x: T, n: Bits) -> T:
     sh_size, (sh0, sh1) = x._get_slice(_n, x.size)
     d0 = sh0 | (mask(_n) << sh_size)
     d1 = sh1
-    y = x._cast_data(d0, d1)
+    y = x.cast_data(d0, d1)
 
     return y
 
@@ -1228,7 +1228,7 @@ def _srsh[T: Bits](x: T, n: Bits) -> T:
     sh_size, (sh0, sh1) = x._get_slice(_n, x.size)
     d0 = sh0 | si0 << sh_size
     d1 = sh1 | si1 << sh_size
-    y = x._cast_data(d0, d1)
+    y = x.cast_data(d0, d1)
 
     return y
 
@@ -1288,7 +1288,7 @@ def _lrot[T: Bits](x: T, n: Bits) -> T:
     _, (sh0, sh1) = x._get_slice(0, x.size - _n)
     d0 = co0 | sh0 << _n
     d1 = co1 | sh1 << _n
-    return x._cast_data(d0, d1)
+    return x.cast_data(d0, d1)
 
 
 def _rrot[T: Bits](x: T, n: Bits) -> T:
@@ -1307,7 +1307,7 @@ def _rrot[T: Bits](x: T, n: Bits) -> T:
     sh_size, (sh0, sh1) = x._get_slice(_n, x.size)
     d0 = sh0 | co0 << sh_size
     d1 = sh1 | co1 << sh_size
-    return x._cast_data(d0, d1)
+    return x.cast_data(d0, d1)
 
 
 def _cat(*xs: Bits) -> Bits:
@@ -1343,7 +1343,7 @@ def _pack[T: Bits](x: T, n: int) -> T:
         d0 = (d0 << n) | (xd0 & m)
         d1 = (d1 << n) | (xd1 & m)
 
-    return x._cast_data(d0, d1)
+    return x.cast_data(d0, d1)
 
 
 # Predicates over bitvectors

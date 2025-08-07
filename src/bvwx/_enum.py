@@ -29,9 +29,9 @@ class _EnumMeta(type):
 
         # Instantiate members
         for (d0, d1), key in data2key.items():
-            setattr(enum, key, enum._cast_data(d0, d1))
+            setattr(enum, key, enum.cast_data(d0, d1))
 
-        # Override Vector._cast_data method
+        # Override Vector.cast_data method
         def _cast_data(cls, d0: int, d1: int):
             data = (d0, d1)
             try:
@@ -41,7 +41,7 @@ class _EnumMeta(type):
                 obj._data = data
             return obj
 
-        enum._cast_data = classmethod(_cast_data)  # pyright: ignore[reportAttributeAccessIssue]
+        enum.cast_data = classmethod(_cast_data)  # pyright: ignore[reportAttributeAccessIssue]
 
         # Override Vector.__new__ method
         def _new(cls, arg: BitsLike):
