@@ -12,7 +12,6 @@ from ._bits import (
     scalarX,
     vec_size,
 )
-from ._lbool import _1
 from ._util import clog2, mask
 
 
@@ -99,7 +98,7 @@ def encode_priority(x: BitsLike) -> tuple[Vector, Scalar]:
         for i in range(x.size - 1, -1, -1):
             x_i = x._get_index(i)
             # 0*1{0,1,-}*
-            if x_i == _1:
+            if x_i == lb.T:
                 return V(i ^ mask(n), i), scalar1
             # 0*-{0,1,-}* => DC
             if x_i == lb.W:

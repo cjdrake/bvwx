@@ -497,7 +497,7 @@ class Bits:
         if self.size == 0:
             return 0
         sign = self._get_index(self.size - 1)
-        if sign == lb._1:
+        if sign == lb.T:
             return -(_not_(self).to_uint() + 1)
         return self.to_uint()
 
@@ -876,13 +876,13 @@ class Scalar(Vector):
 
 scalarX: Scalar = Scalar._cast_data(*lb.X)
 scalar0: Scalar = Scalar._cast_data(*lb.F)
-scalar1: Scalar = Scalar._cast_data(*lb._1)
+scalar1: Scalar = Scalar._cast_data(*lb.T)
 scalarW: Scalar = Scalar._cast_data(*lb.W)
 
 _scalars: dict[lbv, Scalar] = {
     lb.X: scalarX,
     lb.F: scalar0,
-    lb._1: scalar1,
+    lb.T: scalar1,
     lb.W: scalarW,
 }
 bool2scalar = (scalar0, scalar1)
@@ -1011,7 +1011,7 @@ def _lor_(*xs: Scalar) -> Scalar:
 
 
 def _land_(*xs: Scalar) -> Scalar:
-    y = lb._1
+    y = lb.T
     for x in xs:
         y = lb.and_(y, x.data)
     return _scalars[y]
