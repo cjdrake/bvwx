@@ -12,29 +12,29 @@ type lbv = tuple[int, int]
 X: lbv = (0, 0)
 _0: lbv = (1, 0)
 _1: lbv = (0, 1)
-_W: lbv = (1, 1)
+W: lbv = (1, 1)
 
 
 from_char: dict[str, lbv] = {
     "X": X,
     "0": _0,
     "1": _1,
-    "-": _W,
-    "W": _W,
+    "-": W,
+    "W": W,
 }
 
 to_char: dict[lbv, str] = {
     X: "X",
     _0: "0",
     _1: "1",
-    _W: "-",
+    W: "-",
 }
 
 to_vcd_char: dict[lbv, str] = {
     X: "x",
     _0: "0",
     _1: "1",
-    _W: "x",
+    W: "x",
 }
 
 _LIT_PREFIX_RE = re.compile(r"(?P<Size>[1-9][0-9]*)(?P<Base>[bdh])")

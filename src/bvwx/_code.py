@@ -1,5 +1,6 @@
 """Encode/Decode Operators"""
 
+from . import _lbool as lb
 from ._bits import (
     BitsLike,
     Scalar,
@@ -11,7 +12,7 @@ from ._bits import (
     scalarX,
     vec_size,
 )
-from ._lbool import _W, _1
+from ._lbool import _1
 from ._util import clog2, mask
 
 
@@ -101,7 +102,7 @@ def encode_priority(x: BitsLike) -> tuple[Vector, Scalar]:
             if x_i == _1:
                 return V(i ^ mask(n), i), scalar1
             # 0*-{0,1,-}* => DC
-            if x_i == _W:
+            if x_i == lb.W:
                 return V.dcs(), scalarW
 
         # Not possible to get here

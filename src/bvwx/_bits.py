@@ -877,13 +877,13 @@ class Scalar(Vector):
 scalarX: Scalar = Scalar._cast_data(*lb.X)
 scalar0: Scalar = Scalar._cast_data(*lb._0)
 scalar1: Scalar = Scalar._cast_data(*lb._1)
-scalarW: Scalar = Scalar._cast_data(*lb._W)
+scalarW: Scalar = Scalar._cast_data(*lb.W)
 
 _scalars: dict[lbv, Scalar] = {
     lb.X: scalarX,
     lb._0: scalar0,
     lb._1: scalar1,
-    lb._W: scalarW,
+    lb.W: scalarW,
 }
 bool2scalar = (scalar0, scalar1)
 
