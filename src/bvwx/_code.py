@@ -96,7 +96,7 @@ def encode_priority(x: BitsLike) -> tuple[Vector, Scalar]:
     # Handle DC
     if x.has_w:
         for i in range(x.size - 1, -1, -1):
-            x_i = x._get_index(i)
+            x_i = x.get_index(i)
             # 0*1{0,1,-}*
             if x_i == lb.T:
                 return V(i ^ mask(n), i), scalar1

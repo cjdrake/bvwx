@@ -496,7 +496,7 @@ class Bits:
         """
         if self.size == 0:
             return 0
-        sign = self._get_index(self.size - 1)
+        sign = self.get_index(self.size - 1)
         if sign == lb.T:
             return -(_not_(self).to_uint() + 1)
         return self.to_uint()
@@ -575,36 +575,36 @@ class Bits:
 
     def vcd_val(self) -> str:
         """Return VCD variable value."""
-        return "".join(lb.to_vcd_char[self._get_index(i)] for i in range(self.size - 1, -1, -1))
+        return "".join(lb.to_vcd_char[self.get_index(i)] for i in range(self.size - 1, -1, -1))
 
-    def _get_index(self, i: int) -> lbv:
+    def get_index(self, i: int) -> lbv:
         d0 = (self._data[0] >> i) & 1
         d1 = (self._data[1] >> i) & 1
         return d0, d1
 
-    def _get_slice(self, i: int, j: int) -> tuple[int, lbv]:
+    def get_slice(self, i: int, j: int) -> tuple[int, lbv]:
         size = j - i
         m = mask(size)
         d0 = (self._data[0] >> i) & m
         d1 = (self._data[1] >> i) & m
         return size, (d0, d1)
 
-    def _get_key(self, key: Key) -> tuple[int, lbv]:
+    def get_key(self, key: Key) -> tuple[int, lbv]:
         if isinstance(key, int):
             index = _norm_index(self.size, key)
-            return 1, self._get_index(index)
+            return 1, self.get_index(index)
         if isinstance(key, slice):
             start, stop = _norm_slice(self.size, key)
             if start != 0 or stop != self.size:
-                return self._get_slice(start, stop)
+                return self.get_slice(start, stop)
             return self.size, self._data
         if isinstance(key, str):
             key = lit2bv(key)
             index = _norm_index(self.size, key.to_uint())
-            return 1, self._get_index(index)
+            return 1, self.get_index(index)
         if isinstance(key, Bits):
             index = _norm_index(self.size, key.to_uint())
-            return 1, self._get_index(index)
+            return 1, self.get_index(index)
         raise TypeError("Expected key to be int, slice, str literal, or Bits")
 
 
@@ -613,7 +613,7 @@ class Composite(Bits):
         return hash(self.size) ^ hash(self._data)
 
     def __getitem__(self, key: Key) -> Vector:
-        size, (d0, d1) = self._get_key(key)
+        size, (d0, d1) = self.get_key(key)
         return vec_size(size)(d0, d1)
 
 
@@ -793,11 +793,11 @@ class Vector(Array):
     @override
     def __str__(self) -> str:
         prefix = f"{self.size}b"
-        chars = [lb.to_char[self._get_index(0)]]
+        chars = [lb.to_char[self.get_index(0)]]
         for i in range(1, self.size):
             if i % 4 == 0:
                 chars.append("_")
-            chars.append(lb.to_char[self._get_index(i)])
+            chars.append(lb.to_char[self.get_index(i)])
         return prefix + "".join(reversed(chars))
 
     def __len__(self) -> int:
@@ -805,13 +805,13 @@ class Vector(Array):
 
     @override
     def __getitem__(self, key: Key) -> Vector:  # pyright: ignore[reportIncompatibleMethodOverride]
-        size, (d0, d1) = self._get_key(key)
+        size, (d0, d1) = self.get_key(key)
         return vec_size(size)(d0, d1)
 
     @override
     def __iter__(self) -> Generator[Scalar, None, None]:
         for i in range(self.size):
-            yield _scalars[self._get_index(i)]
+            yield _scalars[self.get_index(i)]
 
     @override
     def reshape(self, shape: tuple[int, ...]) -> Array:
@@ -989,7 +989,7 @@ def _ite_[T: Bits](s: Bits, x1: T, x0: Bits) -> T | Vector:
 
 def _mux_[T: Bits](t: type[T], s: Bits, xs: dict[int, Bits]) -> T:
     m = mask(t.size)
-    si = (s._get_index(i) for i in range(s.size))
+    si = (s.get_index(i) for i in range(s.size))
     _s = tuple((m * d0, m * d1) for d0, d1 in si)
     _xs = {i: x.data for i, x in xs.items()}
     dc = t.dcs()
@@ -1177,7 +1177,7 @@ def _lsh[T: Bits](x: T, n: Bits) -> T:
     if _n > x.size:
         raise ValueError(f"Expected n ≤ {x.size}, got {_n}")
 
-    _, (sh0, sh1) = x._get_slice(0, x.size - _n)
+    _, (sh0, sh1) = x.get_slice(0, x.size - _n)
     d0 = mask(_n) | sh0 << _n
     d1 = sh1 << _n
     y = x.cast_data(d0, d1)
@@ -1197,7 +1197,7 @@ def _rsh[T: Bits](x: T, n: Bits) -> T:
     if _n > x.size:
         raise ValueError(f"Expected n ≤ {x.size}, got {_n}")
 
-    sh_size, (sh0, sh1) = x._get_slice(_n, x.size)
+    sh_size, (sh0, sh1) = x.get_slice(_n, x.size)
     d0 = sh0 | (mask(_n) << sh_size)
     d1 = sh1
     y = x.cast_data(d0, d1)
@@ -1217,10 +1217,10 @@ def _srsh[T: Bits](x: T, n: Bits) -> T:
     if _n > x.size:
         raise ValueError(f"Expected n ≤ {x.size}, got {_n}")
 
-    sign0, sign1 = x._get_index(x.size - 1)
+    sign0, sign1 = x.get_index(x.size - 1)
     si0, si1 = mask(_n) * sign0, mask(_n) * sign1
 
-    sh_size, (sh0, sh1) = x._get_slice(_n, x.size)
+    sh_size, (sh0, sh1) = x.get_slice(_n, x.size)
     d0 = sh0 | si0 << sh_size
     d1 = sh1 | si1 << sh_size
     y = x.cast_data(d0, d1)
@@ -1259,7 +1259,7 @@ def _sxt[T: Bits](x: T, n: Bits) -> T | Vector:
     if _n == 0:
         return x
 
-    sign0, sign1 = x._get_index(x.size - 1)
+    sign0, sign1 = x.get_index(x.size - 1)
     ext0 = mask(_n) * sign0
     ext1 = mask(_n) * sign1
     d0 = x.data[0] | ext0 << x.size
@@ -1279,8 +1279,8 @@ def _lrot[T: Bits](x: T, n: Bits) -> T:
     if _n >= x.size:
         raise ValueError(f"Expected n < {x.size}, got {_n}")
 
-    _, (co0, co1) = x._get_slice(x.size - _n, x.size)
-    _, (sh0, sh1) = x._get_slice(0, x.size - _n)
+    _, (co0, co1) = x.get_slice(x.size - _n, x.size)
+    _, (sh0, sh1) = x.get_slice(0, x.size - _n)
     d0 = co0 | sh0 << _n
     d1 = co1 | sh1 << _n
     return x.cast_data(d0, d1)
@@ -1298,8 +1298,8 @@ def _rrot[T: Bits](x: T, n: Bits) -> T:
     if _n >= x.size:
         raise ValueError(f"Expected n < {x.size}, got {_n}")
 
-    _, (co0, co1) = x._get_slice(0, _n)
-    sh_size, (sh0, sh1) = x._get_slice(_n, x.size)
+    _, (co0, co1) = x.get_slice(0, _n)
+    sh_size, (sh0, sh1) = x.get_slice(_n, x.size)
     d0 = sh0 | co0 << sh_size
     d1 = sh1 | co1 << sh_size
     return x.cast_data(d0, d1)
@@ -1374,8 +1374,8 @@ def _match(x0: Bits, x1: Bits) -> Scalar:
         return scalarX
 
     for i in range(x0.size):
-        a0, a1 = x0._get_index(i)
-        b0, b1 = x1._get_index(i)
+        a0, a1 = x0.get_index(i)
+        b0, b1 = x1.get_index(i)
         if a0 ^ b0 and a1 ^ b1:
             return scalar0
     return scalar1
