@@ -79,7 +79,7 @@ def test_bool():
 
 
 def test_hash():
-    s = set()
+    s: set[Vec] = set()
     s.add(u2bv(0))
     s.add(u2bv(1))
     s.add(u2bv(2))
@@ -101,7 +101,7 @@ class MyUnion(Union):
 
 
 def test_bug_3():
-    s = set()
+    s: set[MyStruct] = set()
     s.add(MyStruct(a="8h00"))
     s.add(MyStruct(a="8h11"))
     s.add(MyStruct(a="8h22"))
