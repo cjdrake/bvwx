@@ -417,8 +417,8 @@ def test_count():
 
     assert not bits("4b1111").has_0
     assert bits("4b1110").has_0
-    assert not bits("4b0000").has_1()
-    assert bits("4b0001").has_1()
+    assert not bits("4b0000").has_1
+    assert bits("4b0001").has_1
 
     assert not bits("4b0000").has_x()
     assert bits("4b00X0").has_x()

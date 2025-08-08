@@ -43,7 +43,7 @@ Data Types
     .. automethod:: bvwx.Bits.onehot0
 
     .. autoproperty:: bvwx.Bits.has_0
-    .. automethod:: bvwx.Bits.has_1
+    .. autoproperty:: bvwx.Bits.has_1
     .. automethod:: bvwx.Bits.has_x
     .. automethod:: bvwx.Bits.has_dc
     .. automethod:: bvwx.Bits.has_unknown
