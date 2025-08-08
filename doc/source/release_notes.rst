@@ -8,6 +8,16 @@ This chapter lists new features, API changes, and bug fixes.
 For a complete history, see the Git commit log.
 
 
+Version 0.14.0
+==============
+
+* Changed ``Bits.has_0`` from method to property
+* Changed ``Bits.has_1`` from method to property
+* Changed ``Bits.has_x`` from method to property
+* Changed ``Bits.has_dc`` from method to property
+* Added ``Bits.has_w`` and ``Bits.has_wx`` properties
+
+
 Version 0.13.0
 ==============
 
