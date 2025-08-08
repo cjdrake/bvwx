@@ -535,10 +535,6 @@ class Bits:
         return not self.has_unknown() and self.count_ones() <= 1
 
     @cached_property
-    def _has_0(self) -> bool:
-        return bool(self._data[0] & (self._data[1] ^ self._dmax()))
-
-    @cached_property
     def _has_1(self) -> bool:
         return bool((self._data[0] ^ self._dmax()) & self._data[1])
 
@@ -554,9 +550,10 @@ class Bits:
     def _has_xw(self) -> bool:
         return bool(self._data[0] ^ self._data[1] ^ self._dmax())
 
+    @cached_property
     def has_0(self) -> bool:
         """Return True if contains at least one ``0`` bit."""
-        return self._has_0
+        return bool(self._data[0] & (self._data[1] ^ self._dmax()))
 
     def has_1(self) -> bool:
         """Return True if contains at least one ``1`` bit."""
@@ -1038,7 +1035,7 @@ def _uor(x: Bits) -> Scalar:
 def _uand(x: Bits) -> Scalar:
     if x._has_x:
         return scalarX
-    if x._has_0:
+    if x.has_0:
         return scalar0
     if x._has_w:
         return scalarW
