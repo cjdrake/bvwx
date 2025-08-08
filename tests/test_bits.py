@@ -422,8 +422,8 @@ def test_count():
 
     assert not bits("4b0000").has_x
     assert bits("4b00X0").has_x
-    assert not bits("4b0000").has_dc()
-    assert bits("4b00-0").has_dc()
+    assert not bits("4b0000").has_dc
+    assert bits("4b00-0").has_dc
     assert not bits("4b0000").has_unknown()
     assert bits("4b00X0").has_unknown()
     assert bits("4b00-0").has_unknown()

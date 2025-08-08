@@ -45,7 +45,8 @@ Data Types
     .. autoproperty:: bvwx.Bits.has_0
     .. autoproperty:: bvwx.Bits.has_1
     .. autoproperty:: bvwx.Bits.has_x
-    .. automethod:: bvwx.Bits.has_dc
+    .. autoproperty:: bvwx.Bits.has_w
+    .. autoproperty:: bvwx.Bits.has_dc
     .. automethod:: bvwx.Bits.has_unknown
 
     .. automethod:: bvwx.Bits.vcd_var

@@ -535,10 +535,6 @@ class Bits:
         return not self.has_unknown() and self.count_ones() <= 1
 
     @cached_property
-    def _has_w(self) -> bool:
-        return bool(self._data[0] & self._data[1])
-
-    @cached_property
     def _has_xw(self) -> bool:
         return bool(self._data[0] ^ self._data[1] ^ self._dmax())
 
@@ -557,9 +553,15 @@ class Bits:
         """Return True if contains at least one ``X`` bit."""
         return bool((self._data[0] | self._data[1]) ^ self._dmax())
 
+    @cached_property
+    def has_w(self) -> bool:
+        """Return True if contains at least one ``-`` bit."""
+        return bool(self._data[0] & self._data[1])
+
+    @cached_property
     def has_dc(self) -> bool:
         """Return True if contains at least one ``-`` bit."""
-        return self._has_w
+        return bool(self._data[0] & self._data[1])
 
     def has_unknown(self) -> bool:
         """Return True if contains at least one unknown bit."""
@@ -1021,7 +1023,7 @@ def _uor(x: Bits) -> Scalar:
         return scalarX
     if x.has_1:
         return scalar1
-    if x._has_w:
+    if x.has_w:
         return scalarW
     return scalar0
 
@@ -1031,7 +1033,7 @@ def _uand(x: Bits) -> Scalar:
         return scalarX
     if x.has_0:
         return scalar0
-    if x._has_w:
+    if x.has_w:
         return scalarW
     return scalar1
 
@@ -1039,7 +1041,7 @@ def _uand(x: Bits) -> Scalar:
 def _uxor(x: Bits) -> Scalar:
     if x.has_x:
         return scalarX
-    if x._has_w:
+    if x.has_w:
         return scalarW
     return bool2scalar[x.data[1].bit_count() & 1]
 
@@ -1054,7 +1056,7 @@ def _add[T: Bits](a: T, b: Bits, ci: Scalar) -> tuple[T | Vector, Scalar]:
     # X/DC propagation
     if a.has_x or b.has_x or ci.has_x:
         return t.xes(), scalarX
-    if a._has_w or b._has_w or ci._has_w:
+    if a.has_w or b.has_w or ci.has_w:
         return t.dcs(), scalarW
 
     dmax = mask(t.size)
@@ -1069,7 +1071,7 @@ def _inc[T: Bits](a: T) -> tuple[T, Scalar]:
     # X/DC propagation
     if a.has_x:
         return a.xes(), scalarX
-    if a._has_w:
+    if a.has_w:
         return a.dcs(), scalarW
 
     dmax = mask(a.size)
@@ -1094,7 +1096,7 @@ def _mul(a: Bits, b: Bits) -> Vector:
     # X/DC propagation
     if a.has_x or b.has_x:
         return V.xes()
-    if a._has_w or b._has_w:
+    if a.has_w or b.has_w:
         return V.dcs()
 
     dmax = mask(V.size)
@@ -1110,7 +1112,7 @@ def _div[T: Bits](a: T, b: Bits) -> T:
     # X/DC propagation
     if a.has_x or b.has_x:
         return a.xes()
-    if a._has_w or b._has_w:
+    if a.has_w or b.has_w:
         return a.dcs()
 
     dmax = mask(a.size)
@@ -1126,7 +1128,7 @@ def _mod[T: Bits](a: Bits, b: T) -> T:
     # X/DC propagation
     if a.has_x or b.has_x:
         return b.xes()
-    if a._has_w or b._has_w:
+    if a.has_w or b.has_w:
         return b.dcs()
 
     dmax = mask(b.size)
@@ -1164,7 +1166,7 @@ def _matmul(a: Array, b: Array) -> Array:
 def _lsh[T: Bits](x: T, n: Bits) -> T:
     if n.has_x:
         return x.xes()
-    if n._has_w:
+    if n.has_w:
         return x.dcs()
 
     _n = n.to_uint()
@@ -1184,7 +1186,7 @@ def _lsh[T: Bits](x: T, n: Bits) -> T:
 def _rsh[T: Bits](x: T, n: Bits) -> T:
     if n.has_x:
         return x.xes()
-    if n._has_w:
+    if n.has_w:
         return x.dcs()
 
     _n = n.to_uint()
@@ -1204,7 +1206,7 @@ def _rsh[T: Bits](x: T, n: Bits) -> T:
 def _srsh[T: Bits](x: T, n: Bits) -> T:
     if n.has_x:
         return x.xes()
-    if n._has_w:
+    if n.has_w:
         return x.dcs()
 
     _n = n.to_uint()
@@ -1228,7 +1230,7 @@ def _srsh[T: Bits](x: T, n: Bits) -> T:
 def _xt[T: Bits](x: T, n: Bits) -> T | Vector:
     if n.has_x:
         return x.xes()
-    if n._has_w:
+    if n.has_w:
         return x.dcs()
 
     _n = n.to_uint()
@@ -1248,7 +1250,7 @@ def _sxt[T: Bits](x: T, n: Bits) -> T | Vector:
 
     if n.has_x:
         return x.xes()
-    if n._has_w:
+    if n.has_w:
         return x.dcs()
 
     _n = n.to_uint()
@@ -1266,7 +1268,7 @@ def _sxt[T: Bits](x: T, n: Bits) -> T | Vector:
 def _lrot[T: Bits](x: T, n: Bits) -> T:
     if n.has_x:
         return x.xes()
-    if n._has_w:
+    if n.has_w:
         return x.dcs()
 
     _n = n.to_uint()
@@ -1285,7 +1287,7 @@ def _lrot[T: Bits](x: T, n: Bits) -> T:
 def _rrot[T: Bits](x: T, n: Bits) -> T:
     if n.has_x:
         return x.xes()
-    if n._has_w:
+    if n.has_w:
         return x.dcs()
 
     _n = n.to_uint()
@@ -1350,7 +1352,7 @@ def _cmp(op: Callable[[int, int], bool], x0: Bits, x1: Bits) -> Scalar:
     # X/DC propagation
     if x0.has_x or x1.has_x:
         return scalarX
-    if x0._has_w or x1._has_w:
+    if x0.has_w or x1.has_w:
         return scalarW
     return bool2scalar[op(x0.to_uint(), x1.to_uint())]
 
@@ -1359,7 +1361,7 @@ def _scmp(op: Callable[[int, int], bool], x0: Bits, x1: Bits) -> Scalar:
     # X/DC propagation
     if x0.has_x or x1.has_x:
         return scalarX
-    if x0._has_w or x1._has_w:
+    if x0.has_w or x1.has_w:
         return scalarW
     return bool2scalar[op(x0.to_int(), x1.to_int())]
 
