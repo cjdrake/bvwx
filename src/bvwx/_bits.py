@@ -481,7 +481,7 @@ class Bits:
         Raises:
             ValueError: Contains any unknown bits.
         """
-        if self.has_unknown():
+        if self.has_xw:
             raise ValueError("Cannot convert unknown to uint")
         return self._data[1]
 
@@ -528,15 +528,11 @@ class Bits:
 
     def onehot(self) -> bool:
         """Return True if contains exactly one ``1`` bit."""
-        return not self.has_unknown() and self.count_ones() == 1
+        return not self.has_xw and self.count_ones() == 1
 
     def onehot0(self) -> bool:
         """Return True if contains at most one ``1`` bit."""
-        return not self.has_unknown() and self.count_ones() <= 1
-
-    @cached_property
-    def _has_xw(self) -> bool:
-        return bool(self._data[0] ^ self._data[1] ^ self._dmax())
+        return not self.has_xw and self.count_ones() <= 1
 
     @cached_property
     def has_0(self) -> bool:
@@ -563,9 +559,15 @@ class Bits:
         """Return True if contains at least one ``-`` bit."""
         return bool(self._data[0] & self._data[1])
 
+    @cached_property
+    def has_xw(self) -> bool:
+        """Return True if contains at least one unknown bit."""
+        return bool(self._data[0] ^ self._data[1] ^ self._dmax())
+
+    @cached_property
     def has_unknown(self) -> bool:
         """Return True if contains at least one unknown bit."""
-        return self._has_xw
+        return bool(self._data[0] ^ self._data[1] ^ self._dmax())
 
     def vcd_var(self) -> str:
         """Return VCD variable type."""
