@@ -41,14 +41,14 @@ class _EnumMeta(type):
                 obj._data = data
             return obj
 
-        enum.cast_data = classmethod(_cast_data)  # pyright: ignore[reportAttributeAccessIssue]
+        setattr(enum, "cast_data", classmethod(_cast_data))
 
         # Override Vector.__new__ method
         def _new(cls, arg: BitsLike):
             x = expect_bits_size(arg, cls.size)
             return cls.cast(x)
 
-        enum.__new__ = _new  # pyright: ignore[reportAttributeAccessIssue]
+        setattr(enum, "__new__", _new)
 
         # Override Vector.__repr__ method
         def _repr(self) -> str:
@@ -75,7 +75,7 @@ class _EnumMeta(type):
             except KeyError:
                 return f"{name}({V.__str__(self)})"
 
-        enum.name = property(fget=_name)  # pyright: ignore[reportAttributeAccessIssue]
+        setattr(enum, "name", property(fget=_name))
 
         # Override VCD methods
         def _vcd_var(self) -> str:

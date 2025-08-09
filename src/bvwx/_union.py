@@ -43,7 +43,7 @@ class _UnionMeta(type):
                 raise TypeError(s)
             self._data = x.data
 
-        union.__init__ = _init  # pyright: ignore[reportAttributeAccessIssue]
+        setattr(union, "__init__", _init)
 
         # Override Bits.__str__ method
         def _str(self) -> str:
