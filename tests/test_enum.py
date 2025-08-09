@@ -84,33 +84,25 @@ def test_enum_error():
     """Test enum spec errors."""
     with pytest.raises(ValueError):
 
-        class InvalidName(Enum):
+        class InvalidName(Enum):  # pyright: ignore[reportUnusedClass]
             X = "4bXXXX"
-
-        _ = InvalidName()
 
     with pytest.raises(ValueError):
 
-        class InvalidData(Enum):
+        class InvalidData(Enum):  # pyright: ignore[reportUnusedClass]
             FOO = "4bXXXX"
-
-        _ = InvalidData()
 
     # The literal must be a str
     with pytest.raises(TypeError):
 
-        class InvalidType(Enum):
+        class InvalidType(Enum):  # pyright: ignore[reportUnusedClass]
             FOO = 42
-
-        _ = InvalidType()
 
     with pytest.raises(ValueError):
 
-        class InvalidMembers(Enum):
+        class InvalidMembers(Enum):  # pyright: ignore[reportUnusedClass]
             A = "2b00"
             B = "3b000"
-
-        _ = InvalidMembers()
 
     with pytest.raises(ValueError):
 
