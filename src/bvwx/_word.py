@@ -5,7 +5,7 @@ from ._bits import (
     BitsLike,
     UintLike,
     Vector,
-    _cat,
+    bits_cat,
     bool2scalar,
     expect_bits,
     expect_uint,
@@ -222,7 +222,7 @@ def cat(*objs: BitsLike) -> Bits:
         else:
             raise TypeError(f"Invalid input: {obj}")
 
-    return _cat(*xs)
+    return bits_cat(*xs)
 
 
 def rep(obj: BitsLike, n: int) -> Bits:

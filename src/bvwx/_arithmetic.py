@@ -8,16 +8,16 @@ from ._bits import (
     ScalarLike,
     UintLike,
     Vector,
-    _add,
-    _cat,
-    _div,
-    _lsh,
-    _matmul,
-    _mod,
-    _mul,
-    _neg,
-    _rsh,
-    _sub,
+    bits_add,
+    bits_cat,
+    bits_div,
+    bits_lsh,
+    bits_matmul,
+    bits_mod,
+    bits_mul,
+    bits_neg,
+    bits_rsh,
+    bits_sub,
     expect_array,
     expect_bits,
     expect_bits_size,
@@ -55,7 +55,7 @@ def add(a: BitsLike, b: BitsLike, ci: ScalarLike | None = None) -> Bits:
     a = expect_bits(a)
     b = expect_bits(b)
     ci = scalar0 if ci is None else expect_scalar(ci)
-    s, _ = _add(a, b, ci)
+    s, _ = bits_add(a, b, ci)
     return s
 
 
@@ -87,8 +87,8 @@ def adc(a: BitsLike, b: BitsLike, ci: ScalarLike | None = None) -> Vector:
     a = expect_bits(a)
     b = expect_bits(b)
     ci = scalar0 if ci is None else expect_scalar(ci)
-    s, co = _add(a, b, ci)
-    v = _cat(s, co)
+    s, co = bits_add(a, b, ci)
+    v = bits_cat(s, co)
     assert isinstance(v, Vector)
     return v
 
@@ -110,7 +110,7 @@ def sub(a: BitsLike, b: BitsLike) -> Bits:
     """
     a = expect_bits(a)
     b = expect_bits_size(b, a.size)
-    s, _ = _sub(a, b)
+    s, _ = bits_sub(a, b)
     return s
 
 
@@ -132,8 +132,8 @@ def sbc(a: BitsLike, b: BitsLike) -> Vector:
     """
     a = expect_bits(a)
     b = expect_bits_size(b, a.size)
-    s, co = _sub(a, b)
-    v = _cat(s, co)
+    s, co = bits_sub(a, b)
+    v = bits_cat(s, co)
     assert isinstance(v, Vector)
     return v
 
@@ -152,7 +152,7 @@ def neg(x: BitsLike) -> Bits:
         ValueError: Error parsing string literal.
     """
     x = expect_bits(x)
-    s, _ = _neg(x)
+    s, _ = bits_neg(x)
     return s
 
 
@@ -171,8 +171,8 @@ def ngc(x: BitsLike) -> Vector:
         ValueError: Error parsing string literal.
     """
     x = expect_bits(x)
-    s, co = _neg(x)
-    v = _cat(s, co)
+    s, co = bits_neg(x)
+    v = bits_cat(s, co)
     assert isinstance(v, Vector)
     return v
 
@@ -201,7 +201,7 @@ def mul(a: BitsLike, b: BitsLike) -> Vector:
     """
     a = expect_bits(a)
     b = expect_bits(b)
-    return _mul(a, b)
+    return bits_mul(a, b)
 
 
 def div(a: BitsLike, b: BitsLike) -> Bits:
@@ -221,7 +221,7 @@ def div(a: BitsLike, b: BitsLike) -> Bits:
     """
     a = expect_bits(a)
     b = expect_bits(b)
-    return _div(a, b)
+    return bits_div(a, b)
 
 
 def mod(a: BitsLike, b: BitsLike) -> Bits:
@@ -241,7 +241,7 @@ def mod(a: BitsLike, b: BitsLike) -> Bits:
     """
     a = expect_bits(a)
     b = expect_bits(b)
-    return _mod(a, b)
+    return bits_mod(a, b)
 
 
 def matmul(a: ArrayLike, b: ArrayLike) -> Array:
@@ -260,7 +260,7 @@ def matmul(a: ArrayLike, b: ArrayLike) -> Array:
     """
     a = expect_array(a)
     b = expect_array(b)
-    return _matmul(a, b)
+    return bits_matmul(a, b)
 
 
 def lsh(x: BitsLike, n: UintLike) -> Bits:
@@ -289,7 +289,7 @@ def lsh(x: BitsLike, n: UintLike) -> Bits:
     """
     x = expect_bits(x)
     n = expect_uint(n)
-    return _lsh(x, n)
+    return bits_lsh(x, n)
 
 
 def rsh(x: BitsLike, n: UintLike) -> Bits:
@@ -318,7 +318,7 @@ def rsh(x: BitsLike, n: UintLike) -> Bits:
     """
     x = expect_bits(x)
     n = expect_uint(n)
-    return _rsh(x, n)
+    return bits_rsh(x, n)
 
 
 def _srsh[T: Bits](x: T, n: Bits) -> T:

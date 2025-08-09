@@ -398,77 +398,77 @@ class Bits:
     # Note: Drop carry-out
     def __lshift__(self, n: UintLike) -> Self:
         n = expect_uint(n)
-        return _lsh(self, n)
+        return bits_lsh(self, n)
 
     def __rlshift__(self, other: BitsLike) -> Bits:
         other = expect_bits(other)
-        return _lsh(other, self)
+        return bits_lsh(other, self)
 
     # Note: Drop carry-out
     def __rshift__(self, n: UintLike) -> Self:
         n = expect_uint(n)
-        return _rsh(self, n)
+        return bits_rsh(self, n)
 
     def __rrshift__(self, other: BitsLike) -> Bits:
         other = expect_bits(other)
-        return _rsh(other, self)
+        return bits_rsh(other, self)
 
     # Note: Keep carry-out
     def __add__(self, other: BitsLike) -> Vector:
         other = expect_bits(other)
-        s, co = _add(self, other, scalar0)
-        v = _cat(s, co)
+        s, co = bits_add(self, other, scalar0)
+        v = bits_cat(s, co)
         assert isinstance(v, Vector)
         return v
 
     def __radd__(self, other: BitsLike) -> Vector:
         other = expect_bits(other)
-        s, co = _add(other, self, scalar0)
-        v = _cat(s, co)
+        s, co = bits_add(other, self, scalar0)
+        v = bits_cat(s, co)
         assert isinstance(v, Vector)
         return v
 
     # Note: Keep carry-out
     def __sub__(self, other: BitsLike) -> Vector:
         other = expect_bits_size(other, self.size)
-        s, co = _sub(self, other)
-        v = _cat(s, co)
+        s, co = bits_sub(self, other)
+        v = bits_cat(s, co)
         assert isinstance(v, Vector)
         return v
 
     def __rsub__(self, other: BitsLike) -> Vector:
         other = expect_bits_size(other, self.size)
-        s, co = _sub(other, self)
-        v = _cat(s, co)
+        s, co = bits_sub(other, self)
+        v = bits_cat(s, co)
         assert isinstance(v, Vector)
         return v
 
     # Note: Keep carry-out
     def __neg__(self) -> Vector:
-        s, co = _neg(self)
-        v = _cat(s, co)
+        s, co = bits_neg(self)
+        v = bits_cat(s, co)
         assert isinstance(v, Vector)
         return v
 
     def __mul__(self, other: BitsLike) -> Vector:
         other = expect_bits(other)
-        return _mul(self, other)
+        return bits_mul(self, other)
 
     def __rmul__(self, other: BitsLike) -> Vector:
         other = expect_bits(other)
-        return _mul(other, self)
+        return bits_mul(other, self)
 
     def __floordiv__(self, other: BitsLike) -> Self:
         other = expect_bits(other)
-        return _div(self, other)
+        return bits_div(self, other)
 
     def __rfloordiv__(self, other: BitsLike) -> Bits:
         other = expect_bits(other)
-        return _div(other, self)
+        return bits_div(other, self)
 
     def __mod__(self, other: BitsLike) -> Bits:
         other = expect_bits(other)
-        return _mod(self, other)
+        return bits_mod(self, other)
 
     # Note: __rmod__ does not work b/c str implements % operator
 
@@ -692,11 +692,11 @@ class Array(Bits):
 
     def __matmul__(self, other: ArrayLike) -> Array:
         other = expect_array(other)
-        return _matmul(self, other)
+        return bits_matmul(self, other)
 
     def __rmatmul__(self, other: ArrayLike) -> Array:
         other = expect_array(other)
-        return _matmul(other, self)
+        return bits_matmul(other, self)
 
     def reshape(self, shape: tuple[int, ...]) -> Array:
         if shape == self.shape:
@@ -995,7 +995,7 @@ def _uand(x: Bits) -> Scalar:
 
 
 # Arithmetic
-def _add[T: Bits](a: T, b: Bits, ci: Scalar) -> tuple[T | Vector, Scalar]:
+def bits_add[T: Bits](a: T, b: Bits, ci: Scalar) -> tuple[T | Vector, Scalar]:
     if a.size == b.size:
         t = resolve_type(a, b)
     else:
@@ -1030,15 +1030,15 @@ def _inc[T: Bits](a: T) -> tuple[T, Scalar]:
     return a.cast_data(s ^ dmax, s), co
 
 
-def _sub[T: Bits](a: T, b: Bits) -> tuple[T | Vector, Scalar]:
-    return _add(a, _not_(b), ci=scalar1)
+def bits_sub[T: Bits](a: T, b: Bits) -> tuple[T | Vector, Scalar]:
+    return bits_add(a, _not_(b), ci=scalar1)
 
 
-def _neg[T: Bits](x: T) -> tuple[T, Scalar]:
+def bits_neg[T: Bits](x: T) -> tuple[T, Scalar]:
     return _inc(_not_(x))
 
 
-def _mul(a: Bits, b: Bits) -> Vector:
+def bits_mul(a: Bits, b: Bits) -> Vector:
     V = vec_size(a.size + b.size)
 
     # X/DC propagation
@@ -1053,7 +1053,7 @@ def _mul(a: Bits, b: Bits) -> Vector:
     return V(p ^ dmax, p)
 
 
-def _div[T: Bits](a: T, b: Bits) -> T:
+def bits_div[T: Bits](a: T, b: Bits) -> T:
     if not a.size >= b.size > 0:
         raise ValueError("Expected a.size ≥ b.size > 0")
 
@@ -1069,7 +1069,7 @@ def _div[T: Bits](a: T, b: Bits) -> T:
     return a.cast_data(q ^ dmax, q)
 
 
-def _mod[T: Bits](a: Bits, b: T) -> T:
+def bits_mod[T: Bits](a: Bits, b: T) -> T:
     if not a.size >= b.size > 0:
         raise ValueError("Expected a.size ≥ b.size > 0")
 
@@ -1089,7 +1089,7 @@ def _and_or(a: Array, b: Array) -> Scalar:
     return _uor(_and_(a, b))
 
 
-def _matmul(a: Array, b: Array) -> Array:
+def bits_matmul(a: Array, b: Array) -> Array:
     match (a.shape, b.shape):
         # Vec[k] @ Vec[k] => Scalar
         case (int() as k1,), (int() as k2,) if k1 == k2:
@@ -1111,7 +1111,7 @@ def _matmul(a: Array, b: Array) -> Array:
             raise TypeError(s)
 
 
-def _lsh[T: Bits](x: T, n: Bits) -> T:
+def bits_lsh[T: Bits](x: T, n: Bits) -> T:
     if n.has_x:
         return x.xes()
     if n.has_w:
@@ -1131,7 +1131,7 @@ def _lsh[T: Bits](x: T, n: Bits) -> T:
     return y
 
 
-def _rsh[T: Bits](x: T, n: Bits) -> T:
+def bits_rsh[T: Bits](x: T, n: Bits) -> T:
     if n.has_x:
         return x.xes()
     if n.has_w:
@@ -1152,7 +1152,7 @@ def _rsh[T: Bits](x: T, n: Bits) -> T:
 
 
 # Word
-def _cat(*xs: Bits) -> Bits:
+def bits_cat(*xs: Bits) -> Bits:
     if len(xs) == 0:
         return _empty
     if len(xs) == 1:
@@ -1429,7 +1429,7 @@ def i2bv(n: int, size: int | None = None) -> Vector:
     V = vec_size(size)
     x = V(d1 ^ mask(size), d1)
     if negative:
-        x_n, _ = _neg(x)
+        x_n, _ = bits_neg(x)
         assert isinstance(x_n, Vector)
         return x_n
     return x
