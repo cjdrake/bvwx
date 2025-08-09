@@ -228,9 +228,6 @@ def test_vec_getitem():
     # Slice step not supported
     with pytest.raises(ValueError):
         _ = X2[0:4:1]
-    # Invalid index type
-    with pytest.raises(TypeError):
-        _ = X2[1.0e42]
 
 
 def test_array_class_getitem():

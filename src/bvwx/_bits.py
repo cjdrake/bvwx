@@ -590,22 +590,20 @@ class Bits:
         return size, (d0, d1)
 
     def get_key(self, key: Key) -> tuple[int, lbv]:
-        if isinstance(key, int):
-            index = _norm_index(self.size, key)
-            return 1, self.get_index(index)
         if isinstance(key, slice):
             start, stop = _norm_slice(self.size, key)
             if start != 0 or stop != self.size:
                 return self.get_slice(start, stop)
             return self.size, self._data
-        if isinstance(key, str):
-            key = lit2bv(key)
+        # key: UintLike
+        if isinstance(key, int):
+            index = _norm_index(self.size, key)
+        else:
+            if isinstance(key, str):
+                key = lit2bv(key)
+            # key: Bits
             index = _norm_index(self.size, key.to_uint())
-            return 1, self.get_index(index)
-        if isinstance(key, Bits):
-            index = _norm_index(self.size, key.to_uint())
-            return 1, self.get_index(index)
-        raise TypeError("Expected key to be int, slice, str literal, or Bits")
+        return 1, self.get_index(index)
 
 
 class Composite(Bits):
@@ -943,7 +941,7 @@ type ArrayLike = Array | str | int
 type VectorLike = Vector | str | int
 type ScalarLike = Scalar | str | int
 type UintLike = Bits | str | int
-type Key = int | slice | Bits | str
+type Key = UintLike | slice
 
 
 # Bitwise
