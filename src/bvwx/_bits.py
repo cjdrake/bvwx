@@ -811,7 +811,7 @@ class Vector(Array):
     @override
     def __iter__(self) -> Generator[Scalar, None, None]:
         for i in range(self.size):
-            yield _scalars[self.get_index(i)]
+            yield scalars[self.get_index(i)]
 
     @override
     def reshape(self, shape: tuple[int, ...]) -> Array:
@@ -866,7 +866,7 @@ class Scalar(Vector):
 
     @override
     def __new__(cls, d0: int, d1: int) -> Scalar:
-        return _scalars[(d0, d1)]
+        return scalars[(d0, d1)]
 
 
 scalarX: Scalar = Scalar.cast_data(*lb.X)
@@ -874,7 +874,7 @@ scalar0: Scalar = Scalar.cast_data(*lb.F)
 scalar1: Scalar = Scalar.cast_data(*lb.T)
 scalarW: Scalar = Scalar.cast_data(*lb.W)
 
-_scalars: dict[lbv, Scalar] = {
+scalars: dict[lbv, Scalar] = {
     lb.X: scalarX,
     lb.F: scalar0,
     lb.T: scalar1,
@@ -995,28 +995,6 @@ def _mux_[T: Bits](t: type[T], s: Bits, xs: dict[int, Bits]) -> T:
     dc = t.dcs()
     d0, d1 = lb.mux(_s, _xs, dc.data)
     return t.cast_data(d0, d1)
-
-
-# Logical
-def _lor_(*xs: Scalar) -> Scalar:
-    y = lb.F
-    for x in xs:
-        y = lb.or_(y, x.data)
-    return _scalars[y]
-
-
-def _land_(*xs: Scalar) -> Scalar:
-    y = lb.T
-    for x in xs:
-        y = lb.and_(y, x.data)
-    return _scalars[y]
-
-
-def _lxor_(*xs: Scalar) -> Scalar:
-    y = lb.F
-    for x in xs:
-        y = lb.xor(y, x.data)
-    return _scalars[y]
 
 
 # Unary

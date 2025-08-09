@@ -1,6 +1,14 @@
 """Logical Operators"""
 
-from ._bits import Scalar, ScalarLike, _land_, _lor_, _lxor_, expect_scalar
+from . import _lbool as lb
+from ._bits import Scalar, ScalarLike, expect_scalar, scalars
+
+
+def _lor(*xs: Scalar) -> Scalar:
+    y = lb.F
+    for x in xs:
+        y = lb.or_(y, x.data)
+    return scalars[y]
 
 
 def lor(*xs: ScalarLike) -> Scalar:
@@ -28,7 +36,14 @@ def lor(*xs: ScalarLike) -> Scalar:
         TypeError: ``x`` is not a valid ``Scalar`` object.
         ValueError: Error parsing string literal.
     """
-    return _lor_(*[expect_scalar(x) for x in xs])
+    return _lor(*[expect_scalar(x) for x in xs])
+
+
+def _land(*xs: Scalar) -> Scalar:
+    y = lb.T
+    for x in xs:
+        y = lb.and_(y, x.data)
+    return scalars[y]
 
 
 def land(*xs: ScalarLike) -> Scalar:
@@ -56,7 +71,14 @@ def land(*xs: ScalarLike) -> Scalar:
         TypeError: ``x`` is not a valid ``Scalar`` object.
         ValueError: Error parsing string literal.
     """
-    return _land_(*[expect_scalar(x) for x in xs])
+    return _land(*[expect_scalar(x) for x in xs])
+
+
+def _lxor(*xs: Scalar) -> Scalar:
+    y = lb.F
+    for x in xs:
+        y = lb.xor(y, x.data)
+    return scalars[y]
 
 
 def lxor(*xs: ScalarLike) -> Scalar:
@@ -84,4 +106,4 @@ def lxor(*xs: ScalarLike) -> Scalar:
         TypeError: ``x`` is not a valid ``Scalar`` object.
         ValueError: Error parsing string literal.
     """
-    return _lxor_(*[expect_scalar(x) for x in xs])
+    return _lxor(*[expect_scalar(x) for x in xs])
