@@ -685,13 +685,10 @@ class Array(Bits):
 
     def __getitem__(self, key: Key | tuple[Key, ...]) -> Array:
         if isinstance(key, (int, slice, Bits, str)):
-            nkey = self._norm_key([key])
-            return _sel(self, nkey)
-        if isinstance(key, tuple):
-            nkey = self._norm_key(list(key))
-            return _sel(self, nkey)
-        s = "Expected key to be int, slice, or tuple[int | slice, ...]"
-        raise TypeError(s)
+            keys = [key]
+        else:
+            keys = list(key)
+        return _sel(self, self._norm_key(keys))
 
     def __iter__(self) -> Generator[Array, None, None]:
         for i in range(self.shape[0]):
