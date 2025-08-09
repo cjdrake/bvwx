@@ -238,6 +238,14 @@ def test_array_class_getitem():
     assert Array[1] is Scalar
     assert Array[2] is Vec[2]
     assert Array[2, 2].shape == (2, 2)
+    with pytest.raises(ValueError):
+        _ = Array[-1]
+    with pytest.raises(ValueError):
+        _ = Array[2, 2, 1]
+    with pytest.raises(ValueError):
+        _ = Array[2, 2, 0]
+    with pytest.raises(ValueError):
+        _ = Array[2, 2, -1]
     with pytest.raises(TypeError):
         _ = Array["invalid"]
 
@@ -246,6 +254,8 @@ def test_vec_class_getitem():
     assert Vec[0] is Empty
     assert Vec[1] is Scalar
     assert Vec[2].shape == (2,)
+    with pytest.raises(ValueError):
+        _ = Vec[-1]
     with pytest.raises(TypeError):
         _ = Vec["invalid"]
 

@@ -656,10 +656,17 @@ class Array(Bits):
 
     def __class_getitem__(cls, shape: int | tuple[int, ...]) -> type[Array]:
         if isinstance(shape, int):
+            size = shape
+            if size < 0:
+                raise ValueError(f"Expected size ≥ 0, got {size}")
             return vec_size(shape)
-        if isinstance(shape, tuple) and all(isinstance(n, int) and n > 1 for n in shape):
-            return _get_array_shape(shape)
-        raise TypeError(f"Invalid shape parameter: {shape}")
+
+        # shape: tuple[int, ...]
+        for i, n in enumerate(shape):
+            if n <= 1:
+                s = f"For shape dimension {i}: expected n > 1, got {n}"
+                raise ValueError(s)
+        return _get_array_shape(shape)
 
     def __new__(cls, d0: int, d1: int) -> Self:
         return cls.cast_data(d0, d1)
@@ -781,9 +788,9 @@ class Vector(Array):
 
     @override
     def __class_getitem__(cls, size: int) -> type[Vector]:  # pyright: ignore[reportIncompatibleMethodOverride]
-        if isinstance(size, int) and size >= 0:
-            return vec_size(size)
-        raise TypeError(f"Invalid size parameter: {size}")
+        if size < 0:
+            raise ValueError(f"Expected size ≥ 0, got {size}")
+        return vec_size(size)
 
     @override
     def __repr__(self) -> str:
