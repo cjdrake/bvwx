@@ -3,7 +3,7 @@
 from functools import partial
 from typing import Any
 
-from ._bits import Bits, Composite, expect_bits_size
+from ._bits import Bits, BitsLike, Composite, expect_bits_size
 from ._util import mask
 
 
@@ -51,7 +51,7 @@ class _StructMeta(type):
         assert issubclass(struct, Composite)
 
         # Override Bits.__init__ method
-        def _init_body(obj, *args):
+        def _init_body(obj: Struct, *args: BitsLike | None):
             d0, d1 = 0, 0
             for arg, (fn, ft) in zip(args, fields):
                 if arg is not None:
@@ -59,16 +59,16 @@ class _StructMeta(type):
                     x = expect_bits_size(arg, ft.size)
                     d0 |= x.data[0] << offsets[fn]
                     d1 |= x.data[1] << offsets[fn]
-            obj._data = (d0, d1)
+            obj._data = (d0, d1)  # pyright: ignore[reportPrivateUsage]
 
         source = _struct_init_source(fields)
         globals_ = {"_init_body": _init_body}
-        locals_ = {}
+        locals_: dict[str, Any] = {}
         exec(source, globals_, locals_)
         struct.__init__ = locals_["init"]
 
         # Override Bits.__str__ method
-        def _str(self) -> str:
+        def _str(self: Struct) -> str:
             parts = [f"{name}("]
             for fn, _ in fields:
                 x = getattr(self, fn)
@@ -77,10 +77,10 @@ class _StructMeta(type):
             parts.append(")")
             return "\n".join(parts)
 
-        struct.__str__ = _str
+        setattr(struct, "__str__", _str)
 
         # Override Bits.__repr__ method
-        def _repr(self) -> str:
+        def _repr(self: Struct) -> str:
             parts = [f"{name}("]
             for fn, _ in fields:
                 x = getattr(self, fn)
@@ -89,13 +89,13 @@ class _StructMeta(type):
             parts.append(")")
             return "\n".join(parts)
 
-        struct.__repr__ = _repr
+        setattr(struct, "__repr__", _repr)
 
         # Create Struct fields
-        def _fget(fn: str, ft, self):
+        def _fget(fn: str, ft: type[Bits], self: Struct):
             m = mask(ft.size)
-            d0 = (self._data[0] >> offsets[fn]) & m
-            d1 = (self._data[1] >> offsets[fn]) & m
+            d0 = (self._data[0] >> offsets[fn]) & m  # pyright: ignore[reportPrivateUsage]
+            d1 = (self._data[1] >> offsets[fn]) & m  # pyright: ignore[reportPrivateUsage]
             return ft.cast_data(d0, d1)
 
         for fn, ft in fields:
