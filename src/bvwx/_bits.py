@@ -973,12 +973,6 @@ def _xor_[T: Bits](x0: T, x1: Bits) -> T | Vector:
     return t.cast_data(d0, d1)
 
 
-def _impl_[T: Bits](p: T, q: Bits) -> T | Vector:
-    d0, d1 = lb.impl(p.data, q.data)
-    t = resolve_type(p, q)
-    return t.cast_data(d0, d1)
-
-
 # Unary
 def _uor(x: Bits) -> Scalar:
     if x.has_x:
@@ -998,14 +992,6 @@ def _uand(x: Bits) -> Scalar:
     if x.has_w:
         return scalarW
     return scalar1
-
-
-def _uxor(x: Bits) -> Scalar:
-    if x.has_x:
-        return scalarX
-    if x.has_w:
-        return scalarW
-    return bool2scalar[x.data[1].bit_count() & 1]
 
 
 # Arithmetic
@@ -1160,29 +1146,6 @@ def _rsh[T: Bits](x: T, n: Bits) -> T:
     sh_size, (sh0, sh1) = x.get_slice(_n, x.size)
     d0 = sh0 | (mask(_n) << sh_size)
     d1 = sh1
-    y = x.cast_data(d0, d1)
-
-    return y
-
-
-def _srsh[T: Bits](x: T, n: Bits) -> T:
-    if n.has_x:
-        return x.xes()
-    if n.has_w:
-        return x.dcs()
-
-    _n = n.to_uint()
-    if _n == 0:
-        return x
-    if _n > x.size:
-        raise ValueError(f"Expected n ≤ {x.size}, got {_n}")
-
-    sign0, sign1 = x.get_index(x.size - 1)
-    si0, si1 = mask(_n) * sign0, mask(_n) * sign1
-
-    sh_size, (sh0, sh1) = x.get_slice(_n, x.size)
-    d0 = sh0 | si0 << sh_size
-    d1 = sh1 | si1 << sh_size
     y = x.cast_data(d0, d1)
 
     return y

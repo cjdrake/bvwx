@@ -1,6 +1,6 @@
 """Unary Reduction Operators"""
 
-from ._bits import BitsLike, Scalar, _uand, _uor, _uxor, expect_bits
+from ._bits import Bits, BitsLike, Scalar, _uand, _uor, bool2scalar, expect_bits, scalarW, scalarX
 
 
 def uor(x: BitsLike) -> Scalar:
@@ -63,6 +63,14 @@ def uand(x: BitsLike) -> Scalar:
     """
     x = expect_bits(x)
     return _uand(x)
+
+
+def _uxor(x: Bits) -> Scalar:
+    if x.has_x:
+        return scalarX
+    if x.has_w:
+        return scalarW
+    return bool2scalar[x.data[1].bit_count() & 1]
 
 
 def uxor(x: BitsLike) -> Scalar:

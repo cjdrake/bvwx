@@ -9,7 +9,6 @@ from ._bits import (
     ScalarLike,
     Vector,
     _and_,
-    _impl_,
     _not_,
     _or_,
     _xor_,
@@ -227,6 +226,12 @@ def xor(x0: BitsLike, *xs: BitsLike) -> Bits:
     return y
 
 
+def _impl[T: Bits](p: T, q: Bits) -> T | Vector:
+    d0, d1 = lb.impl(p.data, q.data)
+    t = resolve_type(p, q)
+    return t.cast_data(d0, d1)
+
+
 def impl(p: BitsLike, q: BitsLike) -> Bits:
     """Binary bitwise logical IMPL (implies) operator.
 
@@ -253,7 +258,7 @@ def impl(p: BitsLike, q: BitsLike) -> Bits:
     """
     p = expect_bits(p)
     q = expect_bits_size(q, p.size)
-    return _impl_(p, q)
+    return _impl(p, q)
 
 
 def _ite[T: Bits](s: Bits, x1: T, x0: Bits) -> T | Vector:

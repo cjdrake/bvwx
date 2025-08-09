@@ -17,7 +17,6 @@ from ._bits import (
     _mul,
     _neg,
     _rsh,
-    _srsh,
     _sub,
     expect_array,
     expect_bits,
@@ -26,6 +25,7 @@ from ._bits import (
     expect_uint,
     scalar0,
 )
+from ._util import mask
 
 
 def add(a: BitsLike, b: BitsLike, ci: ScalarLike | None = None) -> Bits:
@@ -319,6 +319,29 @@ def rsh(x: BitsLike, n: UintLike) -> Bits:
     x = expect_bits(x)
     n = expect_uint(n)
     return _rsh(x, n)
+
+
+def _srsh[T: Bits](x: T, n: Bits) -> T:
+    if n.has_x:
+        return x.xes()
+    if n.has_w:
+        return x.dcs()
+
+    _n = n.to_uint()
+    if _n == 0:
+        return x
+    if _n > x.size:
+        raise ValueError(f"Expected n ≤ {x.size}, got {_n}")
+
+    sign0, sign1 = x.get_index(x.size - 1)
+    si0, si1 = mask(_n) * sign0, mask(_n) * sign1
+
+    sh_size, (sh0, sh1) = x.get_slice(_n, x.size)
+    d0 = sh0 | si0 << sh_size
+    d1 = sh1 | si1 << sh_size
+    y = x.cast_data(d0, d1)
+
+    return y
 
 
 def srsh(x: BitsLike, n: UintLike) -> Bits:
