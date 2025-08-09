@@ -10,7 +10,7 @@ from bvwx import Union, Vec, bits
 def test_empty():
     with pytest.raises(ValueError):
 
-        class EmptyUnion(Union):
+        class EmptyUnion(Union):  # pyright: ignore[reportUnusedClass]
             pass
 
 

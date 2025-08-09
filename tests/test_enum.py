@@ -21,7 +21,7 @@ def test_empty():
     # Empty Enum is not supported
     with pytest.raises(ValueError):
 
-        class EmptyEnum(Enum):
+        class EmptyEnum(Enum):  # pyright: ignore[reportUnusedClass]
             pass
 
 
@@ -114,7 +114,7 @@ def test_enum_error():
 
     with pytest.raises(ValueError):
 
-        class DuplicateMembers(Enum):
+        class DuplicateMembers(Enum):  # pyright: ignore[reportUnusedClass]
             A = "2b00"
             B = "2b01"
             C = "2b00"

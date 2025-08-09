@@ -10,7 +10,7 @@ from bvwx import Struct, Vec
 def test_empty():
     with pytest.raises(ValueError):
 
-        class EmptyStruct(Struct):
+        class EmptyStruct(Struct):  # pyright: ignore[reportUnusedClass]
             pass
 
 
