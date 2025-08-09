@@ -34,19 +34,19 @@ class _UnionMeta(type):
         assert issubclass(union, Composite)
 
         # Override Bits.__init__ method
-        def _init(self, arg: BitsLike):
+        def _init(self: Union, arg: BitsLike):
             x = expect_bits(arg)
             ts = {ft for _, ft in fields}
             if not isinstance(x, tuple(ts)):
                 s = ", ".join(t.__name__ for t in ts)
                 s = f"Expected arg to be {{{s}}}, or str literal"
                 raise TypeError(s)
-            self._data = x.data
+            self._data = x.data  # pyright: ignore[reportPrivateUsage]
 
         setattr(union, "__init__", _init)
 
         # Override Bits.__str__ method
-        def _str(self) -> str:
+        def _str(self: Union) -> str:
             parts = [f"{name}("]
             for fn, _ in fields:
                 x = getattr(self, fn)
@@ -55,10 +55,10 @@ class _UnionMeta(type):
             parts.append(")")
             return "\n".join(parts)
 
-        union.__str__ = _str
+        setattr(union, "__str__", _str)
 
         # Override Bits.__repr__ method
-        def _repr(self) -> str:
+        def _repr(self: Union) -> str:
             parts = [f"{name}("]
             for fn, _ in fields:
                 x = getattr(self, fn)
@@ -67,13 +67,13 @@ class _UnionMeta(type):
             parts.append(")")
             return "\n".join(parts)
 
-        union.__repr__ = _repr
+        setattr(union, "__repr__", _repr)
 
         # Create Union fields
-        def _fget(ft, self):
+        def _fget(ft: type[Bits], self: Union):
             m = mask(ft.size)
-            d0 = self._data[0] & m
-            d1 = self._data[1] & m
+            d0 = self._data[0] & m  # pyright: ignore[reportPrivateUsage]
+            d1 = self._data[1] & m  # pyright: ignore[reportPrivateUsage]
             return ft.cast_data(d0, d1)
 
         for fn, ft in fields:
