@@ -8,10 +8,10 @@ from ._bits import (
     BitsLike,
     ScalarLike,
     Vector,
-    _and_,
-    _not_,
-    _or_,
-    _xor_,
+    bits_and,
+    bits_not,
+    bits_or,
+    bits_xor,
     expect_bits,
     expect_bits_size,
     expect_scalar,
@@ -60,7 +60,7 @@ def not_(x: BitsLike) -> Bits:
         ValueError: Error parsing string literal.
     """
     x = expect_bits(x)
-    return _not_(x)
+    return bits_not(x)
 
 
 def or_(x0: BitsLike, *xs: BitsLike) -> Bits:
@@ -114,7 +114,7 @@ def or_(x0: BitsLike, *xs: BitsLike) -> Bits:
     x0 = expect_bits(x0)
     y = x0
     for x in xs:
-        y = _or_(y, expect_bits_size(x, x0.size))
+        y = bits_or(y, expect_bits_size(x, x0.size))
     return y
 
 
@@ -169,7 +169,7 @@ def and_(x0: BitsLike, *xs: BitsLike) -> Bits:
     x0 = expect_bits(x0)
     y = x0
     for x in xs:
-        y = _and_(y, expect_bits_size(x, x0.size))
+        y = bits_and(y, expect_bits_size(x, x0.size))
     return y
 
 
@@ -222,7 +222,7 @@ def xor(x0: BitsLike, *xs: BitsLike) -> Bits:
     x0 = expect_bits(x0)
     y = x0
     for x in xs:
-        y = _xor_(y, expect_bits_size(x, x0.size))
+        y = bits_xor(y, expect_bits_size(x, x0.size))
     return y
 
 

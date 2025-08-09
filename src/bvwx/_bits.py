@@ -369,31 +369,31 @@ class Bits:
 
     # Bitwise Operations
     def __invert__(self) -> Self:
-        return _not_(self)
+        return bits_not(self)
 
     def __or__(self, other: BitsLike) -> Self | Vector:
         other = expect_bits_size(other, self.size)
-        return _or_(self, other)
+        return bits_or(self, other)
 
     def __ror__(self, other: BitsLike) -> Bits:
         other = expect_bits_size(other, self.size)
-        return _or_(other, self)
+        return bits_or(other, self)
 
     def __and__(self, other: BitsLike) -> Self | Vector:
         other = expect_bits_size(other, self.size)
-        return _and_(self, other)
+        return bits_and(self, other)
 
     def __rand__(self, other: BitsLike) -> Bits:
         other = expect_bits_size(other, self.size)
-        return _and_(other, self)
+        return bits_and(other, self)
 
     def __xor__(self, other: BitsLike) -> Self | Vector:
         other = expect_bits_size(other, self.size)
-        return _xor_(self, other)
+        return bits_xor(self, other)
 
     def __rxor__(self, other: BitsLike) -> Bits:
         other = expect_bits_size(other, self.size)
-        return _xor_(other, self)
+        return bits_xor(other, self)
 
     # Note: Drop carry-out
     def __lshift__(self, n: UintLike) -> Self:
@@ -498,7 +498,7 @@ class Bits:
             return 0
         sign = self.get_index(self.size - 1)
         if sign == lb.T:
-            return -(_not_(self).to_uint() + 1)
+            return -(bits_not(self).to_uint() + 1)
         return self.to_uint()
 
     def count_zeros(self) -> int:
@@ -944,30 +944,30 @@ type Key = int | slice | Bits | str
 
 
 # Bitwise
-def _not_[T: Bits](x: T) -> T:
+def bits_not[T: Bits](x: T) -> T:
     d0, d1 = lb.not_(x.data)
     return x.cast_data(d0, d1)
 
 
-def _or_[T: Bits](x0: T, x1: Bits) -> T | Vector:
+def bits_or[T: Bits](x0: T, x1: Bits) -> T | Vector:
     d0, d1 = lb.or_(x0.data, x1.data)
     t = resolve_type(x0, x1)
     return t.cast_data(d0, d1)
 
 
-def _and_[T: Bits](x0: T, x1: Bits) -> T | Vector:
+def bits_and[T: Bits](x0: T, x1: Bits) -> T | Vector:
     d0, d1 = lb.and_(x0.data, x1.data)
     t = resolve_type(x0, x1)
     return t.cast_data(d0, d1)
 
 
-def _xnor_[T: Bits](x0: T, x1: Bits) -> T | Vector:
+def bits_xnor[T: Bits](x0: T, x1: Bits) -> T | Vector:
     d0, d1 = lb.xnor(x0.data, x1.data)
     t = resolve_type(x0, x1)
     return t.cast_data(d0, d1)
 
 
-def _xor_[T: Bits](x0: T, x1: Bits) -> T | Vector:
+def bits_xor[T: Bits](x0: T, x1: Bits) -> T | Vector:
     d0, d1 = lb.xor(x0.data, x1.data)
     t = resolve_type(x0, x1)
     return t.cast_data(d0, d1)
@@ -1031,11 +1031,11 @@ def _inc[T: Bits](a: T) -> tuple[T, Scalar]:
 
 
 def bits_sub[T: Bits](a: T, b: Bits) -> tuple[T | Vector, Scalar]:
-    return bits_add(a, _not_(b), ci=scalar1)
+    return bits_add(a, bits_not(b), ci=scalar1)
 
 
 def bits_neg[T: Bits](x: T) -> tuple[T, Scalar]:
-    return _inc(_not_(x))
+    return _inc(bits_not(x))
 
 
 def bits_mul(a: Bits, b: Bits) -> Vector:
@@ -1086,7 +1086,7 @@ def bits_mod[T: Bits](a: Bits, b: T) -> T:
 
 
 def _and_or(a: Array, b: Array) -> Scalar:
-    return _uor(_and_(a, b))
+    return _uor(bits_and(a, b))
 
 
 def bits_matmul(a: Array, b: Array) -> Array:
@@ -1169,11 +1169,11 @@ def bits_cat(*xs: Bits) -> Bits:
 
 # Predicates over bitvectors
 def _eq(x0: Bits, x1: Bits) -> Scalar:
-    return _uand(_xnor_(x0, x1))
+    return _uand(bits_xnor(x0, x1))
 
 
 def _ne(x0: Bits, x1: Bits) -> Scalar:
-    return _uor(_xor_(x0, x1))
+    return _uor(bits_xor(x0, x1))
 
 
 def _bools2vec(x0: int, *xs: int) -> Vector:
