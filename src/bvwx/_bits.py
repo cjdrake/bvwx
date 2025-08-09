@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import math
 import random
-from collections.abc import Callable, Generator
+from collections.abc import Generator
 from functools import cached_property, partial
 from typing import Any, Self, override
 
