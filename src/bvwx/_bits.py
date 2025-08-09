@@ -974,7 +974,7 @@ def bits_xor[T: Bits](x0: T, x1: Bits) -> T | Vector:
 
 
 # Unary
-def _uor(x: Bits) -> Scalar:
+def bits_uor(x: Bits) -> Scalar:
     if x.has_x:
         return scalarX
     if x.has_1:
@@ -984,7 +984,7 @@ def _uor(x: Bits) -> Scalar:
     return scalar0
 
 
-def _uand(x: Bits) -> Scalar:
+def bits_uand(x: Bits) -> Scalar:
     if x.has_x:
         return scalarX
     if x.has_0:
@@ -992,6 +992,14 @@ def _uand(x: Bits) -> Scalar:
     if x.has_w:
         return scalarW
     return scalar1
+
+
+def bits_uxor(x: Bits) -> Scalar:
+    if x.has_x:
+        return scalarX
+    if x.has_w:
+        return scalarW
+    return bool2scalar[x.data[1].bit_count() & 1]
 
 
 # Arithmetic
@@ -1015,7 +1023,7 @@ def bits_add[T: Bits](a: T, b: Bits, ci: Scalar) -> tuple[T | Vector, Scalar]:
     return t.cast_data(s ^ dmax, s), co
 
 
-def _inc[T: Bits](a: T) -> tuple[T, Scalar]:
+def bits_inc[T: Bits](a: T) -> tuple[T, Scalar]:
     # X/DC propagation
     if a.has_x:
         return a.xes(), scalarX
@@ -1035,7 +1043,7 @@ def bits_sub[T: Bits](a: T, b: Bits) -> tuple[T | Vector, Scalar]:
 
 
 def bits_neg[T: Bits](x: T) -> tuple[T, Scalar]:
-    return _inc(bits_not(x))
+    return bits_inc(bits_not(x))
 
 
 def bits_mul(a: Bits, b: Bits) -> Vector:
@@ -1086,7 +1094,7 @@ def bits_mod[T: Bits](a: Bits, b: T) -> T:
 
 
 def _and_or(a: Array, b: Array) -> Scalar:
-    return _uor(bits_and(a, b))
+    return bits_uor(bits_and(a, b))
 
 
 def bits_matmul(a: Array, b: Array) -> Array:
@@ -1165,15 +1173,6 @@ def bits_cat(*xs: Bits) -> Bits:
         d1 |= x.data[1] << size
         size += x.size
     return vec_size(size)(d0, d1)
-
-
-# Predicates over bitvectors
-def _eq(x0: Bits, x1: Bits) -> Scalar:
-    return _uand(bits_xnor(x0, x1))
-
-
-def _ne(x0: Bits, x1: Bits) -> Scalar:
-    return _uor(bits_xor(x0, x1))
 
 
 def _bools2vec(x0: int, *xs: int) -> Vector:

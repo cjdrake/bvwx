@@ -7,8 +7,10 @@ from ._bits import (
     Bits,
     BitsLike,
     Scalar,
-    _eq,
-    _ne,
+    bits_uand,
+    bits_uor,
+    bits_xnor,
+    bits_xor,
     bool2scalar,
     expect_bits,
     expect_bits_size,
@@ -17,6 +19,10 @@ from ._bits import (
     scalarW,
     scalarX,
 )
+
+
+def _eq(x0: Bits, x1: Bits) -> Scalar:
+    return bits_uand(bits_xnor(x0, x1))
 
 
 def eq(x0: BitsLike, x1: BitsLike) -> Scalar:
@@ -48,6 +54,10 @@ def eq(x0: BitsLike, x1: BitsLike) -> Scalar:
     x0 = expect_bits(x0)
     x1 = expect_bits_size(x1, x0.size)
     return _eq(x0, x1)
+
+
+def _ne(x0: Bits, x1: Bits) -> Scalar:
+    return bits_uor(bits_xor(x0, x1))
 
 
 def ne(x0: BitsLike, x1: BitsLike) -> Scalar:
