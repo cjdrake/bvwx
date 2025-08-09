@@ -1189,82 +1189,6 @@ def _srsh[T: Bits](x: T, n: Bits) -> T:
 
 
 # Word
-def _xt[T: Bits](x: T, n: Bits) -> T | Vector:
-    if n.has_x:
-        return x.xes()
-    if n.has_w:
-        return x.dcs()
-
-    _n = n.to_uint()
-    if _n == 0:
-        return x
-
-    ext0 = mask(_n)
-    d0 = x.data[0] | ext0 << x.size
-    d1 = x.data[1]
-    return vec_size(x.size + _n)(d0, d1)
-
-
-def _sxt[T: Bits](x: T, n: Bits) -> T | Vector:
-    # Empty does not have a sign
-    if x.size == 0:
-        raise TypeError("Cannot sign extend empty")
-
-    if n.has_x:
-        return x.xes()
-    if n.has_w:
-        return x.dcs()
-
-    _n = n.to_uint()
-    if _n == 0:
-        return x
-
-    sign0, sign1 = x.get_index(x.size - 1)
-    ext0 = mask(_n) * sign0
-    ext1 = mask(_n) * sign1
-    d0 = x.data[0] | ext0 << x.size
-    d1 = x.data[1] | ext1 << x.size
-    return vec_size(x.size + _n)(d0, d1)
-
-
-def _lrot[T: Bits](x: T, n: Bits) -> T:
-    if n.has_x:
-        return x.xes()
-    if n.has_w:
-        return x.dcs()
-
-    _n = n.to_uint()
-    if _n == 0:
-        return x
-    if _n >= x.size:
-        raise ValueError(f"Expected n < {x.size}, got {_n}")
-
-    _, (co0, co1) = x.get_slice(x.size - _n, x.size)
-    _, (sh0, sh1) = x.get_slice(0, x.size - _n)
-    d0 = co0 | sh0 << _n
-    d1 = co1 | sh1 << _n
-    return x.cast_data(d0, d1)
-
-
-def _rrot[T: Bits](x: T, n: Bits) -> T:
-    if n.has_x:
-        return x.xes()
-    if n.has_w:
-        return x.dcs()
-
-    _n = n.to_uint()
-    if _n == 0:
-        return x
-    if _n >= x.size:
-        raise ValueError(f"Expected n < {x.size}, got {_n}")
-
-    _, (co0, co1) = x.get_slice(0, _n)
-    sh_size, (sh0, sh1) = x.get_slice(_n, x.size)
-    d0 = sh0 | co0 << sh_size
-    d1 = sh1 | co1 << sh_size
-    return x.cast_data(d0, d1)
-
-
 def _cat(*xs: Bits) -> Bits:
     if len(xs) == 0:
         return _empty
@@ -1278,27 +1202,6 @@ def _cat(*xs: Bits) -> Bits:
         d1 |= x.data[1] << size
         size += x.size
     return vec_size(size)(d0, d1)
-
-
-def _pack[T: Bits](x: T, n: int) -> T:
-    if n < 1:
-        raise ValueError(f"Expected n ≥ 1, got {n}")
-    if x.size % n != 0:
-        raise ValueError("Expected x.size to be a multiple of n")
-
-    if x.size == 0:
-        return x
-
-    m = mask(n)
-    xd0, xd1 = x.data
-    d0, d1 = xd0 & m, xd1 & m
-    for _ in range(n, x.size, n):
-        xd0 >>= n
-        xd1 >>= n
-        d0 = (d0 << n) | (xd0 & m)
-        d1 = (d1 << n) | (xd1 & m)
-
-    return x.cast_data(d0, d1)
 
 
 # Predicates over bitvectors
