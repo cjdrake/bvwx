@@ -2,14 +2,14 @@
 
 import re
 
+from . import _lbool as lb
 from ._bits import (
     Bits,
     BitsLike,
     ScalarLike,
+    Vector,
     _and_,
     _impl_,
-    _ite_,
-    _mux_,
     _not_,
     _or_,
     _xor_,
@@ -18,6 +18,7 @@ from ._bits import (
     expect_scalar,
     resolve_type,
 )
+from ._util import mask
 
 
 def not_(x: BitsLike) -> Bits:
@@ -255,6 +256,14 @@ def impl(p: BitsLike, q: BitsLike) -> Bits:
     return _impl_(p, q)
 
 
+def _ite[T: Bits](s: Bits, x1: T, x0: Bits) -> T | Vector:
+    s0 = mask(x1.size) * s.data[0]
+    s1 = mask(x1.size) * s.data[1]
+    d0, d1 = lb.ite((s0, s1), x1.data, x0.data)
+    t = resolve_type(x1, x0)
+    return t.cast_data(d0, d1)
+
+
 def ite(s: ScalarLike, x1: BitsLike, x0: BitsLike) -> Bits:
     """Ternary bitwise logical if-then-else (ITE) operator.
 
@@ -309,7 +318,17 @@ def ite(s: ScalarLike, x1: BitsLike, x0: BitsLike) -> Bits:
     s = expect_scalar(s)
     x1 = expect_bits(x1)
     x0 = expect_bits_size(x0, x1.size)
-    return _ite_(s, x1, x0)
+    return _ite(s, x1, x0)
+
+
+def _mux[T: Bits](t: type[T], s: Bits, xs: dict[int, Bits]) -> T:
+    m = mask(t.size)
+    si = (s.get_index(i) for i in range(s.size))
+    _s = tuple((m * d0, m * d1) for d0, d1 in si)
+    _xs = {i: x.data for i, x in xs.items()}
+    dc = t.dcs()
+    d0, d1 = lb.mux(_s, _xs, dc.data)
+    return t.cast_data(d0, d1)
 
 
 _MUX_XN_RE = re.compile(r"x(\d+)")
@@ -374,4 +393,4 @@ def mux(s: BitsLike, **xs: BitsLike) -> Bits:
     if t is None:
         raise ValueError("Expected at least one mux input")
 
-    return _mux_(t, _s, _xs)
+    return _mux(t, _s, _xs)

@@ -979,24 +979,6 @@ def _impl_[T: Bits](p: T, q: Bits) -> T | Vector:
     return t.cast_data(d0, d1)
 
 
-def _ite_[T: Bits](s: Bits, x1: T, x0: Bits) -> T | Vector:
-    s0 = mask(x1.size) * s.data[0]
-    s1 = mask(x1.size) * s.data[1]
-    d0, d1 = lb.ite((s0, s1), x1.data, x0.data)
-    t = resolve_type(x1, x0)
-    return t.cast_data(d0, d1)
-
-
-def _mux_[T: Bits](t: type[T], s: Bits, xs: dict[int, Bits]) -> T:
-    m = mask(t.size)
-    si = (s.get_index(i) for i in range(s.size))
-    _s = tuple((m * d0, m * d1) for d0, d1 in si)
-    _xs = {i: x.data for i, x in xs.items()}
-    dc = t.dcs()
-    d0, d1 = lb.mux(_s, _xs, dc.data)
-    return t.cast_data(d0, d1)
-
-
 # Unary
 def _uor(x: Bits) -> Scalar:
     if x.has_x:
