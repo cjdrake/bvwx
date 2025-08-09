@@ -735,10 +735,9 @@ class Array(Bits):
                 key = lit2bv(key)
                 i = _norm_index(n, key.to_uint())
                 return (i, i + 1)
-            if isinstance(key, Bits):
-                i = _norm_index(n, key.to_uint())
-                return (i, i + 1)
-            assert False  # pragma: no cover
+            assert isinstance(key, Bits)
+            i = _norm_index(n, key.to_uint())
+            return (i, i + 1)
 
         return tuple(f(n, key) for n, key in zip(cls.shape, keys))
 
