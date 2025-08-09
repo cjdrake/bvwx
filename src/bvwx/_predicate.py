@@ -1,8 +1,22 @@
 """Predicate Operators"""
 
 import operator
+from collections.abc import Callable
 
-from ._bits import BitsLike, Scalar, _cmp, _eq, _match, _ne, _scmp, expect_bits, expect_bits_size
+from ._bits import (
+    Bits,
+    BitsLike,
+    Scalar,
+    _eq,
+    _ne,
+    bool2scalar,
+    expect_bits,
+    expect_bits_size,
+    scalar0,
+    scalar1,
+    scalarW,
+    scalarX,
+)
 
 
 def eq(x0: BitsLike, x1: BitsLike) -> Scalar:
@@ -65,6 +79,15 @@ def ne(x0: BitsLike, x1: BitsLike) -> Scalar:
     x0 = expect_bits(x0)
     x1 = expect_bits_size(x1, x0.size)
     return _ne(x0, x1)
+
+
+def _cmp(op: Callable[[int, int], bool], x0: Bits, x1: Bits) -> Scalar:
+    # X/DC propagation
+    if x0.has_x or x1.has_x:
+        return scalarX
+    if x0.has_w or x1.has_w:
+        return scalarW
+    return bool2scalar[op(x0.to_uint(), x1.to_uint())]
 
 
 def lt(x0: BitsLike, x1: BitsLike) -> Scalar:
@@ -199,6 +222,15 @@ def ge(x0: BitsLike, x1: BitsLike) -> Scalar:
     return _cmp(operator.ge, x0, x1)
 
 
+def _scmp(op: Callable[[int, int], bool], x0: Bits, x1: Bits) -> Scalar:
+    # X/DC propagation
+    if x0.has_x or x1.has_x:
+        return scalarX
+    if x0.has_w or x1.has_w:
+        return scalarW
+    return bool2scalar[op(x0.to_int(), x1.to_int())]
+
+
 def slt(x0: BitsLike, x1: BitsLike) -> Scalar:
     """Binary logical Signed LessThan (<) reduction operator.
 
@@ -329,6 +361,19 @@ def sge(x0: BitsLike, x1: BitsLike) -> Scalar:
     x0 = expect_bits(x0)
     x1 = expect_bits_size(x1, x0.size)
     return _scmp(operator.ge, x0, x1)
+
+
+def _match(x0: Bits, x1: Bits) -> Scalar:
+    # Propagate X
+    if x0.has_x or x1.has_x:
+        return scalarX
+
+    for i in range(x0.size):
+        a0, a1 = x0.get_index(i)
+        b0, b1 = x1.get_index(i)
+        if a0 ^ b0 and a1 ^ b1:
+            return scalar0
+    return scalar1
 
 
 def match(x0: BitsLike, x1: BitsLike) -> Scalar:

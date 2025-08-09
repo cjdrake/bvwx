@@ -1328,37 +1328,6 @@ def _ne(x0: Bits, x1: Bits) -> Scalar:
     return _uor(_xor_(x0, x1))
 
 
-def _cmp(op: Callable[[int, int], bool], x0: Bits, x1: Bits) -> Scalar:
-    # X/DC propagation
-    if x0.has_x or x1.has_x:
-        return scalarX
-    if x0.has_w or x1.has_w:
-        return scalarW
-    return bool2scalar[op(x0.to_uint(), x1.to_uint())]
-
-
-def _scmp(op: Callable[[int, int], bool], x0: Bits, x1: Bits) -> Scalar:
-    # X/DC propagation
-    if x0.has_x or x1.has_x:
-        return scalarX
-    if x0.has_w or x1.has_w:
-        return scalarW
-    return bool2scalar[op(x0.to_int(), x1.to_int())]
-
-
-def _match(x0: Bits, x1: Bits) -> Scalar:
-    # Propagate X
-    if x0.has_x or x1.has_x:
-        return scalarX
-
-    for i in range(x0.size):
-        a0, a1 = x0.get_index(i)
-        b0, b1 = x1.get_index(i)
-        if a0 ^ b0 and a1 ^ b1:
-            return scalar0
-    return scalar1
-
-
 def _bools2vec(x0: int, *xs: int) -> Vector:
     """Convert an iterable of bools to a vec.
 
