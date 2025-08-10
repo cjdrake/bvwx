@@ -1,5 +1,8 @@
 """Test bvwx encode/decode operators."""
 
+# pyright: reportUnknownArgumentType=false
+# pyright: reportUnknownVariableType=false
+
 import pytest
 
 from bvwx import bits, decode, encode_onehot, encode_priority

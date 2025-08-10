@@ -1,6 +1,8 @@
 """Test bvwx arithmetic operators."""
 
 # pyright: reportArgumentType=false
+# pyright: reportUnknownArgumentType=false
+# pyright: reportUnknownVariableType=false
 
 import pytest
 

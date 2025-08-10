@@ -1,5 +1,8 @@
 """Test bvwx count operators."""
 
+# pyright: reportUnknownArgumentType=false
+# pyright: reportUnknownVariableType=false
+
 from bvwx import clz, cpop, ctz, i2bv
 
 CPOP_VALS = [

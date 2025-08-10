@@ -1,5 +1,8 @@
 """Test bvwx logical operators."""
 
+# pyright: reportUnknownArgumentType=false
+# pyright: reportUnknownVariableType=false
+
 import pytest
 
 from bvwx import bits, land, lor, lxor
