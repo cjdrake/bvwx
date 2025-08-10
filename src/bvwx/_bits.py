@@ -737,13 +737,13 @@ class Array(Bits):
             if isinstance(key, int):
                 i = _norm_index(n, key)
                 return (i, i + 1)
+            # slice | Bits | str
             if isinstance(key, slice):
                 return _norm_slice(n, key)
+            # Bits | str
             if isinstance(key, str):
                 key = lit2bv(key)
-                i = _norm_index(n, key.to_uint())
-                return (i, i + 1)
-            assert isinstance(key, Bits)
+            # Bits
             i = _norm_index(n, key.to_uint())
             return (i, i + 1)
 
