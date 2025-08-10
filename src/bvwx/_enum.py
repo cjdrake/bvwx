@@ -19,13 +19,13 @@ class _EnumMeta(type):
         # TODO(cjdrake): Support multiple inheritance?
         assert len(bases) == 1
 
-        _attrs, data2key, size = mcs._parse_attrs(attrs)
+        _, data2key, size = mcs._parse_attrs(attrs)
 
         # Get Vector[N] base class
         V = vec_size(size)
 
         # Create Enum class
-        enum = super().__new__(mcs, name, bases + (V,), _attrs)
+        enum = super().__new__(mcs, name, bases + (V,), {})
 
         # Help the type checker
         assert issubclass(enum, V)
