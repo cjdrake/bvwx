@@ -1,4 +1,4 @@
-"""Test bvwx predicate operators"""
+"""Test bvwx word operators."""
 
 import pytest
 

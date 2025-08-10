@@ -1,4 +1,4 @@
-"""Test bvwx unary reduction operators"""
+"""Test bvwx unary reduction operators."""
 
 from bvwx import bits, uand, uor, uxor
 

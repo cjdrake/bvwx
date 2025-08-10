@@ -1,4 +1,4 @@
-"""Test bvwx arithmetic operators"""
+"""Test bvwx arithmetic operators."""
 
 # pyright: reportArgumentType=false
 

@@ -1,4 +1,4 @@
-"""Test Bits methods"""
+"""Test Bits methods."""
 
 # pyright: reportArgumentType=false
 # pyright: reportCallIssue=false

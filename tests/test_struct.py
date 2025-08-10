@@ -1,4 +1,4 @@
-"""Test bvwx Struct"""
+"""Test bvwx Struct."""
 
 # pyright: reportCallIssue=false
 

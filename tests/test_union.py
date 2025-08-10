@@ -1,4 +1,4 @@
-"""Test bvwx Union"""
+"""Test bvwx Union."""
 
 # pyright: reportCallIssue=false
 

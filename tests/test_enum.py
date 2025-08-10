@@ -1,4 +1,4 @@
-"""Test bvwx Enum"""
+"""Test bvwx Enum."""
 
 # pyright: reportAttributeAccessIssue=false
 # pyright: reportCallIssue=false

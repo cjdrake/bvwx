@@ -1,4 +1,4 @@
-"""Test Bits factory functions"""
+"""Test Bits factory functions."""
 
 # pyright: reportArgumentType=false
 

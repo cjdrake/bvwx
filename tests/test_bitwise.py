@@ -1,4 +1,4 @@
-"""Test bvwx bitwise operators"""
+"""Test bvwx bitwise operators."""
 
 # pyright: reportArgumentType=false
 

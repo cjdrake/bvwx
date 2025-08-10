@@ -1,4 +1,4 @@
-"""TODO(cjdrake): Write docstring."""
+"""Test bvwx logical operators."""
 
 import pytest
 

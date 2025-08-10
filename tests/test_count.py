@@ -1,4 +1,4 @@
-"""Test bvwx count operators"""
+"""Test bvwx count operators."""
 
 from bvwx import clz, cpop, ctz, i2bv
 

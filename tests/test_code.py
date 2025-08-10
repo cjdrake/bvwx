@@ -1,4 +1,4 @@
-"""Test bvwx encode/decode operators"""
+"""Test bvwx encode/decode operators."""
 
 import pytest
 
