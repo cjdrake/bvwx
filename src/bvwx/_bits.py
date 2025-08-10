@@ -225,12 +225,12 @@ class Bits:
         return obj
 
     @classmethod
-    def xes(cls) -> Self:
+    def xs(cls) -> Self:
         """Return an instance filled with ``X`` bits.
 
         For example:
 
-        >>> Vector[4].xes()
+        >>> Vector[4].xs()
         bits("4bXXXX")
         """
         return cls.cast_data(0, 0)
@@ -304,7 +304,7 @@ class Bits:
             Class instance filled with either ``-`` or ``X``.
         """
         if sel.has_x():
-            return cls.xes()
+            return cls.xs()
         return cls.dcs()
 
     @classmethod
@@ -517,7 +517,7 @@ class Bits:
         d: int = (self._data[0] ^ self._dmax()) & self._data[1]
         return d.bit_count()
 
-    def count_xes(self) -> int:
+    def count_xs(self) -> int:
         """Return count of ``X`` bits."""
         d: int = (self._data[0] | self._data[1]) ^ self._dmax()
         return d.bit_count()
@@ -1010,7 +1010,7 @@ def bits_add[T: Bits](a: T, b: Bits, ci: Scalar) -> tuple[T | Vector, Scalar]:
 
     # X/DC propagation
     if a.has_x() or b.has_x() or ci.has_x():
-        return t.xes(), scalarX
+        return t.xs(), scalarX
     if a.has_w() or b.has_w() or ci.has_w():
         return t.dcs(), scalarW
 
@@ -1025,7 +1025,7 @@ def bits_add[T: Bits](a: T, b: Bits, ci: Scalar) -> tuple[T | Vector, Scalar]:
 def bits_inc[T: Bits](a: T) -> tuple[T, Scalar]:
     # X/DC propagation
     if a.has_x():
-        return a.xes(), scalarX
+        return a.xs(), scalarX
     if a.has_w():
         return a.dcs(), scalarW
 
@@ -1050,7 +1050,7 @@ def bits_mul(a: Bits, b: Bits) -> Vector:
 
     # X/DC propagation
     if a.has_x() or b.has_x():
-        return V.xes()
+        return V.xs()
     if a.has_w() or b.has_w():
         return V.dcs()
 
@@ -1066,7 +1066,7 @@ def bits_div[T: Bits](a: T, b: Bits) -> T:
 
     # X/DC propagation
     if a.has_x() or b.has_x():
-        return a.xes()
+        return a.xs()
     if a.has_w() or b.has_w():
         return a.dcs()
 
@@ -1082,7 +1082,7 @@ def bits_mod[T: Bits](a: Bits, b: T) -> T:
 
     # X/DC propagation
     if a.has_x() or b.has_x():
-        return b.xes()
+        return b.xs()
     if a.has_w() or b.has_w():
         return b.dcs()
 
@@ -1120,7 +1120,7 @@ def bits_matmul(a: Array, b: Array) -> Array:
 
 def bits_lsh[T: Bits](x: T, n: Bits) -> T:
     if n.has_x():
-        return x.xes()
+        return x.xs()
     if n.has_w():
         return x.dcs()
 
@@ -1140,7 +1140,7 @@ def bits_lsh[T: Bits](x: T, n: Bits) -> T:
 
 def bits_rsh[T: Bits](x: T, n: Bits) -> T:
     if n.has_x():
-        return x.xes()
+        return x.xs()
     if n.has_w():
         return x.dcs()
 

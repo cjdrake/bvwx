@@ -17,7 +17,7 @@ Data Types
 
     .. automethod:: bvwx.Bits.cast
 
-    .. automethod:: bvwx.Bits.xes
+    .. automethod:: bvwx.Bits.xs
     .. automethod:: bvwx.Bits.zeros
     .. automethod:: bvwx.Bits.ones
     .. automethod:: bvwx.Bits.dcs
@@ -35,7 +35,7 @@ Data Types
 
     .. automethod:: bvwx.Bits.count_zeros
     .. automethod:: bvwx.Bits.count_ones
-    .. automethod:: bvwx.Bits.count_xes
+    .. automethod:: bvwx.Bits.count_xs
     .. automethod:: bvwx.Bits.count_dcs
     .. automethod:: bvwx.Bits.count_unknown
 

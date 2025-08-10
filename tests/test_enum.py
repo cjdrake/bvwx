@@ -44,7 +44,7 @@ def test_basic():
     assert Color.X.data == (0b00, 0b00)
     assert str(Color.X) == "Color.X"
     assert Color("2bXX") is Color.X
-    assert Color.xes() is Color.X
+    assert Color.xs() is Color.X
     assert Color(Vec[2](0, 0)) is Color.X
 
     assert len(Color.DC) == 2

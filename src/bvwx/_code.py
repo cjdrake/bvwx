@@ -46,7 +46,7 @@ def encode_onehot(x: BitsLike) -> Vector:
 
     # X/DC propagation
     if x.has_x():
-        return V.xes()
+        return V.xs()
     if x.has_w():
         return V.dcs()
 
@@ -91,7 +91,7 @@ def encode_priority(x: BitsLike) -> tuple[Vector, Scalar]:
 
     # X propagation
     if x.has_x():
-        return V.xes(), scalarX
+        return V.xs(), scalarX
 
     # Handle DC
     if x.has_w():
@@ -154,7 +154,7 @@ def decode(x: BitsLike) -> Vector:
 
     # X/DC propagation
     if x.has_x():
-        return V.xes()
+        return V.xs()
     if x.has_w():
         return V.dcs()
 

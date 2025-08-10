@@ -18,7 +18,7 @@ def test_const():
     a = Array[4, 4]
     assert a.shape == (4, 4)
 
-    assert a.xes() == "16bXXXX_XXXX_XXXX_XXXX"
+    assert a.xs() == "16bXXXX_XXXX_XXXX_XXXX"
     assert a.zeros() == "16h0000"
     assert a.ones() == "16hFFFF"
     assert a.dcs() == "16b----_----_----_----"
@@ -405,7 +405,7 @@ def test_vcd():
 
 def test_count():
     x = bits("8b-10X_-10X")
-    assert x.count_xes() == 2
+    assert x.count_xs() == 2
     assert x.count_zeros() == 2
     assert x.count_ones() == 2
     assert x.count_dcs() == 2

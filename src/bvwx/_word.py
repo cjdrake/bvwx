@@ -17,7 +17,7 @@ from ._util import mask
 
 def _xt[T: Bits](x: T, n: Bits) -> T | Vector:
     if n.has_x():
-        return x.xes()
+        return x.xs()
     if n.has_w():
         return x.dcs()
 
@@ -63,7 +63,7 @@ def _sxt[T: Bits](x: T, n: Bits) -> T | Vector:
         raise TypeError("Cannot sign extend empty")
 
     if n.has_x():
-        return x.xes()
+        return x.xs()
     if n.has_w():
         return x.dcs()
 
@@ -107,7 +107,7 @@ def sxt(x: BitsLike, n: UintLike) -> Bits:
 
 def _lrot[T: Bits](x: T, n: Bits) -> T:
     if n.has_x():
-        return x.xes()
+        return x.xs()
     if n.has_w():
         return x.dcs()
 
@@ -153,7 +153,7 @@ def lrot(x: BitsLike, n: UintLike) -> Bits:
 
 def _rrot[T: Bits](x: T, n: Bits) -> T:
     if n.has_x():
-        return x.xes()
+        return x.xs()
     if n.has_w():
         return x.dcs()
 
