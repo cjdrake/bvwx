@@ -8,6 +8,12 @@ This chapter lists new features, API changes, and bug fixes.
 For a complete history, see the Git commit log.
 
 
+Version 0.15.0
+==============
+
+Changed the ``Bits.has_*`` properties back to methods.
+
+
 Version 0.14.0
 ==============
 
