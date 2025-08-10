@@ -8,6 +8,20 @@ This chapter lists new features, API changes, and bug fixes.
 For a complete history, see the Git commit log.
 
 
+Version 0.16.0
+==============
+
+Renamed ``Bits.xes`` to just ``Bits.xs``.
+To match with new method ``Bits.ws``.
+
+Changed all references to "DC" to just "W".
+This includes methods like ``Bits.has_w``,
+but also the ``Enum.W`` default attribute.
+
+Started using ``__slots__``.
+Maybe it'll save some memory for large models.
+
+
 Version 0.15.0
 ==============
 
