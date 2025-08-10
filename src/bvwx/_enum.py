@@ -14,6 +14,7 @@ class _EnumMeta(type):
         # Base case for API
         if name == "Enum":
             assert not bases
+            attrs["__slots__"] = ()
             return super().__new__(mcs, name, bases, attrs)
 
         # TODO(cjdrake): Support multiple inheritance?
@@ -25,7 +26,7 @@ class _EnumMeta(type):
         V = vec_size(size)
 
         # Create Enum class
-        enum = super().__new__(mcs, name, bases + (V,), {})
+        enum = super().__new__(mcs, name, bases + (V,), {"__slots__": ()})
 
         # Help the type checker
         assert issubclass(enum, V)

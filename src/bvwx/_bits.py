@@ -22,7 +22,7 @@ def _get_vec_size(size: int) -> type[Vector]:
         return _VectorSize[size]
     except KeyError:
         name = f"Vector[{size}]"
-        V = type(name, (Vector,), {"size": size, "shape": (size,)})
+        V = type(name, (Vector,), {"__slots__": (), "size": size, "shape": (size,)})
         _VectorSize[size] = V
         return V
 
@@ -51,7 +51,7 @@ def _get_array_shape(shape: tuple[int, ...]) -> type[Array]:
     except KeyError:
         name = f"Array[{','.join(str(n) for n in shape)}]"
         size = math.prod(shape)
-        array = type(name, (Array,), {"size": size, "shape": shape})
+        array = type(name, (Array,), {"__slots__": (), "size": size, "shape": shape})
         _ArrayShape[shape] = array
         return array
 
@@ -197,6 +197,8 @@ class Bits:
         * u2bv
         * i2bv
     """
+
+    __slots__ = ("_data",)
 
     size: int
     _data: lbv
@@ -602,6 +604,8 @@ class Bits:
 
 
 class Composite(Bits):
+    __slots__ = ()
+
     def __hash__(self) -> int:
         return hash(self.size) ^ hash(self._data)
 
@@ -644,6 +648,8 @@ class Array(Bits):
     >>> x.flatten()
     bits("8b1110_0100")
     """
+
+    __slots__ = ()
 
     shape: tuple[int, ...]
 
@@ -775,6 +781,8 @@ class Vector(Array):
     bits(["4b0000", "4b1111"])
     """
 
+    __slots__ = ()
+
     @override
     def __class_getitem__(cls, size: int) -> type[Vector]:  # pyright: ignore[reportIncompatibleMethodOverride]
         if size < 0:
@@ -856,6 +864,8 @@ class Scalar(Vector):
     bits("1b1")
     """
 
+    __slots__ = ()
+
     size = 1
     shape = (1,)
 
@@ -905,6 +915,8 @@ class Empty(Vector):
         ...
     IndexError: Expected index in [0, 0), got 0
     """
+
+    __slots__ = ()
 
     size = 0
     shape = (0,)

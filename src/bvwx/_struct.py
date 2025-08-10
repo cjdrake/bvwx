@@ -23,6 +23,7 @@ class _StructMeta(type):
     def __new__(mcs, name: str, bases: tuple[type], attrs: dict[str, Any]):
         # Base case for API
         if name == "Struct":
+            attrs["__slots__"] = ()
             return super().__new__(mcs, name, bases, attrs)
 
         # TODO(cjdrake): Support multiple inheritance?
@@ -45,7 +46,7 @@ class _StructMeta(type):
 
         # Create Struct class
         size = sum(field_type.size for _, field_type in fields)
-        struct = super().__new__(mcs, name, bases, {"size": size})
+        struct = super().__new__(mcs, name, bases, {"__slots__": (), "size": size})
 
         # Help the type checker
         assert issubclass(struct, Composite)
