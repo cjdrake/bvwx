@@ -743,7 +743,6 @@ class Array(Bits):
             # Bits | str
             if isinstance(key, str):
                 key = lit2bv(key)
-            # Bits
             i = _norm_index(n, key.to_uint())
             return (i, i + 1)
 
