@@ -45,18 +45,6 @@ class _UnionMeta(type):
 
         setattr(union, "__init__", _init)
 
-        # Override Bits.__str__ method
-        def _str(self: Union) -> str:
-            parts = [f"{name}("]
-            for fn, _ in fields:
-                x = getattr(self, fn)
-                s = "\n    ".join(str(x).splitlines())
-                parts.append(f"    {fn}={s},")
-            parts.append(")")
-            return "\n".join(parts)
-
-        setattr(union, "__str__", _str)
-
         # Override Bits.__repr__ method
         def _repr(self: Union) -> str:
             parts = [f"{name}("]
@@ -68,6 +56,18 @@ class _UnionMeta(type):
             return "\n".join(parts)
 
         setattr(union, "__repr__", _repr)
+
+        # Override Bits.__str__ method
+        def _str(self: Union) -> str:
+            parts = [f"{name}("]
+            for fn, _ in fields:
+                x = getattr(self, fn)
+                s = "\n    ".join(str(x).splitlines())
+                parts.append(f"    {fn}={s},")
+            parts.append(")")
+            return "\n".join(parts)
+
+        setattr(union, "__str__", _str)
 
         # Create Union fields
         def _fget(ft: type[Bits], self: Union):

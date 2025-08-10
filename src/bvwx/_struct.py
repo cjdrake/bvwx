@@ -67,18 +67,6 @@ class _StructMeta(type):
         exec(source, globals_, locals_)
         struct.__init__ = locals_["init"]
 
-        # Override Bits.__str__ method
-        def _str(self: Struct) -> str:
-            parts = [f"{name}("]
-            for fn, _ in fields:
-                x = getattr(self, fn)
-                s = "\n    ".join(str(x).splitlines())
-                parts.append(f"    {fn}={s},")
-            parts.append(")")
-            return "\n".join(parts)
-
-        setattr(struct, "__str__", _str)
-
         # Override Bits.__repr__ method
         def _repr(self: Struct) -> str:
             parts = [f"{name}("]
@@ -90,6 +78,18 @@ class _StructMeta(type):
             return "\n".join(parts)
 
         setattr(struct, "__repr__", _repr)
+
+        # Override Bits.__str__ method
+        def _str(self: Struct) -> str:
+            parts = [f"{name}("]
+            for fn, _ in fields:
+                x = getattr(self, fn)
+                s = "\n    ".join(str(x).splitlines())
+                parts.append(f"    {fn}={s},")
+            parts.append(")")
+            return "\n".join(parts)
+
+        setattr(struct, "__str__", _str)
 
         # Create Struct fields
         def _fget(fn: str, ft: type[Bits], self: Struct):
