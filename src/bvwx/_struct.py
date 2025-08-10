@@ -55,7 +55,6 @@ class _StructMeta(type):
             d0, d1 = 0, 0
             for arg, (fn, ft) in zip(args, fields):
                 if arg is not None:
-                    # TODO(cjdrake): Check input type?
                     x = expect_bits_size(arg, ft.size)
                     d0 |= x.data[0] << offsets[fn]
                     d1 |= x.data[1] << offsets[fn]
