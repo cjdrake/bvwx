@@ -56,58 +56,71 @@ def _get_array_shape(shape: tuple[int, ...]) -> type[Array]:
         return array
 
 
+def _b2s(arg: int) -> Scalar:
+    try:
+        return bool2scalar[arg]
+    except IndexError as e:
+        s = f"Expected arg: int in {{0, 1}}, got {arg}"
+        raise ValueError(s) from e
+
+
 def expect_bits(arg: BitsLike) -> Bits:
     """Any Bits-like object that defines its own size"""
-    if isinstance(arg, int) and arg in (0, 1):
-        return bool2scalar[arg]
+    if isinstance(arg, int):
+        return _b2s(arg)
+    # Bits | str
     if isinstance(arg, str):
         return lit2bv(arg)
-    if isinstance(arg, Bits):
-        return arg
-    raise TypeError("Expected arg to be: Bits, str literal, or {0, 1}")
+    # Bits
+    return arg
 
 
 def expect_array(arg: ArrayLike) -> Array:
     """Any Array-like object that defines its own size"""
-    if isinstance(arg, int) and arg in (0, 1):
-        return bool2scalar[arg]
+    if isinstance(arg, int):
+        return _b2s(arg)
+    # Array | str
     if isinstance(arg, str):
         return lit2bv(arg)
-    if isinstance(arg, Array):
-        return arg
-    raise TypeError("Expected arg to be: Array, str literal, or {0, 1}")
+    # Array
+    return arg
 
 
 def expect_scalar(arg: ScalarLike) -> Scalar:
     """Any Scalar-like object"""
-    if isinstance(arg, int) and arg in (0, 1):
-        return bool2scalar[arg]
+    if isinstance(arg, int):
+        return _b2s(arg)
+    # Scalar | str
     if isinstance(arg, str):
         x = lit2bv(arg)
         s = _expect_size(x, 1)
         assert isinstance(s, Scalar)
         return s
-    if isinstance(arg, Scalar):
-        return arg
-    raise TypeError("Expected arg to be: Scalar, str literal, or {0, 1}")
+    # Scalar
+    return arg
 
 
 def expect_uint(arg: UintLike) -> Bits:
     """Any Bits-like object that defines its own size"""
     if isinstance(arg, int):
         return u2bv(arg)
+    # arg: Bits | str
     if isinstance(arg, str):
         return lit2bv(arg)
     # arg: Bits
     return arg
 
 
+def _i2v(arg: int, size: int) -> Vector:
+    if arg < 0:
+        return i2bv(arg, size)
+    return u2bv(arg, size)
+
+
 def expect_bits_size(arg: BitsLike, size: int) -> Bits:
     """Any Bits-Like object that may or may not define its own size"""
     if isinstance(arg, int):
-        if arg < 0:
-            return i2bv(arg, size)
-        return u2bv(arg, size)
+        return _i2v(arg, size)
     # arg: Bits | str
     if isinstance(arg, str):
         arg = lit2bv(arg)
@@ -117,9 +130,7 @@ def expect_bits_size(arg: BitsLike, size: int) -> Bits:
 def _expect_vec_size(arg: VectorLike, size: int) -> Vector:
     """Any Vector-Like object that may or may not define its own size"""
     if isinstance(arg, int):
-        if arg < 0:
-            return i2bv(arg, size)
-        return u2bv(arg, size)
+        return _i2v(arg, size)
     # arg: Vector | str
     if isinstance(arg, str):
         arg = lit2bv(arg)

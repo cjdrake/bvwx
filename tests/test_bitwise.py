@@ -56,7 +56,7 @@ def test_or():
     assert 10 | bits("4b1100") == "4b1110"
 
     # Invalid lhs
-    with pytest.raises(TypeError):
+    with pytest.raises(ValueError):
         or_(42, "4b1010")
 
     # Invalid rhs
@@ -232,7 +232,7 @@ def test_ite():
     for s, a, b, y in ITE:
         assert ite(s, a, b) == y
 
-    with pytest.raises(TypeError):
+    with pytest.raises(ValueError):
         assert ite(42, "4b1010", "4b0101")
 
 

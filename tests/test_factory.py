@@ -375,9 +375,9 @@ def test_bits():
     with pytest.raises(TypeError):
         bits(42)
     with pytest.raises(TypeError):
-        stack(["2b00", "1b0"])
-    with pytest.raises(TypeError):
-        stack([0, 0, 0, 42])
+        stack("2b00", "1b0")
+    with pytest.raises(ValueError):
+        stack(0, 0, 0, 42)
     with pytest.raises(TypeError):
         bits(1.0e42)
 
@@ -390,7 +390,7 @@ def test_stack():
     assert stack("2b00", "2b01", "2b10", "2b11") == "8b11100100"
     assert stack(bits("2b00"), "2b01", "2b10", "2b11") == "8b11100100"
 
-    with pytest.raises(TypeError):
+    with pytest.raises(ValueError):
         stack(42)
     with pytest.raises(TypeError):
         stack("2b00", "1b0")
