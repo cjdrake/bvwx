@@ -44,11 +44,11 @@ def encode_onehot(x: BitsLike) -> Vector:
     n = clog2(x.size)
     V = vec_size(n)
 
-    # X/DC propagation
+    # X/W propagation
     if x.has_x():
         return V.xs()
     if x.has_w():
-        return V.dcs()
+        return V.ws()
 
     d1 = x.data[1]
     is_onehot = d1 != 0 and d1 & (d1 - 1) == 0
@@ -93,16 +93,16 @@ def encode_priority(x: BitsLike) -> tuple[Vector, Scalar]:
     if x.has_x():
         return V.xs(), scalarX
 
-    # Handle DC
+    # Handle W
     if x.has_w():
         for i in range(x.size - 1, -1, -1):
             x_i = x.get_index(i)
             # 0*1{0,1,-}*
             if x_i == lb.T:
                 return V(i ^ mask(n), i), scalar1
-            # 0*-{0,1,-}* => DC
+            # 0*-{0,1,-}* => W
             if x_i == lb.W:
-                return V.dcs(), scalarW
+                return V.ws(), scalarW
 
         # Not possible to get here
         assert False  # pragma: no cover
@@ -110,7 +110,7 @@ def encode_priority(x: BitsLike) -> tuple[Vector, Scalar]:
     d1 = x.data[1]
 
     if d1 == 0:
-        return V.dcs(), scalar0
+        return V.ws(), scalar0
 
     y = clog2(d1 + 1) - 1
     return V(y ^ mask(n), y), scalar1
@@ -152,11 +152,11 @@ def decode(x: BitsLike) -> Vector:
     n = 1 << x.size
     V = vec_size(n)
 
-    # X/DC propagation
+    # X/W propagation
     if x.has_x():
         return V.xs()
     if x.has_w():
-        return V.dcs()
+        return V.ws()
 
     d1 = 1 << x.to_uint()
     return V(d1 ^ mask(n), d1)

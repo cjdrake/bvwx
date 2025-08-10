@@ -20,7 +20,7 @@ Data Types
     .. automethod:: bvwx.Bits.xs
     .. automethod:: bvwx.Bits.zeros
     .. automethod:: bvwx.Bits.ones
-    .. automethod:: bvwx.Bits.dcs
+    .. automethod:: bvwx.Bits.ws
     .. automethod:: bvwx.Bits.rand
 
     .. automethod:: bvwx.Bits.xprop
@@ -36,7 +36,7 @@ Data Types
     .. automethod:: bvwx.Bits.count_zeros
     .. automethod:: bvwx.Bits.count_ones
     .. automethod:: bvwx.Bits.count_xs
-    .. automethod:: bvwx.Bits.count_dcs
+    .. automethod:: bvwx.Bits.count_ws
     .. automethod:: bvwx.Bits.count_unknown
 
     .. automethod:: bvwx.Bits.onehot
@@ -46,7 +46,6 @@ Data Types
     .. automethod:: bvwx.Bits.has_1
     .. automethod:: bvwx.Bits.has_x
     .. automethod:: bvwx.Bits.has_w
-    .. automethod:: bvwx.Bits.has_dc
     .. automethod:: bvwx.Bits.has_xw
     .. automethod:: bvwx.Bits.has_unknown
 

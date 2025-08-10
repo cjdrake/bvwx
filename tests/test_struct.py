@@ -111,4 +111,4 @@ def test_init():
     assert str(s) == "Simple(\n    a=2bXX,\n    b=3bXXX,\n    c=4b1111,\n)"
 
     assert str(Simple.xs()) == "Simple(\n    a=2bXX,\n    b=3bXXX,\n    c=4bXXXX,\n)"
-    assert str(Simple.dcs()) == "Simple(\n    a=2b--,\n    b=3b---,\n    c=4b----,\n)"
+    assert str(Simple.ws()) == "Simple(\n    a=2b--,\n    b=3b---,\n    c=4b----,\n)"

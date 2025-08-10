@@ -331,8 +331,8 @@ def _mux[T: Bits](t: type[T], s: Bits, xs: dict[int, Bits]) -> T:
     si = (s.get_index(i) for i in range(s.size))
     _s = tuple((m * d0, m * d1) for d0, d1 in si)
     _xs = {i: x.data for i, x in xs.items()}
-    dc = t.dcs()
-    d0, d1 = lb.mux(_s, _xs, dc.data)
+    w = t.ws()
+    d0, d1 = lb.mux(_s, _xs, w.data)
     return t.cast_data(d0, d1)
 
 
@@ -358,7 +358,7 @@ def mux(s: BitsLike, **xs: BitsLike) -> Bits:
     >>> mux("2b10", x0="4b0001", x1="4b0010", x2="4b0100", x3="4b1000")
     bits("4b0100")
 
-    Handles X and DC propagation:
+    Handles X and W propagation:
 
     >>> mux("2b1-", x0="4b0001", x1="4b0010", x2="4b0100", x3="4b1000")
     bits("4b--00")

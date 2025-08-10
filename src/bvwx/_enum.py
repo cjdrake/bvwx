@@ -110,7 +110,7 @@ class _EnumMeta(type):
                     if size_i != size:
                         s = f"Expected lit len {size}, got {size_i}"
                         raise ValueError(s)
-                if key in ("X", "DC"):
+                if key in ("X", "W"):
                     raise ValueError(f"Cannot use reserved name = '{key}'")
                 dmax = mask(size)
                 if data in ((0, 0), (dmax, dmax)):
@@ -123,10 +123,10 @@ class _EnumMeta(type):
         if size is None:
             raise ValueError("Empty Enum is not supported")
 
-        # Add X/DC members
+        # Add X/W members
         data2key[(0, 0)] = "X"
         dmax = mask(size)
-        data2key[(dmax, dmax)] = "DC"
+        data2key[(dmax, dmax)] = "W"
 
         return _attrs, data2key, size
 
@@ -156,11 +156,11 @@ class Enum(metaclass=_EnumMeta):
     >>> Color.RED.name
     'RED'
 
-    All ``Enums`` have ``X`` and ``DC`` attributes defined automatically:
+    All ``Enums`` have ``X`` and ``W`` attributes defined automatically:
 
     >>> Color.X == "2bXX"
     True
-    >>> Color.DC == "2b--"
+    >>> Color.W == "2b--"
     True
 
     To cast a ``Vec`` to an ``Enum``, use the constructor:

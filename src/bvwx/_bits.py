@@ -258,12 +258,12 @@ class Bits:
         return cls.cast_data(0, cls._dmax())
 
     @classmethod
-    def dcs(cls) -> Self:
+    def ws(cls) -> Self:
         """Return an instance filled with ``-`` bits.
 
         For example:
 
-        >>> Vector[4].dcs()
+        >>> Vector[4].ws()
         bits("4b----")
         """
         return cls.cast_data(cls._dmax(), cls._dmax())
@@ -305,7 +305,7 @@ class Bits:
         """
         if sel.has_x():
             return cls.xs()
-        return cls.dcs()
+        return cls.ws()
 
     @classmethod
     def _dmax(cls) -> int:
@@ -522,7 +522,7 @@ class Bits:
         d: int = (self._data[0] | self._data[1]) ^ self._dmax()
         return d.bit_count()
 
-    def count_dcs(self) -> int:
+    def count_ws(self) -> int:
         """Return count of ``-`` bits."""
         d: int = self._data[0] & self._data[1]
         return d.bit_count()
@@ -553,10 +553,6 @@ class Bits:
         return bool((self._data[0] | self._data[1]) ^ self._dmax())
 
     def has_w(self) -> bool:
-        """Return True if contains at least one ``-`` bit."""
-        return bool(self._data[0] & self._data[1])
-
-    def has_dc(self) -> bool:
         """Return True if contains at least one ``-`` bit."""
         return bool(self._data[0] & self._data[1])
 
@@ -840,7 +836,7 @@ class Scalar(Vector):
     >>> f = bits("1b0")
     >>> t = bits("1b1")
     >>> x = bits("1bX")
-    >>> dc = bits("1b-")
+    >>> w = bits("1b-")
 
     For convenience, ``False`` and ``True`` also work:
 
@@ -1008,11 +1004,11 @@ def bits_add[T: Bits](a: T, b: Bits, ci: Scalar) -> tuple[T | Vector, Scalar]:
     else:
         t = vec_size(max(a.size, b.size))
 
-    # X/DC propagation
+    # X/W propagation
     if a.has_x() or b.has_x() or ci.has_x():
         return t.xs(), scalarX
     if a.has_w() or b.has_w() or ci.has_w():
-        return t.dcs(), scalarW
+        return t.ws(), scalarW
 
     dmax = mask(t.size)
     s = a.data[1] + b.data[1] + ci.data[1]
@@ -1023,11 +1019,11 @@ def bits_add[T: Bits](a: T, b: Bits, ci: Scalar) -> tuple[T | Vector, Scalar]:
 
 
 def bits_inc[T: Bits](a: T) -> tuple[T, Scalar]:
-    # X/DC propagation
+    # X/W propagation
     if a.has_x():
         return a.xs(), scalarX
     if a.has_w():
-        return a.dcs(), scalarW
+        return a.ws(), scalarW
 
     dmax = mask(a.size)
     s = a.data[1] + 1
@@ -1048,11 +1044,11 @@ def bits_neg[T: Bits](x: T) -> tuple[T, Scalar]:
 def bits_mul(a: Bits, b: Bits) -> Vector:
     V = vec_size(a.size + b.size)
 
-    # X/DC propagation
+    # X/W propagation
     if a.has_x() or b.has_x():
         return V.xs()
     if a.has_w() or b.has_w():
-        return V.dcs()
+        return V.ws()
 
     dmax = mask(V.size)
     p = a.data[1] * b.data[1]
@@ -1064,11 +1060,11 @@ def bits_div[T: Bits](a: T, b: Bits) -> T:
     if not a.size >= b.size > 0:
         raise ValueError("Expected a.size ≥ b.size > 0")
 
-    # X/DC propagation
+    # X/W propagation
     if a.has_x() or b.has_x():
         return a.xs()
     if a.has_w() or b.has_w():
-        return a.dcs()
+        return a.ws()
 
     dmax = mask(a.size)
     q = a.data[1] // b.data[1]
@@ -1080,11 +1076,11 @@ def bits_mod[T: Bits](a: Bits, b: T) -> T:
     if not a.size >= b.size > 0:
         raise ValueError("Expected a.size ≥ b.size > 0")
 
-    # X/DC propagation
+    # X/W propagation
     if a.has_x() or b.has_x():
         return b.xs()
     if a.has_w() or b.has_w():
-        return b.dcs()
+        return b.ws()
 
     dmax = mask(b.size)
     r = a.data[1] % b.data[1]
@@ -1122,7 +1118,7 @@ def bits_lsh[T: Bits](x: T, n: Bits) -> T:
     if n.has_x():
         return x.xs()
     if n.has_w():
-        return x.dcs()
+        return x.ws()
 
     _n = n.to_uint()
     if _n == 0:
@@ -1142,7 +1138,7 @@ def bits_rsh[T: Bits](x: T, n: Bits) -> T:
     if n.has_x():
         return x.xs()
     if n.has_w():
-        return x.dcs()
+        return x.ws()
 
     _n = n.to_uint()
     if _n == 0:

@@ -47,15 +47,15 @@ def test_basic():
     assert Color.xs() is Color.X
     assert Color(Vec[2](0, 0)) is Color.X
 
-    assert len(Color.DC) == 2
-    assert repr(Color.DC) == "Color.DC"
-    assert str(Color.DC) == "Color.DC"
-    assert Color.DC.name == "DC"
-    assert Color.DC.data == (0b11, 0b11)
-    assert str(Color.DC) == "Color.DC"
-    assert Color("2b--") is Color.DC
-    assert Color.dcs() is Color.DC
-    assert Color(Vec[2](0b11, 0b11)) is Color.DC
+    assert len(Color.W) == 2
+    assert repr(Color.W) == "Color.W"
+    assert str(Color.W) == "Color.W"
+    assert Color.W.name == "W"
+    assert Color.W.data == (0b11, 0b11)
+    assert str(Color.W) == "Color.W"
+    assert Color("2b--") is Color.W
+    assert Color.ws() is Color.W
+    assert Color(Vec[2](0b11, 0b11)) is Color.W
 
     assert str(Color("2b11").name) == "Color(2b11)"
     assert str(Color(Vec[2](0b00, 0b11)).name) == "Color(2b11)"

@@ -21,7 +21,7 @@ def test_const():
     assert a.xs() == "16bXXXX_XXXX_XXXX_XXXX"
     assert a.zeros() == "16h0000"
     assert a.ones() == "16hFFFF"
-    assert a.dcs() == "16b----_----_----_----"
+    assert a.ws() == "16b----_----_----_----"
 
     assert 0 <= a.rand().to_uint() < (1 << 16)
 
@@ -408,7 +408,7 @@ def test_count():
     assert x.count_xs() == 2
     assert x.count_zeros() == 2
     assert x.count_ones() == 2
-    assert x.count_dcs() == 2
+    assert x.count_ws() == 2
     assert x.count_unknown() == 4
 
     assert not bits("4b0000").onehot()
@@ -429,8 +429,8 @@ def test_count():
 
     assert not bits("4b0000").has_x()
     assert bits("4b00X0").has_x()
-    assert not bits("4b0000").has_dc()
-    assert bits("4b00-0").has_dc()
+    assert not bits("4b0000").has_w()
+    assert bits("4b00-0").has_w()
     assert not bits("4b0000").has_unknown()
     assert bits("4b00X0").has_unknown()
     assert bits("4b00-0").has_unknown()

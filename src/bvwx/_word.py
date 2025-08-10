@@ -19,7 +19,7 @@ def _xt[T: Bits](x: T, n: Bits) -> T | Vector:
     if n.has_x():
         return x.xs()
     if n.has_w():
-        return x.dcs()
+        return x.ws()
 
     _n = n.to_uint()
     if _n == 0:
@@ -65,7 +65,7 @@ def _sxt[T: Bits](x: T, n: Bits) -> T | Vector:
     if n.has_x():
         return x.xs()
     if n.has_w():
-        return x.dcs()
+        return x.ws()
 
     _n = n.to_uint()
     if _n == 0:
@@ -109,7 +109,7 @@ def _lrot[T: Bits](x: T, n: Bits) -> T:
     if n.has_x():
         return x.xs()
     if n.has_w():
-        return x.dcs()
+        return x.ws()
 
     _n = n.to_uint()
     if _n == 0:
@@ -155,7 +155,7 @@ def _rrot[T: Bits](x: T, n: Bits) -> T:
     if n.has_x():
         return x.xs()
     if n.has_w():
-        return x.dcs()
+        return x.ws()
 
     _n = n.to_uint()
     if _n == 0:

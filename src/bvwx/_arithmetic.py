@@ -325,7 +325,7 @@ def _srsh[T: Bits](x: T, n: Bits) -> T:
     if n.has_x():
         return x.xs()
     if n.has_w():
-        return x.dcs()
+        return x.ws()
 
     _n = n.to_uint()
     if _n == 0:
