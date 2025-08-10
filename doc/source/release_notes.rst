@@ -17,6 +17,10 @@ Version 0.14.0
 * Changed ``Bits.has_dc`` from method to property
 * Added ``Bits.has_w`` and ``Bits.has_wx`` properties
 
+Updated PyRight typeCheckingMode to ``strict``,
+which required lots of miscellaneous changes.
+A few invalid argument errors changed from ``TypeError`` to ``ValueError``.
+
 
 Version 0.13.0
 ==============
