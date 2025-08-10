@@ -42,13 +42,13 @@ Data Types
     .. automethod:: bvwx.Bits.onehot
     .. automethod:: bvwx.Bits.onehot0
 
-    .. autoproperty:: bvwx.Bits.has_0
-    .. autoproperty:: bvwx.Bits.has_1
-    .. autoproperty:: bvwx.Bits.has_x
-    .. autoproperty:: bvwx.Bits.has_w
-    .. autoproperty:: bvwx.Bits.has_dc
-    .. autoproperty:: bvwx.Bits.has_xw
-    .. autoproperty:: bvwx.Bits.has_unknown
+    .. automethod:: bvwx.Bits.has_0
+    .. automethod:: bvwx.Bits.has_1
+    .. automethod:: bvwx.Bits.has_x
+    .. automethod:: bvwx.Bits.has_w
+    .. automethod:: bvwx.Bits.has_dc
+    .. automethod:: bvwx.Bits.has_xw
+    .. automethod:: bvwx.Bits.has_unknown
 
     .. automethod:: bvwx.Bits.vcd_var
     .. automethod:: bvwx.Bits.vcd_val

@@ -93,9 +93,9 @@ def ne(x0: BitsLike, x1: BitsLike) -> Scalar:
 
 def _cmp(op: Callable[[int, int], bool], x0: Bits, x1: Bits) -> Scalar:
     # X/DC propagation
-    if x0.has_x or x1.has_x:
+    if x0.has_x() or x1.has_x():
         return scalarX
-    if x0.has_w or x1.has_w:
+    if x0.has_w() or x1.has_w():
         return scalarW
     return bool2scalar[op(x0.to_uint(), x1.to_uint())]
 
@@ -234,9 +234,9 @@ def ge(x0: BitsLike, x1: BitsLike) -> Scalar:
 
 def _scmp(op: Callable[[int, int], bool], x0: Bits, x1: Bits) -> Scalar:
     # X/DC propagation
-    if x0.has_x or x1.has_x:
+    if x0.has_x() or x1.has_x():
         return scalarX
-    if x0.has_w or x1.has_w:
+    if x0.has_w() or x1.has_w():
         return scalarW
     return bool2scalar[op(x0.to_int(), x1.to_int())]
 
@@ -375,7 +375,7 @@ def sge(x0: BitsLike, x1: BitsLike) -> Scalar:
 
 def _match(x0: Bits, x1: Bits) -> Scalar:
     # Propagate X
-    if x0.has_x or x1.has_x:
+    if x0.has_x() or x1.has_x():
         return scalarX
 
     for i in range(x0.size):

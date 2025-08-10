@@ -5,7 +5,7 @@ from __future__ import annotations
 import math
 import random
 from collections.abc import Generator
-from functools import cached_property, partial
+from functools import partial
 from typing import Any, Self, override
 
 from . import _lbool as lb
@@ -303,7 +303,7 @@ class Bits:
         Returns:
             Class instance filled with either ``-`` or ``X``.
         """
-        if sel.has_x:
+        if sel.has_x():
             return cls.xes()
         return cls.dcs()
 
@@ -487,7 +487,7 @@ class Bits:
         Raises:
             ValueError: Contains any unknown bits.
         """
-        if self.has_xw:
+        if self.has_xw():
             raise ValueError("Cannot convert unknown to uint")
         return self._data[1]
 
@@ -534,43 +534,36 @@ class Bits:
 
     def onehot(self) -> bool:
         """Return True if contains exactly one ``1`` bit."""
-        return not self.has_xw and self.count_ones() == 1
+        return not self.has_xw() and self.count_ones() == 1
 
     def onehot0(self) -> bool:
         """Return True if contains at most one ``1`` bit."""
-        return not self.has_xw and self.count_ones() <= 1
+        return not self.has_xw() and self.count_ones() <= 1
 
-    @cached_property
     def has_0(self) -> bool:
         """Return True if contains at least one ``0`` bit."""
         return bool(self._data[0] & (self._data[1] ^ self._dmax()))
 
-    @cached_property
     def has_1(self) -> bool:
         """Return True if contains at least one ``1`` bit."""
         return bool((self._data[0] ^ self._dmax()) & self._data[1])
 
-    @cached_property
     def has_x(self) -> bool:
         """Return True if contains at least one ``X`` bit."""
         return bool((self._data[0] | self._data[1]) ^ self._dmax())
 
-    @cached_property
     def has_w(self) -> bool:
         """Return True if contains at least one ``-`` bit."""
         return bool(self._data[0] & self._data[1])
 
-    @cached_property
     def has_dc(self) -> bool:
         """Return True if contains at least one ``-`` bit."""
         return bool(self._data[0] & self._data[1])
 
-    @cached_property
     def has_xw(self) -> bool:
         """Return True if contains at least one unknown bit."""
         return bool(self._data[0] ^ self._data[1] ^ self._dmax())
 
-    @cached_property
     def has_unknown(self) -> bool:
         """Return True if contains at least one unknown bit."""
         return bool(self._data[0] ^ self._data[1] ^ self._dmax())
@@ -981,29 +974,29 @@ def bits_xor[T: Bits](x0: T, x1: Bits) -> T | Vector:
 
 # Unary
 def bits_uor(x: Bits) -> Scalar:
-    if x.has_x:
+    if x.has_x():
         return scalarX
-    if x.has_1:
+    if x.has_1():
         return scalar1
-    if x.has_w:
+    if x.has_w():
         return scalarW
     return scalar0
 
 
 def bits_uand(x: Bits) -> Scalar:
-    if x.has_x:
+    if x.has_x():
         return scalarX
-    if x.has_0:
+    if x.has_0():
         return scalar0
-    if x.has_w:
+    if x.has_w():
         return scalarW
     return scalar1
 
 
 def bits_uxor(x: Bits) -> Scalar:
-    if x.has_x:
+    if x.has_x():
         return scalarX
-    if x.has_w:
+    if x.has_w():
         return scalarW
     return bool2scalar[x.data[1].bit_count() & 1]
 
@@ -1016,9 +1009,9 @@ def bits_add[T: Bits](a: T, b: Bits, ci: Scalar) -> tuple[T | Vector, Scalar]:
         t = vec_size(max(a.size, b.size))
 
     # X/DC propagation
-    if a.has_x or b.has_x or ci.has_x:
+    if a.has_x() or b.has_x() or ci.has_x():
         return t.xes(), scalarX
-    if a.has_w or b.has_w or ci.has_w:
+    if a.has_w() or b.has_w() or ci.has_w():
         return t.dcs(), scalarW
 
     dmax = mask(t.size)
@@ -1031,9 +1024,9 @@ def bits_add[T: Bits](a: T, b: Bits, ci: Scalar) -> tuple[T | Vector, Scalar]:
 
 def bits_inc[T: Bits](a: T) -> tuple[T, Scalar]:
     # X/DC propagation
-    if a.has_x:
+    if a.has_x():
         return a.xes(), scalarX
-    if a.has_w:
+    if a.has_w():
         return a.dcs(), scalarW
 
     dmax = mask(a.size)
@@ -1056,9 +1049,9 @@ def bits_mul(a: Bits, b: Bits) -> Vector:
     V = vec_size(a.size + b.size)
 
     # X/DC propagation
-    if a.has_x or b.has_x:
+    if a.has_x() or b.has_x():
         return V.xes()
-    if a.has_w or b.has_w:
+    if a.has_w() or b.has_w():
         return V.dcs()
 
     dmax = mask(V.size)
@@ -1072,9 +1065,9 @@ def bits_div[T: Bits](a: T, b: Bits) -> T:
         raise ValueError("Expected a.size ≥ b.size > 0")
 
     # X/DC propagation
-    if a.has_x or b.has_x:
+    if a.has_x() or b.has_x():
         return a.xes()
-    if a.has_w or b.has_w:
+    if a.has_w() or b.has_w():
         return a.dcs()
 
     dmax = mask(a.size)
@@ -1088,9 +1081,9 @@ def bits_mod[T: Bits](a: Bits, b: T) -> T:
         raise ValueError("Expected a.size ≥ b.size > 0")
 
     # X/DC propagation
-    if a.has_x or b.has_x:
+    if a.has_x() or b.has_x():
         return b.xes()
-    if a.has_w or b.has_w:
+    if a.has_w() or b.has_w():
         return b.dcs()
 
     dmax = mask(b.size)
@@ -1126,9 +1119,9 @@ def bits_matmul(a: Array, b: Array) -> Array:
 
 
 def bits_lsh[T: Bits](x: T, n: Bits) -> T:
-    if n.has_x:
+    if n.has_x():
         return x.xes()
-    if n.has_w:
+    if n.has_w():
         return x.dcs()
 
     _n = n.to_uint()
@@ -1146,9 +1139,9 @@ def bits_lsh[T: Bits](x: T, n: Bits) -> T:
 
 
 def bits_rsh[T: Bits](x: T, n: Bits) -> T:
-    if n.has_x:
+    if n.has_x():
         return x.xes()
-    if n.has_w:
+    if n.has_w():
         return x.dcs()
 
     _n = n.to_uint()

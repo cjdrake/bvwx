@@ -322,9 +322,9 @@ def rsh(x: BitsLike, n: UintLike) -> Bits:
 
 
 def _srsh[T: Bits](x: T, n: Bits) -> T:
-    if n.has_x:
+    if n.has_x():
         return x.xes()
-    if n.has_w:
+    if n.has_w():
         return x.dcs()
 
     _n = n.to_uint()
