@@ -98,9 +98,8 @@ def expect_uint(arg: UintLike) -> Bits:
         return u2bv(arg)
     if isinstance(arg, str):
         return lit2bv(arg)
-    if isinstance(arg, Bits):
-        return arg
-    raise TypeError("Expected arg to be: Bits, str literal, or {0, 1}")
+    # arg: Bits
+    return arg
 
 
 def expect_bits_size(arg: BitsLike, size: int) -> Bits:
@@ -109,12 +108,10 @@ def expect_bits_size(arg: BitsLike, size: int) -> Bits:
         if arg < 0:
             return i2bv(arg, size)
         return u2bv(arg, size)
+    # arg: Bits | str
     if isinstance(arg, str):
-        x = lit2bv(arg)
-        return _expect_size(x, size)
-    if isinstance(arg, Bits):
-        return _expect_size(arg, size)
-    raise TypeError("Expected arg to be: Bits, str literal, or int")
+        arg = lit2bv(arg)
+    return _expect_size(arg, size)
 
 
 def _expect_vec_size(arg: VectorLike, size: int) -> Vector:
@@ -123,12 +120,10 @@ def _expect_vec_size(arg: VectorLike, size: int) -> Vector:
         if arg < 0:
             return i2bv(arg, size)
         return u2bv(arg, size)
+    # arg: Vector | str
     if isinstance(arg, str):
-        x = lit2bv(arg)
-        return _expect_size(x, size)
-    if isinstance(arg, Vector):
-        return _expect_size(arg, size)
-    raise TypeError("Expected arg to be: Vector, str literal, or int")
+        arg = lit2bv(arg)
+    return _expect_size(arg, size)
 
 
 def _expect_size[T: Bits](arg: T, size: int) -> T:

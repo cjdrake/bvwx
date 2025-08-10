@@ -62,8 +62,6 @@ def test_or():
     # Invalid rhs
     with pytest.raises(TypeError):
         or_(v0, "1b0")
-    with pytest.raises(TypeError):
-        or_(v0, 42.69)
 
 
 def test_and():

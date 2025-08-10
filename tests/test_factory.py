@@ -369,8 +369,6 @@ def test_bits():
     assert bits(["2b00", "2b01", "2b10", "2b11"]) == "8b11100100"
     assert bits([bits("2b00"), "2b01", "2b10", "2b11"]) == "8b11100100"
     assert bits([bits("2b00"), 1, -2, -1]) == "8b11100100"
-    with pytest.raises(TypeError):
-        assert bits([bits("2b00"), 1, 42.69, -1]) == "8b11100100"
 
     assert bits("4b-10X") == Vec[4](0b1010, 0b1100)
 
