@@ -19,7 +19,10 @@ class _EnumMeta(type):
         # TODO(cjdrake): Support multiple inheritance?
         assert len(bases) == 1
 
-        _attrs, data2key, V = mcs._parse_attrs(attrs)
+        _attrs, data2key, size = mcs._parse_attrs(attrs)
+
+        # Get Vector[N] base class
+        V = vec_size(size)
 
         # Create Enum class
         enum = super().__new__(mcs, name, bases + (V,), _attrs)
@@ -32,64 +35,65 @@ class _EnumMeta(type):
             setattr(enum, key, enum.cast_data(d0, d1))
 
         # Override Vector.cast_data method
-        def _cast_data(cls, d0: int, d1: int):
+        def _cast_data(cls: type[Vector], d0: int, d1: int) -> Vector:
             data = (d0, d1)
             try:
                 obj = getattr(cls, data2key[data])
+                assert isinstance(obj, Vector)
             except KeyError:
                 obj = object.__new__(cls)
-                obj._data = data
+                obj._data = data  # pyright: ignore[reportPrivateUsage]
             return obj
 
         setattr(enum, "cast_data", classmethod(_cast_data))
 
         # Override Vector.__new__ method
-        def _new(cls, arg: BitsLike):
+        def _new(cls: type[Vector], arg: BitsLike) -> Vector:
             x = expect_bits_size(arg, cls.size)
             return cls.cast(x)
 
         setattr(enum, "__new__", _new)
 
         # Override Vector.__repr__ method
-        def _repr(self) -> str:
+        def _repr(self: Vector) -> str:
             try:
-                return f"{name}.{data2key[self._data]}"
+                return f"{name}.{data2key[self._data]}"  # pyright: ignore[reportPrivateUsage]
             except KeyError:
                 return f'{name}("{V.__str__(self)}")'
 
-        enum.__repr__ = _repr
+        setattr(enum, "__repr__", _repr)
 
         # Override Vector.__str__ method
-        def _str(self) -> str:
+        def _str(self: Vector) -> str:
             try:
-                return f"{name}.{data2key[self._data]}"
+                return f"{name}.{data2key[self._data]}"  # pyright: ignore[reportPrivateUsage]
             except KeyError:
                 return f"{name}({V.__str__(self)})"
 
-        enum.__str__ = _str
+        setattr(enum, "__str__", _str)
 
         # Create name property
-        def _name(self) -> str:
+        def _name(self: Vector) -> str:
             try:
-                return data2key[self._data]
+                return data2key[self._data]  # pyright: ignore[reportPrivateUsage]
             except KeyError:
                 return f"{name}({V.__str__(self)})"
 
         setattr(enum, "name", property(fget=_name))
 
         # Override VCD methods
-        def _vcd_var(self) -> str:
+        def _vcd_var(self: Vector) -> str:
             return "string"
 
-        enum.vcd_var = _vcd_var
-        enum.vcd_val = _name
+        setattr(enum, "vcd_var", _vcd_var)
+        setattr(enum, "vcd_val", _name)
 
         return enum
 
     @classmethod
     def _parse_attrs(
         mcs, attrs: dict[str, Any]
-    ) -> tuple[dict[str, Any], dict[tuple[int, int], str], type[Vector]]:
+    ) -> tuple[dict[str, Any], dict[tuple[int, int], str], int]:
         _attrs: dict[str, Any] = {}
         data2key: dict[tuple[int, int], str] = {}
         size: int | None = None
@@ -124,10 +128,7 @@ class _EnumMeta(type):
         dmax = mask(size)
         data2key[(dmax, dmax)] = "DC"
 
-        # Get Vector[N] base class
-        V = vec_size(size)
-
-        return _attrs, data2key, V
+        return _attrs, data2key, size
 
 
 class Enum(metaclass=_EnumMeta):
