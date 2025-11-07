@@ -18,7 +18,7 @@ Logic Design Abstractions
 .. epigraph::
 
     "We are analog beings living in a digital world,
-    facing a quantum future.""
+    facing a quantum future."
 
     -- Neil Turok
 
