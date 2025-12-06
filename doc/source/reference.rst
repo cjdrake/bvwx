@@ -8,55 +8,53 @@
 Data Types
 ==========
 
-.. autoclass:: bvwx.Bits
+.. autoclass:: bvwx.Array
+    :show-inheritance:
+
+    .. py:property:: shape
+        :type: tuple[int, ...]
 
     .. py:property:: size
         :type: int
 
-        Number of bits
+    .. automethod:: bvwx.Array.cast
 
-    .. automethod:: bvwx.Bits.cast
+    .. automethod:: bvwx.Array.xs
+    .. automethod:: bvwx.Array.zeros
+    .. automethod:: bvwx.Array.ones
+    .. automethod:: bvwx.Array.ws
+    .. automethod:: bvwx.Array.rand
+    .. automethod:: bvwx.Array.xprop
 
-    .. automethod:: bvwx.Bits.xs
-    .. automethod:: bvwx.Bits.zeros
-    .. automethod:: bvwx.Bits.ones
-    .. automethod:: bvwx.Bits.ws
-    .. automethod:: bvwx.Bits.rand
-
-    .. automethod:: bvwx.Bits.xprop
-
-    .. autoproperty:: bvwx.Bits.data
-
-    .. automethod:: bvwx.Bits.__bool__
-    .. automethod:: bvwx.Bits.__int__
-
-    .. automethod:: bvwx.Bits.to_uint
-    .. automethod:: bvwx.Bits.to_int
-
-    .. automethod:: bvwx.Bits.count_zeros
-    .. automethod:: bvwx.Bits.count_ones
-    .. automethod:: bvwx.Bits.count_xs
-    .. automethod:: bvwx.Bits.count_ws
-    .. automethod:: bvwx.Bits.count_unknown
-
-    .. automethod:: bvwx.Bits.onehot
-    .. automethod:: bvwx.Bits.onehot0
-
-    .. automethod:: bvwx.Bits.has_0
-    .. automethod:: bvwx.Bits.has_1
-    .. automethod:: bvwx.Bits.has_x
-    .. automethod:: bvwx.Bits.has_w
-    .. automethod:: bvwx.Bits.has_xw
-    .. automethod:: bvwx.Bits.has_unknown
-
-    .. automethod:: bvwx.Bits.vcd_var
-    .. automethod:: bvwx.Bits.vcd_val
-
-.. autoclass:: bvwx.Array
-    :show-inheritance:
+    .. autoproperty:: bvwx.Array.data
 
     .. automethod:: bvwx.Array.reshape
     .. automethod:: bvwx.Array.flatten
+
+    .. automethod:: bvwx.Array.__bool__
+    .. automethod:: bvwx.Array.__int__
+
+    .. automethod:: bvwx.Array.to_uint
+    .. automethod:: bvwx.Array.to_int
+
+    .. automethod:: bvwx.Array.count_zeros
+    .. automethod:: bvwx.Array.count_ones
+    .. automethod:: bvwx.Array.count_xs
+    .. automethod:: bvwx.Array.count_ws
+    .. automethod:: bvwx.Array.count_unknown
+
+    .. automethod:: bvwx.Array.onehot
+    .. automethod:: bvwx.Array.onehot0
+
+    .. automethod:: bvwx.Array.has_0
+    .. automethod:: bvwx.Array.has_1
+    .. automethod:: bvwx.Array.has_x
+    .. automethod:: bvwx.Array.has_w
+    .. automethod:: bvwx.Array.has_xw
+    .. automethod:: bvwx.Array.has_unknown
+
+    .. automethod:: bvwx.Array.vcd_var
+    .. automethod:: bvwx.Array.vcd_val
 
 .. autoclass:: bvwx.Vector
     :show-inheritance:
@@ -72,11 +70,6 @@ Data Types
 
     .. py:property:: name
         :type: str
-
-.. autoclass:: bvwx.Composite
-    :show-inheritance:
-
-    .. automethod:: bvwx.Composite.__getitem__
 
 .. autoclass:: bvwx.Struct
     :show-inheritance:

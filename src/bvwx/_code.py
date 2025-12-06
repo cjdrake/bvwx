@@ -2,10 +2,10 @@
 
 from . import _lbool as lb
 from ._bits import (
-    BitsLike,
+    ArrayLike,
     Scalar,
     Vector,
-    expect_bits,
+    expect_array,
     scalar0,
     scalar1,
     scalarW,
@@ -15,7 +15,7 @@ from ._bits import (
 from ._util import clog2, mask
 
 
-def encode_onehot(x: BitsLike) -> Vector:
+def encode_onehot(x: ArrayLike) -> Vector:
     """Compress one-hot encoding to an index.
 
     The index is the highest bit set in the input.
@@ -30,16 +30,16 @@ def encode_onehot(x: BitsLike) -> Vector:
     bits("2b01")
 
     Args:
-        x: ``Bits`` or string literal.
+        x: ``Array`` or string literal.
 
     Returns:
         ``Vector`` w/ ``size`` = ``clog2(x.size)``
 
     Raises:
-        TypeError: ``x`` is not a valid ``Bits`` object.
+        TypeError: ``x`` is not a valid ``Array`` object.
         ValueError: ``x`` is not one-hot encoded.
     """
-    x = expect_bits(x)
+    x = expect_array(x)
 
     n = clog2(x.size)
     V = vec_size(n)
@@ -59,7 +59,7 @@ def encode_onehot(x: BitsLike) -> Vector:
     return V(y ^ mask(n), y)
 
 
-def encode_priority(x: BitsLike) -> tuple[Vector, Scalar]:
+def encode_priority(x: ArrayLike) -> tuple[Vector, Scalar]:
     """Compress priority encoding to (index, valid) tuple.
 
     The index is the highest bit set in the input.
@@ -74,7 +74,7 @@ def encode_priority(x: BitsLike) -> tuple[Vector, Scalar]:
     (bits("2b10"), bits("1b1"))
 
     Args:
-        x: ``Bits`` or string literal.
+        x: ``Array`` or string literal.
 
     Returns:
         Tuple of ``Vector`` and ``Scalar``:
@@ -82,9 +82,9 @@ def encode_priority(x: BitsLike) -> tuple[Vector, Scalar]:
             ``Scalar`` valid bit
 
     Raises:
-        TypeError: ``x`` is not a valid ``Bits`` object.
+        TypeError: ``x`` is not a valid ``Array`` object.
     """
-    x = expect_bits(x)
+    x = expect_array(x)
 
     n = clog2(x.size)
     V = vec_size(n)
@@ -116,7 +116,7 @@ def encode_priority(x: BitsLike) -> tuple[Vector, Scalar]:
     return V(y ^ mask(n), y), scalar1
 
 
-def decode(x: BitsLike) -> Vector:
+def decode(x: ArrayLike) -> Vector:
     """Decode dense encoding to sparse, one-hot encoding.
 
     For example:
@@ -137,16 +137,16 @@ def decode(x: BitsLike) -> Vector:
     bits("1b1")
 
     Args:
-        x: ``Bits`` or string literal.
+        x: ``Array`` or string literal.
 
     Returns:
         One hot ``Scalar`` or ``Vector`` w/ ``size`` = ``2**x.size``
 
     Raises:
-        TypeError: ``x`` is not a valid ``Bits`` object.
+        TypeError: ``x`` is not a valid ``Array`` object.
         ValueError: Error parsing string literal.
     """
-    x = expect_bits(x)
+    x = expect_array(x)
 
     # Output has 2^N bits
     n = 1 << x.size

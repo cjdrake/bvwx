@@ -1,6 +1,10 @@
 """Test bvwx Struct."""
 
+# pyright: reportAttributeAccessIssue=false
 # pyright: reportCallIssue=false
+# pyright: reportIndexIssue=false
+# pyright: reportUnknownArgumentType=false
+# pyright: reportUnknownMemberType=false
 
 import pytest
 

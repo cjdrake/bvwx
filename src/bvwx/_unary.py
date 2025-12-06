@@ -1,16 +1,16 @@
 """Unary Reduction Operators"""
 
 from ._bits import (
-    BitsLike,
+    ArrayLike,
     Scalar,
     bits_uand,
     bits_uor,
     bits_uxor,
-    expect_bits,
+    expect_array,
 )
 
 
-def uor(x: BitsLike) -> Scalar:
+def uor(x: ArrayLike) -> Scalar:
     """Unary OR reduction operator.
 
     The identity of OR is ``0``.
@@ -28,20 +28,20 @@ def uor(x: BitsLike) -> Scalar:
     bits("1b0")
 
     Args:
-        x: ``Bits`` or string literal.
+        x: ``Array`` or string literal.
 
     Returns:
         ``Scalar``
 
     Raises:
-        TypeError: ``x`` is not a valid ``Bits`` object.
+        TypeError: ``x`` is not a valid ``Array`` object.
         ValueError: Error parsing string literal.
     """
-    x = expect_bits(x)
+    x = expect_array(x)
     return bits_uor(x)
 
 
-def uand(x: BitsLike) -> Scalar:
+def uand(x: ArrayLike) -> Scalar:
     """Unary AND reduction operator.
 
     The identity of AND is ``1``.
@@ -59,20 +59,20 @@ def uand(x: BitsLike) -> Scalar:
     bits("1b1")
 
     Args:
-        x: ``Bits`` or string literal.
+        x: ``Array`` or string literal.
 
     Returns:
         ``Scalar``
 
     Raises:
-        TypeError: ``x`` is not a valid ``Bits`` object.
+        TypeError: ``x`` is not a valid ``Array`` object.
         ValueError: Error parsing string literal.
     """
-    x = expect_bits(x)
+    x = expect_array(x)
     return bits_uand(x)
 
 
-def uxor(x: BitsLike) -> Scalar:
+def uxor(x: ArrayLike) -> Scalar:
     """Unary XOR reduction operator.
 
     The identity of XOR is ``0``.
@@ -90,14 +90,14 @@ def uxor(x: BitsLike) -> Scalar:
     bits("1b0")
 
     Args:
-        x: ``Bits`` or string literal.
+        x: ``Array`` or string literal.
 
     Returns:
         ``Scalar``
 
     Raises:
-        TypeError: ``x`` is not a valid ``Bits`` object.
+        TypeError: ``x`` is not a valid ``Array`` object.
         ValueError: Error parsing string literal.
     """
-    x = expect_bits(x)
+    x = expect_array(x)
     return bits_uxor(x)

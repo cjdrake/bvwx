@@ -110,35 +110,43 @@ All Sizes, Shapes, and Composition
 
 Software primitives come in fixed bundles such as 32 or 64 bits.
 These bundle sizes correspond to the width of architected registers.
-Furthermore, they are always aligned with byte-aligned, addressable memory.
+Furthermore, they are always aligned with byte-addressable memory.
 
 Hardware primitives, on the other hand, correspond to flip flops and wires.
-They are bit-aligned, not byte/register-aligned.
+They are bit-aligned, not byte/word-aligned.
 Overfitting of variable storage (i.e. fewer bits of information than physical storage)
 leads to wasted energy through leakage and capacitive discharge,
 and therefore shorter battery life.
 From a one-bit ``valid`` indicator to a network packet consisting of hundreds
 of bytes of header and data fields,
-we must be able to precisely specify variable size, shape, composition, and semantics.
+we must be able to precisely specify variable shape, size, composition, and semantics.
 
 The following diagram shows the BVWX family of data types::
 
-                        Bits
-                          |
-             +------------+------------+
-             |                         |
-           Array                   Composite
-             |                         |
-          Vector                  +----+----+
-             |                    |         |
-      +------+------+          Struct     Union
-      |      |      |
-    Enum  Scalar  Empty
+                  Array
+                    |
+                  Vector
+                    |
+      +-------+-----+------+------+
+      |       |     |      |      |
+    Scalar  Empty  Enum  Struct Union
 
-The base class for all variables is ``Bits``.
-A ``Bits`` object is an arbitrary-sized sequence of {``0``, ``1``, ``W``, ``X``} values.
-Array subclasses (``Vector``, ``Enum``, ``Scalar``, ``Empty``) have a ``shape`` attribute.
-Composite subclasses (``Struct``, ``Union``) have user-defined attributes.
+The base class for all variables is ``Array``.
+
+An ``Array[N0,N1,...]`` object is a multi-dimensional array of {``0``, ``1``, ``W``, ``X``} bits.
+It has shape ``(N0, N1, ...)``, and size ``N0 x N1 x ...``.
+
+A ``Vector[N]`` object is a one-dimensional sequence of bits.
+It has shape ``(N, )``, and size ``N``.
+
+A ``Scalar`` object is a single bit.
+It has shape ``(1, )``, and size ``1``.
+
+The ``Empty`` singleton is an empty slice.
+It has shape ``(0, )``, and size ``0``.
+
+The ``Enum``, ``Struct``, and ``Union`` types are subclasses of ``Vector``.
+The user can subclass them, and define custom attributes.
 
 Multi-dimensional arrays can organize information into any size and shape imaginable,
 and pack it into exactly the required number of bits.

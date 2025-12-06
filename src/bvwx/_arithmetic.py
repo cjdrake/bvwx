@@ -3,8 +3,6 @@
 from ._bits import (
     Array,
     ArrayLike,
-    Bits,
-    BitsLike,
     ScalarLike,
     UintLike,
     Vector,
@@ -19,8 +17,7 @@ from ._bits import (
     bits_rsh,
     bits_sub,
     expect_array,
-    expect_bits,
-    expect_bits_size,
+    expect_array_size,
     expect_scalar,
     expect_uint,
     scalar0,
@@ -28,7 +25,7 @@ from ._bits import (
 from ._util import mask
 
 
-def add(a: BitsLike, b: BitsLike, ci: ScalarLike | None = None) -> Bits:
+def add(a: ArrayLike, b: ArrayLike, ci: ScalarLike | None = None) -> Array:
     """Addition with carry-in, but NO carry-out.
 
     For example:
@@ -40,26 +37,26 @@ def add(a: BitsLike, b: BitsLike, ci: ScalarLike | None = None) -> Bits:
     bits("2b00")
 
     Args:
-        a: ``Bits`` or string literal
-        b: ``Bits`` or string literal
+        a: ``Array`` or string literal
+        b: ``Array`` or string literal
         ci: ``Scalar`` carry-in, or ``None``.
             ``None`` defaults to carry-in ``0``.
 
     Returns:
-        ``Bits`` sum w/ size equal to ``max(a.size, b.size)``.
+        ``Array`` sum w/ size equal to ``max(a.size, b.size)``.
 
     Raises:
-        TypeError: ``a``, ``b``, or ``ci`` are not valid ``Bits`` objects.
+        TypeError: ``a``, ``b``, or ``ci`` are not valid ``Array`` objects.
         ValueError: Error parsing string literal.
     """
-    a = expect_bits(a)
-    b = expect_bits(b)
+    a = expect_array(a)
+    b = expect_array(b)
     ci = scalar0 if ci is None else expect_scalar(ci)
     s, _ = bits_add(a, b, ci)
     return s
 
 
-def adc(a: BitsLike, b: BitsLike, ci: ScalarLike | None = None) -> Vector:
+def adc(a: ArrayLike, b: ArrayLike, ci: ScalarLike | None = None) -> Vector:
     """Addition with carry-in, and carry-out.
 
     For example:
@@ -71,8 +68,8 @@ def adc(a: BitsLike, b: BitsLike, ci: ScalarLike | None = None) -> Vector:
     bits("3b100")
 
     Args:
-        a: ``Bits`` or string literal
-        b: ``Bits`` or string literal
+        a: ``Array`` or string literal
+        b: ``Array`` or string literal
         ci: ``Scalar`` carry-in, or ``None``.
             ``None`` defaults to carry-in ``0``.
 
@@ -81,11 +78,11 @@ def adc(a: BitsLike, b: BitsLike, ci: ScalarLike | None = None) -> Vector:
         The most significant bit is the carry-out.
 
     Raises:
-        TypeError: ``a``, ``b``, or ``ci`` are not valid ``Bits`` objects.
+        TypeError: ``a``, ``b``, or ``ci`` are not valid ``Array`` objects.
         ValueError: Error parsing string literal.
     """
-    a = expect_bits(a)
-    b = expect_bits(b)
+    a = expect_array(a)
+    b = expect_array(b)
     ci = scalar0 if ci is None else expect_scalar(ci)
     s, co = bits_add(a, b, ci)
     v = bits_cat(s, co)
@@ -93,91 +90,91 @@ def adc(a: BitsLike, b: BitsLike, ci: ScalarLike | None = None) -> Vector:
     return v
 
 
-def sub(a: BitsLike, b: BitsLike) -> Bits:
+def sub(a: ArrayLike, b: ArrayLike) -> Array:
     """Twos complement subtraction, with NO carry-out.
 
     Args:
-        a: ``Bits`` or string literal
-        b: ``Bits`` or string literal equal size to ``a``.
+        a: ``Array`` or string literal
+        b: ``Array`` or string literal equal size to ``a``.
 
     Returns:
-        ``Bits`` sum equal size to ``a`` and ``b``.
+        ``Array`` sum equal size to ``a`` and ``b``.
 
     Raises:
-        TypeError: ``a``, or ``b`` are not valid ``Bits`` objects,
+        TypeError: ``a``, or ``b`` are not valid ``Array`` objects,
                    or ``a`` not equal size to ``b``.
         ValueError: Error parsing string literal.
     """
-    a = expect_bits(a)
-    b = expect_bits_size(b, a.size)
+    a = expect_array(a)
+    b = expect_array_size(b, a.size)
     s, _ = bits_sub(a, b)
     return s
 
 
-def sbc(a: BitsLike, b: BitsLike) -> Vector:
+def sbc(a: ArrayLike, b: ArrayLike) -> Vector:
     """Twos complement subtraction, with carry-out.
 
     Args:
-        a: ``Bits`` or string literal
-        b: ``Bits`` or string literal equal size to ``a``.
+        a: ``Array`` or string literal
+        b: ``Array`` or string literal equal size to ``a``.
 
     Returns:
-        ``Bits`` sum w/ size one larger than ``a`` and ``b``.
+        ``Array`` sum w/ size one larger than ``a`` and ``b``.
         The most significant bit is the carry-out.
 
     Raises:
-        TypeError: ``a``, or ``b`` are not valid ``Bits`` objects,
+        TypeError: ``a``, or ``b`` are not valid ``Array`` objects,
                    or ``a`` not equal size to ``b``.
         ValueError: Error parsing string literal.
     """
-    a = expect_bits(a)
-    b = expect_bits_size(b, a.size)
+    a = expect_array(a)
+    b = expect_array_size(b, a.size)
     s, co = bits_sub(a, b)
     v = bits_cat(s, co)
     assert isinstance(v, Vector)
     return v
 
 
-def neg(x: BitsLike) -> Bits:
+def neg(x: ArrayLike) -> Array:
     """Twos complement negation, with NO carry-out.
 
     Args:
-        x: ``Bits`` or string literal
+        x: ``Array`` or string literal
 
     Returns:
-        ``Bits`` equal size to ``x``.
+        ``Array`` equal size to ``x``.
 
     Raises:
-        TypeError: ``x`` is not a valid ``Bits`` object.
+        TypeError: ``x`` is not a valid ``Array`` object.
         ValueError: Error parsing string literal.
     """
-    x = expect_bits(x)
+    x = expect_array(x)
     s, _ = bits_neg(x)
     return s
 
 
-def ngc(x: BitsLike) -> Vector:
+def ngc(x: ArrayLike) -> Vector:
     """Twos complement negation, with carry-out.
 
     Args:
-        x: ``Bits`` or string literal
+        x: ``Array`` or string literal
 
     Returns:
-        ``Bits`` w/ size one larger than ``x``.
+        ``Array`` w/ size one larger than ``x``.
         The most significant bit is the carry-out.
 
     Raises:
-        TypeError: ``x`` is not a valid ``Bits`` object.
+        TypeError: ``x`` is not a valid ``Array`` object.
         ValueError: Error parsing string literal.
     """
-    x = expect_bits(x)
+    x = expect_array(x)
     s, co = bits_neg(x)
     v = bits_cat(s, co)
     assert isinstance(v, Vector)
     return v
 
 
-def mul(a: BitsLike, b: BitsLike) -> Vector:
+def mul(a: ArrayLike, b: ArrayLike) -> Vector:
     """Unsigned multiply.
 
     For example:
@@ -189,58 +186,58 @@ def mul(a: BitsLike, b: BitsLike) -> Vector:
     bits("2b00")
 
     Args:
-        a: ``Bits`` or string literal
-        b: ``Bits`` or string literal
+        a: ``Array`` or string literal
+        b: ``Array`` or string literal
 
     Returns:
         ``Vector`` product w/ size ``a.size + b.size``
 
     Raises:
-        TypeError: ``a`` or ``b`` are not valid ``Bits`` objects.
+        TypeError: ``a`` or ``b`` are not valid ``Array`` objects.
         ValueError: Error parsing string literal.
     """
-    a = expect_bits(a)
-    b = expect_bits(b)
+    a = expect_array(a)
+    b = expect_array(b)
     return bits_mul(a, b)
 
 
-def div(a: BitsLike, b: BitsLike) -> Bits:
+def div(a: ArrayLike, b: ArrayLike) -> Array:
     """Unsigned divide.
 
     Args:
-        a: ``Bits`` or string literal
-        b: ``Bits`` or string literal
+        a: ``Array`` or string literal
+        b: ``Array`` or string literal
 
     Returns:
         ``Vector`` quotient w/ size ``a.size``
 
     Raises:
-        TypeError: ``a`` or ``b`` are not valid ``Bits`` objects.
+        TypeError: ``a`` or ``b`` are not valid ``Array`` objects.
         ValueError: Error parsing string literal.
         ZeroDivisionError: If ``b`` is zero.
     """
-    a = expect_bits(a)
-    b = expect_bits(b)
+    a = expect_array(a)
+    b = expect_array(b)
     return bits_div(a, b)
 
 
-def mod(a: BitsLike, b: BitsLike) -> Bits:
+def mod(a: ArrayLike, b: ArrayLike) -> Array:
     """Unsigned modulo.
 
     Args:
-        a: ``Bits`` or string literal
-        b: ``Bits`` or string literal
+        a: ``Array`` or string literal
+        b: ``Array`` or string literal
 
     Returns:
         ``Vector`` remainder w/ size ``b.size``
 
     Raises:
-        TypeError: ``a`` or ``b`` are not valid ``Bits`` objects.
+        TypeError: ``a`` or ``b`` are not valid ``Array`` objects.
         ValueError: Error parsing string literal.
         ZeroDivisionError: If ``b`` is zero.
     """
-    a = expect_bits(a)
-    b = expect_bits(b)
+    a = expect_array(a)
+    b = expect_array(b)
     return bits_mod(a, b)
 
 
@@ -255,7 +252,7 @@ def matmul(a: ArrayLike, b: ArrayLike) -> Array:
         ``Array`` product
 
     Raises:
-        TypeError: ``a`` or ``b`` are invalid or incompatible ``Bits`` objects.
+        TypeError: ``a`` or ``b`` are invalid or incompatible ``Array`` objects.
         ValueError: Error parsing string literal.
     """
     a = expect_array(a)
@@ -263,7 +260,7 @@ def matmul(a: ArrayLike, b: ArrayLike) -> Array:
     return bits_matmul(a, b)
 
 
-def lsh(x: BitsLike, n: UintLike) -> Bits:
+def lsh(x: ArrayLike, n: UintLike) -> Array:
     """Logical left shift by n bits.
 
     Fill bits with zeros.
@@ -274,25 +271,25 @@ def lsh(x: BitsLike, n: UintLike) -> Bits:
     bits("4b1100")
 
     Args:
-        x: ``Bits`` or string literal.
-        n: ``Bits``, string literal, or ``int``
+        x: ``Array`` or string literal.
+        n: ``Array``, string literal, or ``int``
            Non-negative bit shift count.
 
     Returns:
-        ``Bits`` left-shifted by n bits.
+        ``Array`` left-shifted by n bits.
 
     Raises:
-        TypeError: ``x`` is not a valid ``Bits`` object,
+        TypeError: ``x`` is not a valid ``Array`` object,
                    or ``n`` is not a valid bit shift count.
         ValueError: Error parsing string literal,
                     or negative shift amount.
     """
-    x = expect_bits(x)
+    x = expect_array(x)
     n = expect_uint(n)
     return bits_lsh(x, n)
 
 
-def rsh(x: BitsLike, n: UintLike) -> Bits:
+def rsh(x: ArrayLike, n: UintLike) -> Array:
     """Logical right shift by n bits.
 
     Fill bits with zeros.
@@ -303,25 +300,25 @@ def rsh(x: BitsLike, n: UintLike) -> Bits:
     bits("4b0011")
 
     Args:
-        x: ``Bits`` or string literal.
-        n: ``Bits``, string literal, or ``int``
+        x: ``Array`` or string literal.
+        n: ``Array``, string literal, or ``int``
            Non-negative bit shift count.
 
     Returns:
-        ``Bits`` right-shifted by n bits.
+        ``Array`` right-shifted by n bits.
 
     Raises:
-        TypeError: ``x`` is not a valid ``Bits`` object,
+        TypeError: ``x`` is not a valid ``Array`` object,
                    or ``n`` is not a valid bit shift count.
         ValueError: Error parsing string literal,
                     or negative shift amount.
     """
-    x = expect_bits(x)
+    x = expect_array(x)
     n = expect_uint(n)
     return bits_rsh(x, n)
 
 
-def _srsh[T: Bits](x: T, n: Bits) -> T:
+def _srsh[T: Array](x: T, n: Array) -> T:
     if n.has_x():
         return x.xs()
     if n.has_w():
@@ -344,7 +341,7 @@ def _srsh[T: Bits](x: T, n: Bits) -> T:
     return y
 
 
-def srsh(x: BitsLike, n: UintLike) -> Bits:
+def srsh(x: ArrayLike, n: UintLike) -> Array:
     """Arithmetic (signed) right shift by n bits.
 
     Fill bits with most significant bit (sign).
@@ -355,19 +352,19 @@ def srsh(x: BitsLike, n: UintLike) -> Bits:
     bits("4b1111")
 
     Args:
-        x: ``Bits`` or string literal.
-        n: ``Bits``, string literal, or ``int``
+        x: ``Array`` or string literal.
+        n: ``Array``, string literal, or ``int``
            Non-negative bit shift count.
 
     Returns:
-        ``Bits`` right-shifted by n bits.
+        ``Array`` right-shifted by n bits.
 
     Raises:
-        TypeError: ``x`` is not a valid ``Bits`` object,
+        TypeError: ``x`` is not a valid ``Array`` object,
                    or ``n`` is not a valid bit shift count.
         ValueError: Error parsing string literal,
                     or negative shift amount.
     """
-    x = expect_bits(x)
+    x = expect_array(x)
     n = expect_uint(n)
     return _srsh(x, n)

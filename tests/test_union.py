@@ -1,6 +1,9 @@
 """Test bvwx Union."""
 
+# pyright: reportAttributeAccessIssue=false
 # pyright: reportCallIssue=false
+# pyright: reportIndexIssue=false
+# pyright: reportUnknownMemberType=false
 
 import pytest
 

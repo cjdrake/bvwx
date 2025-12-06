@@ -3,7 +3,7 @@
 from functools import partial
 from typing import Any
 
-from ._bits import Bits, BitsLike, Composite, expect_bits
+from ._bits import Array, ArrayLike, Vector, expect_array, vec_size
 from ._util import mask
 
 
@@ -21,22 +21,22 @@ class _UnionMeta(type):
 
         # Get field_name: field_type items
         try:
-            annotations: dict[str, type[Bits]] = attrs["__annotations__"]
+            annotations: dict[str, type[Array]] = attrs["__annotations__"]
         except KeyError as e:
             raise ValueError("Empty Union is not supported") from e
 
         fields = list(annotations.items())
 
-        # Create Union class
+        # Get Vector[N] base class
         size = max(field_type.size for _, field_type in fields)
-        union = super().__new__(mcs, name, bases, {"__slots__": (), "size": size})
+        V = vec_size(size)
 
-        # Help the type checker
-        assert issubclass(union, Composite)
+        # Create Union class
+        union = super().__new__(mcs, name, bases + (V,), {"__slots__": ()})
 
-        # Override Bits.__init__ method
-        def _init(self: Union, arg: BitsLike):
-            x = expect_bits(arg)
+        # Override Array.__init__ method
+        def _init(self: Vector, arg: ArrayLike):
+            x = expect_array(arg)
             ts = {ft for _, ft in fields}
             if not isinstance(x, tuple(ts)):
                 s = ", ".join(t.__name__ for t in ts)
@@ -46,8 +46,8 @@ class _UnionMeta(type):
 
         setattr(union, "__init__", _init)
 
-        # Override Bits.__repr__ method
-        def _repr(self: Union) -> str:
+        # Override Array.__repr__ method
+        def _repr(self: Vector) -> str:
             parts = [f"{name}("]
             for fn, _ in fields:
                 x = getattr(self, fn)
@@ -58,8 +58,8 @@ class _UnionMeta(type):
 
         setattr(union, "__repr__", _repr)
 
-        # Override Bits.__str__ method
-        def _str(self: Union) -> str:
+        # Override Array.__str__ method
+        def _str(self: Vector) -> str:
             parts = [f"{name}("]
             for fn, _ in fields:
                 x = getattr(self, fn)
@@ -71,7 +71,7 @@ class _UnionMeta(type):
         setattr(union, "__str__", _str)
 
         # Create Union fields
-        def _fget(ft: type[Bits], self: Union):
+        def _fget(ft: type[Array], self: Vector):
             m = mask(ft.size)
             d0 = self._data[0] & m  # pyright: ignore[reportPrivateUsage]
             d1 = self._data[1] & m  # pyright: ignore[reportPrivateUsage]
@@ -83,7 +83,7 @@ class _UnionMeta(type):
         return union
 
 
-class Union(Composite, metaclass=_UnionMeta):
+class Union(metaclass=_UnionMeta):
     """User defined union data type.
 
     Compose a type from the union of other types.

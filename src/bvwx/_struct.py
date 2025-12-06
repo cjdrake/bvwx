@@ -3,7 +3,7 @@
 from functools import partial
 from typing import Any
 
-from ._bits import Bits, BitsLike, Composite, expect_bits_size
+from ._bits import Array, ArrayLike, Vector, expect_array_size, vec_size
 from ._util import mask
 
 
@@ -31,7 +31,7 @@ class _StructMeta(type):
 
         # Get field_name: field_type items
         try:
-            annotations: dict[str, type[Bits]] = attrs["__annotations__"]
+            annotations: dict[str, type[Array]] = attrs["__annotations__"]
         except KeyError as e:
             raise ValueError("Empty Struct is not supported") from e
 
@@ -44,19 +44,19 @@ class _StructMeta(type):
             offsets[field_name] = offset
             offset += field_type.size
 
-        # Create Struct class
+        # Get Vector[N] base class
         size = sum(field_type.size for _, field_type in fields)
-        struct = super().__new__(mcs, name, bases, {"__slots__": (), "size": size})
+        V = vec_size(size)
 
-        # Help the type checker
-        assert issubclass(struct, Composite)
+        # Create Struct class
+        struct = super().__new__(mcs, name, bases + (V,), {"__slots__": ()})
 
-        # Override Bits.__init__ method
-        def _init_body(obj: Struct, *args: BitsLike | None):
+        # Override Array.__init__ method
+        def _init_body(obj: Vector, *args: ArrayLike | None):
             d0, d1 = 0, 0
             for arg, (fn, ft) in zip(args, fields):
                 if arg is not None:
-                    x = expect_bits_size(arg, ft.size)
+                    x = expect_array_size(arg, ft.size)
                     d0 |= x.data[0] << offsets[fn]
                     d1 |= x.data[1] << offsets[fn]
             obj._data = (d0, d1)  # pyright: ignore[reportPrivateUsage]
@@ -67,8 +67,8 @@ class _StructMeta(type):
         exec(source, globals_, locals_)
         struct.__init__ = locals_["init"]
 
-        # Override Bits.__repr__ method
-        def _repr(self: Struct) -> str:
+        # Override Array.__repr__ method
+        def _repr(self: Vector) -> str:
             parts = [f"{name}("]
             for fn, _ in fields:
                 x = getattr(self, fn)
@@ -79,8 +79,8 @@ class _StructMeta(type):
 
         setattr(struct, "__repr__", _repr)
 
-        # Override Bits.__str__ method
-        def _str(self: Struct) -> str:
+        # Override Array.__str__ method
+        def _str(self: Vector) -> str:
             parts = [f"{name}("]
             for fn, _ in fields:
                 x = getattr(self, fn)
@@ -92,7 +92,7 @@ class _StructMeta(type):
         setattr(struct, "__str__", _str)
 
         # Create Struct fields
-        def _fget(fn: str, ft: type[Bits], self: Struct):
+        def _fget(fn: str, ft: type[Array], self: Vector):
             m = mask(ft.size)
             d0 = (self._data[0] >> offsets[fn]) & m  # pyright: ignore[reportPrivateUsage]
             d1 = (self._data[1] >> offsets[fn]) & m  # pyright: ignore[reportPrivateUsage]
@@ -104,7 +104,7 @@ class _StructMeta(type):
         return struct
 
 
-class Struct(Composite, metaclass=_StructMeta):
+class Struct(metaclass=_StructMeta):
     """User defined struct data type.
 
     Compose a type from a sequence of other types.

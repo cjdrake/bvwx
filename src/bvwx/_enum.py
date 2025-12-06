@@ -2,7 +2,7 @@
 
 from typing import Any
 
-from ._bits import BitsLike, Vector, expect_bits_size, vec_size
+from ._bits import Array, ArrayLike, Vector, expect_array_size, vec_size
 from ._lbool import parse_lit
 from ._util import mask
 
@@ -31,29 +31,38 @@ class _EnumMeta(type):
         # Help the type checker
         assert issubclass(enum, V)
 
-        # Instantiate members
-        for (d0, d1), key in data2key.items():
-            setattr(enum, key, enum.cast_data(d0, d1))
-
-        # Override Vector.cast_data method
-        def _cast_data(cls: type[Vector], d0: int, d1: int) -> Vector:
-            data = (d0, d1)
-            try:
-                obj = getattr(cls, data2key[data])
-                assert isinstance(obj, Vector)
-            except KeyError:
-                obj = object.__new__(cls)
-                obj._data = data  # pyright: ignore[reportPrivateUsage]
+        def new_init(d0: int, d1: int) -> Vector:
+            obj = object.__new__(enum)
+            Array.__init__(obj, d0, d1)
             return obj
 
-        setattr(enum, "cast_data", classmethod(_cast_data))
+        # Instantiate members
+        key2obj: dict[str, Vector] = {}
+        for (d0, d1), key in data2key.items():
+            key2obj[key] = new_init(d0, d1)
+        for key, obj in key2obj.items():
+            setattr(enum, key, obj)
 
-        # Override Vector.__new__ method
-        def _new(cls: type[Vector], arg: BitsLike) -> Vector:
-            x = expect_bits_size(arg, cls.size)
+        def _new(cls: type[Vector], arg: ArrayLike) -> Vector:
+            x = expect_array_size(arg, cls.size)
             return cls.cast(x)
 
         setattr(enum, "__new__", _new)
+
+        def _init(obj: Vector, arg: ArrayLike):
+            pass
+
+        setattr(enum, "__init__", _init)
+
+        # Override Vector.cast_data method
+        def _cast_data(cls: type[Vector], d0: int, d1: int) -> Vector:
+            try:
+                obj = getattr(cls, data2key[(d0, d1)])
+            except KeyError:
+                obj = new_init(d0, d1)
+            return obj
+
+        setattr(enum, "cast_data", classmethod(_cast_data))
 
         # Override Vector.__repr__ method
         def _repr(self: Vector) -> str:

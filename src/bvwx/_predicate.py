@@ -4,16 +4,16 @@ import operator
 from collections.abc import Callable
 
 from ._bits import (
-    Bits,
-    BitsLike,
+    Array,
+    ArrayLike,
     Scalar,
     bits_uand,
     bits_uor,
     bits_xnor,
     bits_xor,
     bool2scalar,
-    expect_bits,
-    expect_bits_size,
+    expect_array,
+    expect_array_size,
     scalar0,
     scalar1,
     scalarW,
@@ -21,11 +21,11 @@ from ._bits import (
 )
 
 
-def _eq(x0: Bits, x1: Bits) -> Scalar:
+def _eq(x0: Array, x1: Array) -> Scalar:
     return bits_uand(bits_xnor(x0, x1))
 
 
-def eq(x0: BitsLike, x1: BitsLike) -> Scalar:
+def eq(x0: ArrayLike, x1: ArrayLike) -> Scalar:
     """Binary logical Equal (==) reduction operator.
 
     Equivalent to ``uand(xnor(x0, x1))``.
@@ -40,27 +40,27 @@ def eq(x0: BitsLike, x1: BitsLike) -> Scalar:
     bits("1b0")
 
     Args:
-        x0: ``Bits`` or string literal.
-        x1: ``Bits`` or string literal equal size to ``x0``.
+        x0: ``Array`` or string literal.
+        x1: ``Array`` or string literal equal size to ``x0``.
 
     Returns:
         ``Scalar``
 
     Raises:
-        TypeError: ``x0`` or ``x1`` is not a valid ``Bits`` object,
+        TypeError: ``x0`` or ``x1`` is not a valid ``Array`` object,
                    or ``x0`` not equal size to ``x1``.
         ValueError: Error parsing string literal.
     """
-    x0 = expect_bits(x0)
-    x1 = expect_bits_size(x1, x0.size)
+    x0 = expect_array(x0)
+    x1 = expect_array_size(x1, x0.size)
     return _eq(x0, x1)
 
 
-def _ne(x0: Bits, x1: Bits) -> Scalar:
+def _ne(x0: Array, x1: Array) -> Scalar:
     return bits_uor(bits_xor(x0, x1))
 
 
-def ne(x0: BitsLike, x1: BitsLike) -> Scalar:
+def ne(x0: ArrayLike, x1: ArrayLike) -> Scalar:
     """Binary logical NotEqual (!=) reduction operator.
 
     Equivalent to ``uor(xor(x0, x1))``.
@@ -75,23 +75,23 @@ def ne(x0: BitsLike, x1: BitsLike) -> Scalar:
     bits("1b1")
 
     Args:
-        x0: ``Bits`` or string literal.
-        x1: ``Bits`` or string literal equal size to ``x0``.
+        x0: ``Array`` or string literal.
+        x1: ``Array`` or string literal equal size to ``x0``.
 
     Returns:
         ``Scalar``
 
     Raises:
-        TypeError: ``x0`` or ``x1`` is not a valid ``Bits`` object,
+        TypeError: ``x0`` or ``x1`` is not a valid ``Array`` object,
                    or ``x0`` not equal size to ``x1``.
         ValueError: Error parsing string literal.
     """
-    x0 = expect_bits(x0)
-    x1 = expect_bits_size(x1, x0.size)
+    x0 = expect_array(x0)
+    x1 = expect_array_size(x1, x0.size)
     return _ne(x0, x1)
 
 
-def _cmp(op: Callable[[int, int], bool], x0: Bits, x1: Bits) -> Scalar:
+def _cmp(op: Callable[[int, int], bool], x0: Array, x1: Array) -> Scalar:
     # X/W propagation
     if x0.has_x() or x1.has_x():
         return scalarX
@@ -100,7 +100,7 @@ def _cmp(op: Callable[[int, int], bool], x0: Bits, x1: Bits) -> Scalar:
     return bool2scalar[op(x0.to_uint(), x1.to_uint())]
 
 
-def lt(x0: BitsLike, x1: BitsLike) -> Scalar:
+def lt(x0: ArrayLike, x1: ArrayLike) -> Scalar:
     """Binary logical Unsigned LessThan (<) reduction operator.
 
     Returns ``Scalar`` result of ``x0.to_uint() < x1.to_uint()``.
@@ -117,23 +117,23 @@ def lt(x0: BitsLike, x1: BitsLike) -> Scalar:
     bits("1b1")
 
     Args:
-        x0: ``Bits`` or string literal.
-        x1: ``Bits`` or string literal equal size to ``x0``.
+        x0: ``Array`` or string literal.
+        x1: ``Array`` or string literal equal size to ``x0``.
 
     Returns:
         ``Scalar``
 
     Raises:
-        TypeError: ``x0`` or ``x1`` is not a valid ``Bits`` object,
+        TypeError: ``x0`` or ``x1`` is not a valid ``Array`` object,
                    or ``x0`` not equal size to ``x1``.
         ValueError: Error parsing string literal.
     """
-    x0 = expect_bits(x0)
-    x1 = expect_bits_size(x1, x0.size)
+    x0 = expect_array(x0)
+    x1 = expect_array_size(x1, x0.size)
     return _cmp(operator.lt, x0, x1)
 
 
-def le(x0: BitsLike, x1: BitsLike) -> Scalar:
+def le(x0: ArrayLike, x1: ArrayLike) -> Scalar:
     """Binary logical Unsigned LessThanOrEqual (≤) reduction operator.
 
     Returns ``Scalar`` result of ``x0.to_uint() <= x1.to_uint()``.
@@ -150,23 +150,23 @@ def le(x0: BitsLike, x1: BitsLike) -> Scalar:
     bits("1b1")
 
     Args:
-        x0: ``Bits`` or string literal.
-        x1: ``Bits`` or string literal equal size to ``x0``.
+        x0: ``Array`` or string literal.
+        x1: ``Array`` or string literal equal size to ``x0``.
 
     Returns:
         ``Scalar``
 
     Raises:
-        TypeError: ``x0`` or ``x1`` is not a valid ``Bits`` object,
+        TypeError: ``x0`` or ``x1`` is not a valid ``Array`` object,
                    or ``x0`` not equal size to ``x1``.
         ValueError: Error parsing string literal.
     """
-    x0 = expect_bits(x0)
-    x1 = expect_bits_size(x1, x0.size)
+    x0 = expect_array(x0)
+    x1 = expect_array_size(x1, x0.size)
     return _cmp(operator.le, x0, x1)
 
 
-def gt(x0: BitsLike, x1: BitsLike) -> Scalar:
+def gt(x0: ArrayLike, x1: ArrayLike) -> Scalar:
     """Binary logical Unsigned GreaterThan (>) reduction operator.
 
     Returns ``Scalar`` result of ``x0.to_uint() > x1.to_uint()``.
@@ -183,23 +183,23 @@ def gt(x0: BitsLike, x1: BitsLike) -> Scalar:
     bits("1b0")
 
     Args:
-        x0: ``Bits`` or string literal.
-        x1: ``Bits`` or string literal equal size to ``x0``.
+        x0: ``Array`` or string literal.
+        x1: ``Array`` or string literal equal size to ``x0``.
 
     Returns:
         ``Scalar``
 
     Raises:
-        TypeError: ``x0`` or ``x1`` is not a valid ``Bits`` object,
+        TypeError: ``x0`` or ``x1`` is not a valid ``Array`` object,
                    or ``x0`` not equal size to ``x1``.
         ValueError: Error parsing string literal.
     """
-    x0 = expect_bits(x0)
-    x1 = expect_bits_size(x1, x0.size)
+    x0 = expect_array(x0)
+    x1 = expect_array_size(x1, x0.size)
     return _cmp(operator.gt, x0, x1)
 
 
-def ge(x0: BitsLike, x1: BitsLike) -> Scalar:
+def ge(x0: ArrayLike, x1: ArrayLike) -> Scalar:
     """Binary logical Unsigned GreaterThanOrEqual (≥) reduction operator.
 
     Returns ``Scalar`` result of ``x0.to_uint() >= x1.to_uint()``.
@@ -216,23 +216,23 @@ def ge(x0: BitsLike, x1: BitsLike) -> Scalar:
     bits("1b0")
 
     Args:
-        x0: ``Bits`` or string literal.
-        x1: ``Bits`` or string literal equal size to ``x0``.
+        x0: ``Array`` or string literal.
+        x1: ``Array`` or string literal equal size to ``x0``.
 
     Returns:
         ``Scalar``
 
     Raises:
-        TypeError: ``x0`` or ``x1`` is not a valid ``Bits`` object,
+        TypeError: ``x0`` or ``x1`` is not a valid ``Array`` object,
                    or ``x0`` not equal size to ``x1``.
         ValueError: Error parsing string literal.
     """
-    x0 = expect_bits(x0)
-    x1 = expect_bits_size(x1, x0.size)
+    x0 = expect_array(x0)
+    x1 = expect_array_size(x1, x0.size)
     return _cmp(operator.ge, x0, x1)
 
 
-def _scmp(op: Callable[[int, int], bool], x0: Bits, x1: Bits) -> Scalar:
+def _scmp(op: Callable[[int, int], bool], x0: Array, x1: Array) -> Scalar:
     # X/W propagation
     if x0.has_x() or x1.has_x():
         return scalarX
@@ -241,7 +241,7 @@ def _scmp(op: Callable[[int, int], bool], x0: Bits, x1: Bits) -> Scalar:
     return bool2scalar[op(x0.to_int(), x1.to_int())]
 
 
-def slt(x0: BitsLike, x1: BitsLike) -> Scalar:
+def slt(x0: ArrayLike, x1: ArrayLike) -> Scalar:
     """Binary logical Signed LessThan (<) reduction operator.
 
     Returns ``Scalar`` result of ``x0.to_int() < x1.to_int()``.
@@ -258,23 +258,23 @@ def slt(x0: BitsLike, x1: BitsLike) -> Scalar:
     bits("1b1")
 
     Args:
-        x0: ``Bits`` or string literal.
-        x1: ``Bits`` or string literal equal size to ``x0``.
+        x0: ``Array`` or string literal.
+        x1: ``Array`` or string literal equal size to ``x0``.
 
     Returns:
         ``Scalar``
 
     Raises:
-        TypeError: ``x0`` or ``x1`` is not a valid ``Bits`` object,
+        TypeError: ``x0`` or ``x1`` is not a valid ``Array`` object,
                    or ``x0`` not equal size to ``x1``.
         ValueError: Error parsing string literal.
     """
-    x0 = expect_bits(x0)
-    x1 = expect_bits_size(x1, x0.size)
+    x0 = expect_array(x0)
+    x1 = expect_array_size(x1, x0.size)
     return _scmp(operator.lt, x0, x1)
 
 
-def sle(x0: BitsLike, x1: BitsLike) -> Scalar:
+def sle(x0: ArrayLike, x1: ArrayLike) -> Scalar:
     """Binary logical Signed LessThanOrEqual (≤) reduction operator.
 
     Returns ``Scalar`` result of ``x0.to_int() <= x1.to_int()``.
@@ -291,23 +291,23 @@ def sle(x0: BitsLike, x1: BitsLike) -> Scalar:
     bits("1b1")
 
     Args:
-        x0: ``Bits`` or string literal.
-        x1: ``Bits`` or string literal equal size to ``x0``.
+        x0: ``Array`` or string literal.
+        x1: ``Array`` or string literal equal size to ``x0``.
 
     Returns:
         ``Scalar``
 
     Raises:
-        TypeError: ``x0`` or ``x1`` is not a valid ``Bits`` object,
+        TypeError: ``x0`` or ``x1`` is not a valid ``Array`` object,
                    or ``x0`` not equal size to ``x1``.
         ValueError: Error parsing string literal.
     """
-    x0 = expect_bits(x0)
-    x1 = expect_bits_size(x1, x0.size)
+    x0 = expect_array(x0)
+    x1 = expect_array_size(x1, x0.size)
     return _scmp(operator.le, x0, x1)
 
 
-def sgt(x0: BitsLike, x1: BitsLike) -> Scalar:
+def sgt(x0: ArrayLike, x1: ArrayLike) -> Scalar:
     """Binary logical Signed GreaterThan (>) reduction operator.
 
     Returns ``Scalar`` result of ``x0.to_int() > x1.to_int()``.
@@ -324,23 +324,23 @@ def sgt(x0: BitsLike, x1: BitsLike) -> Scalar:
     bits("1b0")
 
     Args:
-        x0: ``Bits`` or string literal.
-        x1: ``Bits`` or string literal equal size to ``x0``.
+        x0: ``Array`` or string literal.
+        x1: ``Array`` or string literal equal size to ``x0``.
 
     Returns:
         ``Scalar``
 
     Raises:
-        TypeError: ``x0`` or ``x1`` is not a valid ``Bits`` object,
+        TypeError: ``x0`` or ``x1`` is not a valid ``Array`` object,
                    or ``x0`` not equal size to ``x1``.
         ValueError: Error parsing string literal.
     """
-    x0 = expect_bits(x0)
-    x1 = expect_bits_size(x1, x0.size)
+    x0 = expect_array(x0)
+    x1 = expect_array_size(x1, x0.size)
     return _scmp(operator.gt, x0, x1)
 
 
-def sge(x0: BitsLike, x1: BitsLike) -> Scalar:
+def sge(x0: ArrayLike, x1: ArrayLike) -> Scalar:
     """Binary logical Signed GreaterThanOrEqual (≥) reduction operator.
 
     Returns ``Scalar`` result of ``x0.to_int() >= x1.to_int()``.
@@ -357,23 +357,23 @@ def sge(x0: BitsLike, x1: BitsLike) -> Scalar:
     bits("1b0")
 
     Args:
-        x0: ``Bits`` or string literal.
-        x1: ``Bits`` or string literal equal size to ``x0``.
+        x0: ``Array`` or string literal.
+        x1: ``Array`` or string literal equal size to ``x0``.
 
     Returns:
         ``Scalar``
 
     Raises:
-        TypeError: ``x0`` or ``x1`` is not a valid ``Bits`` object,
+        TypeError: ``x0`` or ``x1`` is not a valid ``Array`` object,
                    or ``x0`` not equal size to ``x1``.
         ValueError: Error parsing string literal.
     """
-    x0 = expect_bits(x0)
-    x1 = expect_bits_size(x1, x0.size)
+    x0 = expect_array(x0)
+    x1 = expect_array_size(x1, x0.size)
     return _scmp(operator.ge, x0, x1)
 
 
-def _match(x0: Bits, x1: Bits) -> Scalar:
+def _match(x0: Array, x1: Array) -> Scalar:
     # Propagate X
     if x0.has_x() or x1.has_x():
         return scalarX
@@ -386,7 +386,7 @@ def _match(x0: Bits, x1: Bits) -> Scalar:
     return scalar1
 
 
-def match(x0: BitsLike, x1: BitsLike) -> Scalar:
+def match(x0: ArrayLike, x1: ArrayLike) -> Scalar:
     """Pattern match operator.
 
     Similar to ``eq`` operator, but with support for ``-`` wildcards.
@@ -401,17 +401,17 @@ def match(x0: BitsLike, x1: BitsLike) -> Scalar:
     bits("1b0")
 
     Args:
-        x0: ``Bits`` or string literal.
-        x1: ``Bits`` or string literal equal size to ``x0``.
+        x0: ``Array`` or string literal.
+        x1: ``Array`` or string literal equal size to ``x0``.
 
     Returns:
         ``Scalar``
 
     Raises:
-        TypeError: ``x0`` or ``x1`` is not a valid ``Bits`` object,
+        TypeError: ``x0`` or ``x1`` is not a valid ``Array`` object,
                    or ``x0`` not equal size to ``x1``.
         ValueError: Error parsing string literal.
     """
-    x0 = expect_bits(x0)
-    x1 = expect_bits_size(x1, x0.size)
+    x0 = expect_array(x0)
+    x1 = expect_array_size(x1, x0.size)
     return _match(x0, x1)

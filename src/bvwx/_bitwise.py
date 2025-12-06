@@ -4,23 +4,23 @@ import re
 
 from . import _lbool as lb
 from ._bits import (
-    Bits,
-    BitsLike,
+    Array,
+    ArrayLike,
     ScalarLike,
     Vector,
     bits_and,
     bits_not,
     bits_or,
     bits_xor,
-    expect_bits,
-    expect_bits_size,
+    expect_array,
+    expect_array_size,
     expect_scalar,
     resolve_type,
 )
 from ._util import mask
 
 
-def not_(x: BitsLike) -> Bits:
+def not_(x: ArrayLike) -> Array:
     """Unary bitwise logical NOT operator.
 
     Perform logical negation on each bit of the input:
@@ -50,20 +50,20 @@ def not_(x: BitsLike) -> Bits:
     bits("4b-01X")
 
     Args:
-        x: ``Bits`` or string literal.
+        x: ``Array`` or string literal.
 
     Returns:
-        ``Bits`` of same type and equal size
+        ``Array`` of same type and equal size
 
     Raises:
-        TypeError: ``x0`` is not a valid ``Bits`` object.
+        TypeError: ``x0`` is not a valid ``Array`` object.
         ValueError: Error parsing string literal.
     """
-    x = expect_bits(x)
+    x = expect_array(x)
     return bits_not(x)
 
 
-def or_(x0: BitsLike, *xs: BitsLike) -> Bits:
+def or_(x0: ArrayLike, *xs: ArrayLike) -> Array:
     """N-ary bitwise logical OR operator.
 
     Perform logical OR on each bit of the inputs:
@@ -100,25 +100,25 @@ def or_(x0: BitsLike, *xs: BitsLike) -> Bits:
     bits("16b-1-X_111X_-10X_XXXX")
 
     Args:
-        x0: ``Bits`` or string literal.
-        xs: Sequence of ``Bits`` equal size to ``x0``.
+        x0: ``Array`` or string literal.
+        xs: Sequence of ``Array`` equal size to ``x0``.
 
     Returns:
-        ``Bits`` equal size to ``x0``.
+        ``Array`` equal size to ``x0``.
 
     Raises:
-        TypeError: ``x0`` is not a valid ``Bits`` object,
+        TypeError: ``x0`` is not a valid ``Array`` object,
                    or ``xs[i]`` not equal size to ``x0``.
         ValueError: Error parsing string literal.
     """
-    x0 = expect_bits(x0)
+    x0 = expect_array(x0)
     y = x0
     for x in xs:
-        y = bits_or(y, expect_bits_size(x, x0.size))
+        y = bits_or(y, expect_array_size(x, x0.size))
     return y
 
 
-def and_(x0: BitsLike, *xs: BitsLike) -> Bits:
+def and_(x0: ArrayLike, *xs: ArrayLike) -> Array:
     """N-ary bitwise logical AND operator.
 
     Perform logical AND on each bit of the inputs:
@@ -155,25 +155,25 @@ def and_(x0: BitsLike, *xs: BitsLike) -> Bits:
     bits("16b--0X_-10X_000X_XXXX")
 
     Args:
-        x0: ``Bits`` or string literal.
-        xs: Sequence of ``Bits`` equal size to ``x0``.
+        x0: ``Array`` or string literal.
+        xs: Sequence of ``Array`` equal size to ``x0``.
 
     Returns:
-        ``Bits`` equal size to ``x0``.
+        ``Array`` equal size to ``x0``.
 
     Raises:
-        TypeError: ``x0`` is not a valid ``Bits`` object,
+        TypeError: ``x0`` is not a valid ``Array`` object,
                    or ``xs[i]`` not equal size to ``x0``.
         ValueError: Error parsing string literal.
     """
-    x0 = expect_bits(x0)
+    x0 = expect_array(x0)
     y = x0
     for x in xs:
-        y = bits_and(y, expect_bits_size(x, x0.size))
+        y = bits_and(y, expect_array_size(x, x0.size))
     return y
 
 
-def xor(x0: BitsLike, *xs: BitsLike) -> Bits:
+def xor(x0: ArrayLike, *xs: ArrayLike) -> Array:
     """N-ary bitwise logical XOR operator.
 
     Perform logical XOR on each bit of the inputs:
@@ -208,31 +208,31 @@ def xor(x0: BitsLike, *xs: BitsLike) -> Bits:
     bits("16b---X_-01X_-10X_XXXX")
 
     Args:
-        x0: ``Bits`` or string literal.
-        xs: Sequence of ``Bits`` equal size to ``x0``.
+        x0: ``Array`` or string literal.
+        xs: Sequence of ``Array`` equal size to ``x0``.
 
     Returns:
-        ``Bits`` equal size to ``x0``.
+        ``Array`` equal size to ``x0``.
 
     Raises:
-        TypeError: ``x0`` is not a valid ``Bits`` object,
+        TypeError: ``x0`` is not a valid ``Array`` object,
                    or ``xs[i]`` not equal size to ``x0``.
         ValueError: Error parsing string literal.
     """
-    x0 = expect_bits(x0)
+    x0 = expect_array(x0)
     y = x0
     for x in xs:
-        y = bits_xor(y, expect_bits_size(x, x0.size))
+        y = bits_xor(y, expect_array_size(x, x0.size))
     return y
 
 
-def _impl[T: Bits](p: T, q: Bits) -> T | Vector:
+def _impl[T: Array](p: T, q: Array) -> T | Vector:
     d0, d1 = lb.impl(p.data, q.data)
     t = resolve_type(p, q)
     return t.cast_data(d0, d1)
 
 
-def impl(p: BitsLike, q: BitsLike) -> Bits:
+def impl(p: ArrayLike, q: ArrayLike) -> Array:
     """Binary bitwise logical IMPL (implies) operator.
 
     Perform logical IMPL on each bit of the inputs:
@@ -245,23 +245,23 @@ def impl(p: BitsLike, q: BitsLike) -> Bits:
     bits("16b-1-X_-10X_111X_XXXX")
 
     Args:
-        p: ``Bits`` or string literal.
-        q: ``Bits`` equal size to ``p``.
+        p: ``Array`` or string literal.
+        q: ``Array`` equal size to ``p``.
 
     Returns:
-        ``Bits`` equal size to ``p``.
+        ``Array`` equal size to ``p``.
 
     Raises:
-        TypeError: ``p`` is not a valid ``Bits`` object,
+        TypeError: ``p`` is not a valid ``Array`` object,
                    or ``q`` not equal size to ``p``.
         ValueError: Error parsing string literal.
     """
-    p = expect_bits(p)
-    q = expect_bits_size(q, p.size)
+    p = expect_array(p)
+    q = expect_array_size(q, p.size)
     return _impl(p, q)
 
 
-def _ite[T: Bits](s: Bits, x1: T, x0: Bits) -> T | Vector:
+def _ite[T: Array](s: Array, x1: T, x0: Array) -> T | Vector:
     s0 = mask(x1.size) * s.data[0]
     s1 = mask(x1.size) * s.data[1]
     d0, d1 = lb.ite((s0, s1), x1.data, x0.data)
@@ -269,7 +269,7 @@ def _ite[T: Bits](s: Bits, x1: T, x0: Bits) -> T | Vector:
     return t.cast_data(d0, d1)
 
 
-def ite(s: ScalarLike, x1: BitsLike, x0: BitsLike) -> Bits:
+def ite(s: ScalarLike, x1: ArrayLike, x0: ArrayLike) -> Array:
     """Ternary bitwise logical if-then-else (ITE) operator.
 
     Perform logical ITE on each bit of the inputs:
@@ -308,25 +308,25 @@ def ite(s: ScalarLike, x1: BitsLike, x0: BitsLike) -> Bits:
     bits("16b---X_-1-X_--0X_XXXX")
 
     Args:
-        s: ``Bits`` select
-        x1: ``Bits`` or string literal.
-        x0: ``Bits`` or string literal equal size to ``x1``.
+        s: ``Array`` select
+        x1: ``Array`` or string literal.
+        x0: ``Array`` or string literal equal size to ``x1``.
 
     Returns:
-        ``Bits`` equal size to ``x1``.
+        ``Array`` equal size to ``x1``.
 
     Raises:
-        TypeError: ``s`` or ``x1`` are not valid ``Bits`` objects,
+        TypeError: ``s`` or ``x1`` are not valid ``Array`` objects,
                    or ``x0`` not equal size to ``x1``.
         ValueError: Error parsing string literal.
     """
     s = expect_scalar(s)
-    x1 = expect_bits(x1)
-    x0 = expect_bits_size(x0, x1.size)
+    x1 = expect_array(x1)
+    x0 = expect_array_size(x0, x1.size)
     return _ite(s, x1, x0)
 
 
-def _mux[T: Bits](t: type[T], s: Bits, xs: dict[int, Bits]) -> T:
+def _mux[T: Array](t: type[T], s: Array, xs: dict[int, Array]) -> T:
     m = mask(t.size)
     si = (s.get_index(i) for i in range(s.size))
     _s = tuple((m * d0, m * d1) for d0, d1 in si)
@@ -339,12 +339,12 @@ def _mux[T: Bits](t: type[T], s: Bits, xs: dict[int, Bits]) -> T:
 _MUX_XN_RE = re.compile(r"x(\d+)")
 
 
-def mux(s: BitsLike, **xs: BitsLike) -> Bits:
+def mux(s: ArrayLike, **xs: ArrayLike) -> Array:
     r"""Bitwise logical multiplex (mux) operator.
 
     Args:
-        s: ``Bits`` select.
-        xs: ``Bits`` or string literal, all equal size.
+        s: ``Array`` select.
+        xs: ``Array`` or string literal, all equal size.
 
     Mux input names are in the form xN,
     where N is a valid int.
@@ -366,30 +366,30 @@ def mux(s: BitsLike, **xs: BitsLike) -> Bits:
     bits("4bXXXX")
 
     Returns:
-        ``Bits`` equal size to ``xN`` inputs.
+        ``Array`` equal size to ``xN`` inputs.
 
     Raises:
-        TypeError: ``s`` or ``xN`` are not valid ``Bits`` objects,
+        TypeError: ``s`` or ``xN`` are not valid ``Array`` objects,
                    or ``xN`` mismatching size.
         ValueError: Error parsing string literal.
     """
-    _s = expect_bits(s)
+    _s = expect_array(s)
     n = 1 << _s.size
 
     # Parse and check inputs
     x0 = None
     t = None
-    _xs: dict[int, Bits] = {}
+    _xs: dict[int, Array] = {}
     for name, value in xs.items():
         if m := _MUX_XN_RE.match(name):
             i = int(m.group(1))
             if not 0 <= i < n:
                 raise ValueError(f"Expected x in [x0, ..., x{n - 1}]; got {name}")
             if x0 is None:
-                x = expect_bits(value)
+                x = expect_array(value)
                 x0, t = x, type(x)
             else:
-                x = expect_bits_size(value, x0.size)
+                x = expect_array_size(value, x0.size)
                 t = resolve_type(x0, x)
             _xs[i] = x
         else:

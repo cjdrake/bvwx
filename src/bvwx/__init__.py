@@ -4,9 +4,6 @@ from ._arithmetic import adc, add, div, lsh, matmul, mod, mul, neg, ngc, rsh, sb
 from ._bits import (
     Array,
     ArrayLike,
-    Bits,
-    BitsLike,
-    Composite,
     Empty,
     Key,
     Scalar,
@@ -37,8 +34,6 @@ Vec = Vector
 
 __all__ = [
     # bits
-    "Bits",
-    "BitsLike",
     "Array",
     "ArrayLike",
     "Vector",
@@ -48,7 +43,6 @@ __all__ = [
     "Scalar",
     "ScalarLike",
     "Empty",
-    "Composite",
     "Struct",
     "Union",
     "UintLike",

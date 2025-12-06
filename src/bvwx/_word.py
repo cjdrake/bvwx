@@ -1,13 +1,13 @@
 """Word Operators"""
 
 from ._bits import (
-    Bits,
-    BitsLike,
+    Array,
+    ArrayLike,
     UintLike,
     Vector,
     bits_cat,
     bool2scalar,
-    expect_bits,
+    expect_array,
     expect_uint,
     lit2bv,
     vec_size,
@@ -15,7 +15,7 @@ from ._bits import (
 from ._util import mask
 
 
-def _xt[T: Bits](x: T, n: Bits) -> T | Vector:
+def _xt[T: Array](x: T, n: Array) -> T | Vector:
     if n.has_x():
         return x.xs()
     if n.has_w():
@@ -31,7 +31,7 @@ def _xt[T: Bits](x: T, n: Bits) -> T | Vector:
     return vec_size(x.size + _n)(d0, d1)
 
 
-def xt(x: BitsLike, n: UintLike) -> Bits:
+def xt(x: ArrayLike, n: UintLike) -> Array:
     """Unsigned extend by n bits.
 
     Fill high order bits with zero.
@@ -42,22 +42,22 @@ def xt(x: BitsLike, n: UintLike) -> Bits:
     bits("4b0011")
 
     Args:
-        x: ``Bits`` or string literal.
+        x: ``Array`` or string literal.
         n: Non-negative number of bits.
 
     Returns:
-        ``Bits`` zero-extended by n bits.
+        ``Array`` zero-extended by n bits.
 
     Raises:
-        TypeError: ``x`` is not a valid ``Bits`` object.
+        TypeError: ``x`` is not a valid ``Array`` object.
         ValueError: If n is negative.
     """
-    x = expect_bits(x)
+    x = expect_array(x)
     n = expect_uint(n)
     return _xt(x, n)
 
 
-def _sxt[T: Bits](x: T, n: Bits) -> T | Vector:
+def _sxt[T: Array](x: T, n: Array) -> T | Vector:
     # Empty does not have a sign
     if x.size == 0:
         raise TypeError("Cannot sign extend empty")
@@ -79,7 +79,7 @@ def _sxt[T: Bits](x: T, n: Bits) -> T | Vector:
     return vec_size(x.size + _n)(d0, d1)
 
 
-def sxt(x: BitsLike, n: UintLike) -> Bits:
+def sxt(x: ArrayLike, n: UintLike) -> Array:
     """Sign extend by n bits.
 
     Fill high order bits with sign.
@@ -90,22 +90,22 @@ def sxt(x: BitsLike, n: UintLike) -> Bits:
     bits("4b1111")
 
     Args:
-        x: ``Bits`` or string literal.
+        x: ``Array`` or string literal.
         n: Non-negative number of bits.
 
     Returns:
-        ``Bits`` sign-extended by n bits.
+        ``Array`` sign-extended by n bits.
 
     Raises:
-        TypeError: ``x`` is not a valid ``Bits`` object, or empty.
+        TypeError: ``x`` is not a valid ``Array`` object, or empty.
         ValueError: If n is negative.
     """
-    x = expect_bits(x)
+    x = expect_array(x)
     n = expect_uint(n)
     return _sxt(x, n)
 
 
-def _lrot[T: Bits](x: T, n: Bits) -> T:
+def _lrot[T: Array](x: T, n: Array) -> T:
     if n.has_x():
         return x.xs()
     if n.has_w():
@@ -124,7 +124,7 @@ def _lrot[T: Bits](x: T, n: Bits) -> T:
     return x.cast_data(d0, d1)
 
 
-def lrot(x: BitsLike, n: UintLike) -> Bits:
+def lrot(x: ArrayLike, n: UintLike) -> Array:
     """Rotate left by n bits.
 
     For example:
@@ -133,25 +133,25 @@ def lrot(x: BitsLike, n: UintLike) -> Bits:
     bits("4b1110")
 
     Args:
-        x: ``Bits`` or string literal.
-        n: ``Bits``, string literal, or ``int``
+        x: ``Array`` or string literal.
+        n: ``Array``, string literal, or ``int``
            Non-negative bit rotate count.
 
     Returns:
-        ``Bits`` left-rotated by n bits.
+        ``Array`` left-rotated by n bits.
 
     Raises:
-        TypeError: ``x`` is not a valid ``Bits`` object,
+        TypeError: ``x`` is not a valid ``Array`` object,
                    or ``n`` is not a valid bit rotate count.
         ValueError: Error parsing string literal,
                     or negative rotate amount.
     """
-    x = expect_bits(x)
+    x = expect_array(x)
     n = expect_uint(n)
     return _lrot(x, n)
 
 
-def _rrot[T: Bits](x: T, n: Bits) -> T:
+def _rrot[T: Array](x: T, n: Array) -> T:
     if n.has_x():
         return x.xs()
     if n.has_w():
@@ -170,7 +170,7 @@ def _rrot[T: Bits](x: T, n: Bits) -> T:
     return x.cast_data(d0, d1)
 
 
-def rrot(x: BitsLike, n: UintLike) -> Bits:
+def rrot(x: ArrayLike, n: UintLike) -> Array:
     """Rotate right by n bits.
 
     For example:
@@ -179,25 +179,25 @@ def rrot(x: BitsLike, n: UintLike) -> Bits:
     bits("4b0111")
 
     Args:
-        x: ``Bits`` or string literal.
-        n: ``Bits``, string literal, or ``int``
+        x: ``Array`` or string literal.
+        n: ``Array``, string literal, or ``int``
            Non-negative bit rotate count.
 
     Returns:
-        ``Bits`` right-rotated by n bits.
+        ``Array`` right-rotated by n bits.
 
     Raises:
-        TypeError: ``x`` is not a valid ``Bits`` object,
+        TypeError: ``x`` is not a valid ``Array`` object,
                    or ``n`` is not a valid bit rotate count.
         ValueError: Error parsing string literal,
                     or negative rotate amount.
     """
-    x = expect_bits(x)
+    x = expect_array(x)
     n = expect_uint(n)
     return _rrot(x, n)
 
 
-def cat(*objs: BitsLike) -> Bits:
+def cat(*objs: ArrayLike) -> Array:
     """Concatenate a sequence of Vectors.
 
     Args:
@@ -210,14 +210,14 @@ def cat(*objs: BitsLike) -> Bits:
         TypeError: If input obj is invalid.
     """
     # Convert inputs
-    xs: list[Bits] = []
+    xs: list[Array] = []
     for obj in objs:
         if isinstance(obj, int) and obj in (0, 1):
             xs.append(bool2scalar[obj])
         elif isinstance(obj, str):
             x = lit2bv(obj)
             xs.append(x)
-        elif isinstance(obj, Bits):
+        elif isinstance(obj, Array):
             xs.append(obj)
         else:
             raise TypeError(f"Invalid input: {obj}")
@@ -225,13 +225,13 @@ def cat(*objs: BitsLike) -> Bits:
     return bits_cat(*xs)
 
 
-def rep(obj: BitsLike, n: int) -> Bits:
+def rep(obj: ArrayLike, n: int) -> Array:
     """Repeat a Vector n times."""
     objs = [obj] * n
     return cat(*objs)
 
 
-def _pack[T: Bits](x: T, n: int) -> T:
+def _pack[T: Array](x: T, n: int) -> T:
     if n < 1:
         raise ValueError(f"Expected n ≥ 1, got {n}")
     if x.size % n != 0:
@@ -252,7 +252,7 @@ def _pack[T: Bits](x: T, n: int) -> T:
     return x.cast_data(d0, d1)
 
 
-def pack(x: BitsLike, n: int = 1) -> Bits:
+def pack(x: ArrayLike, n: int = 1) -> Array:
     """Pack n-bit blocks in right to left order."""
-    x = expect_bits(x)
+    x = expect_array(x)
     return _pack(x, n)
