@@ -17,7 +17,7 @@ class _EnumMeta(type):
             attrs["__slots__"] = ()
             return super().__new__(mcs, name, bases, attrs)
 
-        # TODO(cjdrake): Support multiple inheritance?
+        # Do not support multiple inheritance
         assert len(bases) == 1
 
         _, data2key, size = mcs._parse_attrs(attrs)
