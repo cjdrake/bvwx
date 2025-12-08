@@ -1,6 +1,6 @@
 """Bits Data Types
 
-A bit is a 4-state logical value in the set {``0``, ``1``, ``X``, ``-``}:
+A bit is a 4-state logical value in the set {``0``, ``1``, ``X``, ``W``}:
 
     * 0 is Boolean zero or "False"
     * 1 is Boolean one or "True"
@@ -217,7 +217,7 @@ class Array:
             size = shape
             if size < 0:
                 raise ValueError(f"Expected size ≥ 0, got {size}")
-            return vec_size(shape)
+            return vec_size(size)
 
         # shape: tuple[int, ...]
         for i, n in enumerate(shape):
