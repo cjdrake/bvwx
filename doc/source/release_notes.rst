@@ -8,6 +8,15 @@ This chapter lists new features, API changes, and bug fixes.
 For a complete history, see the Git commit log.
 
 
+Version 0.17.0
+==============
+
+Simplified the type hierarchy.
+Removed ``Bits`` base class. Now ``Array`` is the base class.
+Also removed ``Composite`` class.
+Now ``Struct`` and ``Union`` extend from ``Vector``.
+
+
 Version 0.16.0
 ==============
 
