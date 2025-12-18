@@ -129,7 +129,6 @@ class Struct(metaclass=_StructMeta):
     bits("8b1100_1011")
 
     ``Structs`` have a ``size``, but no ``shape``.
-    They do **NOT** implement a ``__len__`` method.
 
     >>> Pixel.size
     24

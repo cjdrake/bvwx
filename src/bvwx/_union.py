@@ -107,7 +107,6 @@ class Union(metaclass=_UnionMeta):
     bits("8b0000_1111")
 
     ``Unions`` have a ``size``, but no ``shape``.
-    They do **NOT** implement a ``__len__`` method.
 
     >>> Response.size
     8
