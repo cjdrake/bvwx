@@ -172,7 +172,37 @@ def resolve_type[T: Array](x0: T, x1: Array) -> type[T] | type[Vector]:
     return vec_size(x0.size)
 
 
-class Array:
+class Bits:
+    __slots__ = ("_data",)
+
+    @classmethod
+    def cast_data(cls, d0: int, d1: int) -> Self:
+        obj = object.__new__(cls)
+        Bits.__init__(obj, d0, d1)
+        return obj
+
+    def __init__(self, d0: int, d1: int):
+        self._data = (d0, d1)
+
+    @property
+    def data(self) -> lbv:
+        """Internal representation."""
+        return self._data
+
+    def get_index(self, i: int) -> lbv:
+        d0 = (self._data[0] >> i) & 1
+        d1 = (self._data[1] >> i) & 1
+        return d0, d1
+
+    def get_slice(self, i: int, j: int) -> tuple[int, lbv]:
+        size = j - i
+        m = mask(size)
+        d0 = (self._data[0] >> i) & m
+        d1 = (self._data[1] >> i) & m
+        return size, (d0, d1)
+
+
+class Array(Bits):
     """Multi dimensional array of bits.
 
     To create an ``Array`` instance, use the ``bits`` function:
@@ -207,7 +237,7 @@ class Array:
     bits("8b1110_0100")
     """
 
-    __slots__ = ("_data",)
+    __slots__ = ()
 
     shape: tuple[int, ...]
     size: int
@@ -225,12 +255,6 @@ class Array:
                 s = f"For shape dimension {i}: expected n > 1, got {n}"
                 raise ValueError(s)
         return _get_array_shape(shape)
-
-    @classmethod
-    def cast_data(cls, d0: int, d1: int) -> Self:
-        obj = object.__new__(cls)
-        Array.__init__(obj, d0, d1)
-        return obj
 
     @classmethod
     def cast(cls, x: Array) -> Self:
@@ -365,14 +389,6 @@ class Array:
     def _dmax(cls) -> int:
         return mask(cls.size)
 
-    def __init__(self, d0: int, d1: int):
-        self._data = (d0, d1)
-
-    @property
-    def data(self) -> tuple[int, int]:
-        """Internal representation."""
-        return self._data
-
     def __hash__(self) -> int:
         return hash(self.shape) ^ hash(self._data)
 
@@ -403,18 +419,6 @@ class Array:
     def __iter__(self) -> Generator[Array, None, None]:
         for i in range(self.shape[0]):
             yield self[i]
-
-    def get_index(self, i: int) -> lbv:
-        d0 = (self._data[0] >> i) & 1
-        d1 = (self._data[1] >> i) & 1
-        return d0, d1
-
-    def get_slice(self, i: int, j: int) -> tuple[int, lbv]:
-        size = j - i
-        m = mask(size)
-        d0 = (self._data[0] >> i) & m
-        d1 = (self._data[1] >> i) & m
-        return size, (d0, d1)
 
     def get_key(self, key: Key) -> tuple[int, lbv]:
         if isinstance(key, slice):

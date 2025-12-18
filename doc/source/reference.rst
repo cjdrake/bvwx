@@ -26,8 +26,6 @@ Data Types
     .. automethod:: bvwx.Array.rand
     .. automethod:: bvwx.Array.xprop
 
-    .. autoproperty:: bvwx.Array.data
-
     .. automethod:: bvwx.Array.reshape
     .. automethod:: bvwx.Array.flatten
 
