@@ -903,7 +903,8 @@ type ArrayLike = Array | str | int
 type VectorLike = Vector | str | int
 type ScalarLike = Scalar | str | int
 type UintLike = Array | str | int
-type Key = UintLike | slice
+type KeySlice = slice[int | None, int | None, None]
+type Key = UintLike | KeySlice
 
 
 # Bitwise
@@ -1449,7 +1450,7 @@ def _norm_index(n: int, index: int) -> int:
     return index
 
 
-def _norm_slice(n: int, sl: slice) -> tuple[int, int]:
+def _norm_slice(n: int, sl: KeySlice) -> tuple[int, int]:
     lo, hi = -n, n
     if sl.step is not None:
         raise ValueError("Slice step is not supported")
