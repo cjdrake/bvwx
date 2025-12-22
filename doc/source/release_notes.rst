@@ -8,6 +8,27 @@ This chapter lists new features, API changes, and bug fixes.
 For a complete history, see the Git commit log.
 
 
+Version 0.18.0
+==============
+
+Implemented a new ``Tuple`` data type.
+It works like a ``Struct``, but instead of ``str`` attributes,
+it has ``int`` indices.
+
+For example::
+
+    >>> from bvwx import Tuple
+    >>> t = Tuple("2b00", "2b11")
+    >>> t
+    bits("4b1100")
+    >>> type(x)
+    bvwx._tuple.Tuple[Vector[2], Vector[2]]
+    >>> t[0]
+    bits("2b00")
+    >>> t[1]
+    bits("2b11")
+
+
 Version 0.17.0
 ==============
 
