@@ -806,7 +806,7 @@ class Scalar(Vector):
 
     For convenience, ``False`` and ``True`` also work:
 
-    >>> bits(False) is f and bits(True) is t
+    >>> bits(False) == f and bits(True) == t
     True
 
     ``Scalar`` implements ``Vector`` methods,
