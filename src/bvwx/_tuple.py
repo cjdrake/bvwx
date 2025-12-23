@@ -32,7 +32,7 @@ def Tuple(*args: ArrayLike):
         d1 = (self._data[1] >> fo) & m  # pyright: ignore[reportPrivateUsage]
         return ft.cast_data(d0, d1)
 
-    tuple_.__getitem__ = _getitem  # pyright: ignore[reportAttributeAccessIssue]
+    setattr(tuple_, "__getitem__", _getitem)
 
     # Return Tuple[...] instance
     return tuple_.cast_data(d0, d1)
