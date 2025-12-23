@@ -3,7 +3,7 @@
 from functools import partial
 from typing import Any
 
-from ._bits import Array, ArrayLike, Vector, expect_array, vec_size
+from ._bits import Array, ArrayLike, Bits, Vector, expect_array, vec_size
 from ._util import mask
 
 
@@ -43,7 +43,7 @@ class _UnionMeta(type):
                 s = ", ".join(t.__name__ for t in ts)
                 s = f"Expected arg to be {{{s}}}, or str literal"
                 raise TypeError(s)
-            self._data = x.data  # pyright: ignore[reportPrivateUsage]
+            Bits.__init__(self, *x.data)
 
         setattr(union, "__init__", _init)
 

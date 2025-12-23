@@ -3,7 +3,7 @@
 from functools import partial
 from typing import Any
 
-from ._bits import Array, ArrayLike, Vector, expect_array_size, vec_size
+from ._bits import Array, ArrayLike, Bits, Vector, expect_array_size, vec_size
 from ._util import mask
 
 
@@ -58,7 +58,7 @@ class _StructMeta(type):
                     x = expect_array_size(arg, ft.size)
                     d0 |= x.data[0] << fo
                     d1 |= x.data[1] << fo
-            obj._data = (d0, d1)  # pyright: ignore[reportPrivateUsage]
+            Bits.__init__(obj, d0, d1)
 
         source = _struct_init_source(fields)
         globals_ = {"_init_body": _init_body}
