@@ -4,14 +4,14 @@ from ._bits import Array, ArrayLike, Vector, expect_array, vec_size
 from ._util import mask
 
 
-def Tuple(*objs: ArrayLike):
+def Tuple(*args: ArrayLike):
     # [(offset, type), ...]
     fields: list[tuple[int, type[Array]]] = []
 
     offset = 0
     d0, d1 = 0, 0
-    for obj in objs:
-        x = expect_array(obj)
+    for arg in args:
+        x = expect_array(arg)
         fields.append((offset, x.__class__))
         d0 |= x.data[0] << offset
         d1 |= x.data[1] << offset
