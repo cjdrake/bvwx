@@ -25,6 +25,7 @@ class _UnionMeta(type):
         except KeyError as e:
             raise ValueError("Empty Union is not supported") from e
 
+        # [(name, type), ...]
         fields = list(annotations.items())
 
         # Get Vector[N] base class

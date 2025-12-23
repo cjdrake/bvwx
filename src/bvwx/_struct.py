@@ -7,12 +7,12 @@ from ._bits import Array, ArrayLike, Vector, expect_array_size, vec_size
 from ._util import mask
 
 
-def _struct_init_source(fields: list[tuple[str, type]]) -> str:
+def _struct_init_source(fields: list[tuple[str, int, type]]) -> str:
     """Return source code for Struct __init__ method w/ fields."""
     lines: list[str] = []
-    s = ", ".join(f"{fn}=None" for fn, _ in fields)
+    s = ", ".join(f"{fn}=None" for fn, _, _ in fields)
     lines.append(f"def init(self, {s}):\n")
-    s = ", ".join(fn for fn, _ in fields)
+    s = ", ".join(fn for fn, _, _ in fields)
     lines.append(f"    _init_body(self, {s})\n")
     return "".join(lines)
 
@@ -35,18 +35,17 @@ class _StructMeta(type):
         except KeyError as e:
             raise ValueError("Empty Struct is not supported") from e
 
-        fields = list(annotations.items())
+        # [(name, offset, type), ...]
+        fields: list[tuple[str, int, type[Array]]] = []
 
         # Add struct member base/size attributes
-        offset = 0
-        offsets: dict[str, int] = {}
-        for field_name, field_type in fields:
-            offsets[field_name] = offset
-            offset += field_type.size
+        field_offset = 0
+        for field_name, field_type in annotations.items():
+            fields.append((field_name, field_offset, field_type))
+            field_offset += field_type.size
 
         # Get Vector[N] base class
-        size = sum(field_type.size for _, field_type in fields)
-        V = vec_size(size)
+        V = vec_size(field_offset)
 
         # Create Struct class
         struct = super().__new__(mcs, name, bases + (V,), {"__slots__": ()})
@@ -54,11 +53,11 @@ class _StructMeta(type):
         # Override Array.__init__ method
         def _init_body(obj: Vector, *args: ArrayLike | None):
             d0, d1 = 0, 0
-            for arg, (fn, ft) in zip(args, fields):
+            for arg, (_, fo, ft) in zip(args, fields):
                 if arg is not None:
                     x = expect_array_size(arg, ft.size)
-                    d0 |= x.data[0] << offsets[fn]
-                    d1 |= x.data[1] << offsets[fn]
+                    d0 |= x.data[0] << fo
+                    d1 |= x.data[1] << fo
             obj._data = (d0, d1)  # pyright: ignore[reportPrivateUsage]
 
         source = _struct_init_source(fields)
@@ -70,7 +69,7 @@ class _StructMeta(type):
         # Override Array.__repr__ method
         def _repr(self: Vector) -> str:
             parts = [f"{name}("]
-            for fn, _ in fields:
+            for fn, _, _ in fields:
                 x = getattr(self, fn)
                 r = "\n    ".join(repr(x).splitlines())
                 parts.append(f"    {fn}={r},")
@@ -82,7 +81,7 @@ class _StructMeta(type):
         # Override Array.__str__ method
         def _str(self: Vector) -> str:
             parts = [f"{name}("]
-            for fn, _ in fields:
+            for fn, _, _ in fields:
                 x = getattr(self, fn)
                 s = "\n    ".join(str(x).splitlines())
                 parts.append(f"    {fn}={s},")
@@ -92,14 +91,14 @@ class _StructMeta(type):
         setattr(struct, "__str__", _str)
 
         # Create Struct fields
-        def _fget(fn: str, ft: type[Array], self: Vector):
+        def _fget(fo: int, ft: type[Array], self: Vector):
             m = mask(ft.size)
-            d0 = (self._data[0] >> offsets[fn]) & m  # pyright: ignore[reportPrivateUsage]
-            d1 = (self._data[1] >> offsets[fn]) & m  # pyright: ignore[reportPrivateUsage]
+            d0 = (self._data[0] >> fo) & m  # pyright: ignore[reportPrivateUsage]
+            d1 = (self._data[1] >> fo) & m  # pyright: ignore[reportPrivateUsage]
             return ft.cast_data(d0, d1)
 
-        for fn, ft in fields:
-            setattr(struct, fn, property(fget=partial(_fget, fn, ft)))
+        for fn, fo, ft in fields:
+            setattr(struct, fn, property(fget=partial(_fget, fo, ft)))
 
         return struct
 
