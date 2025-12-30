@@ -4,7 +4,7 @@ from ._bits import Array, ArrayLike, Vector, expect_array, vec_size
 from ._util import mask
 
 
-def Tuple(*args: ArrayLike):
+def Tuple(*args: ArrayLike) -> Vector:
     # [(offset, type), ...]
     fields: list[tuple[int, type[Array]]] = []
 
