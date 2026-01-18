@@ -4,7 +4,7 @@ version = "0.19.1"
 description = "Bit Vectors With Xes"
 readme = "README.md"
 
-requires-python = ">=3.12, <3.14"
+requires-python = ">=3.12"
 dependencies = []
 
 [project.urls]

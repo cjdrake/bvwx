@@ -1,7 +1,11 @@
 """Bits Struct data type."""
 
+import sys
 from functools import partial
 from typing import Any
+
+if sys.version_info >= (3, 14):
+    from annotationlib import Format, get_annotate_from_class_namespace
 
 from ._bits import Array, ArrayLike, Bits, Vector, expect_array_size, vec_size
 from ._util import mask
@@ -20,6 +24,19 @@ def _struct_init_source(fields: list[tuple[str, int, type]]) -> str:
 class _StructMeta(type):
     """Struct Metaclass: Create struct base classes."""
 
+    @classmethod
+    def _get_annotations(mcs, attrs: dict[str, Any]) -> dict[str, type[Array]]:
+        if sys.version_info >= (3, 14):
+            f = get_annotate_from_class_namespace(attrs)
+            if f is not None:
+                return f(Format.VALUE)
+            else:
+                raise ValueError("Empty Struct is not supported")
+        try:
+            return attrs["__annotations__"]
+        except KeyError as e:
+            raise ValueError("Empty Struct is not supported") from e
+
     def __new__(mcs, name: str, bases: tuple[type], attrs: dict[str, Any]):
         # Base case for API
         if name == "Struct":
@@ -30,10 +47,7 @@ class _StructMeta(type):
         assert len(bases) == 1
 
         # Get field_name: field_type items
-        try:
-            annotations: dict[str, type[Array]] = attrs["__annotations__"]
-        except KeyError as e:
-            raise ValueError("Empty Struct is not supported") from e
+        annotations = mcs._get_annotations(attrs)
 
         # [(name, offset, type), ...]
         fields: list[tuple[str, int, type[Array]]] = []
