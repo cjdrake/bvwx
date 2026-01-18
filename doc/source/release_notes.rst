@@ -8,6 +8,22 @@ This chapter lists new features, API changes, and bug fixes.
 For a complete history, see the Git commit log.
 
 
+Version 0.20.0
+==============
+
+Fixed https://github.com/cjdrake/bvwx/issues/5:
+
+Got rid of the ``Tuple`` type from 0.18.
+The either is either fundamentally terrible, or not baked yet.
+Either way, let's just get rid of it.
+
+Fixed https://github.com/cjdrake/bvwx/issues/6:
+
+Python 3.14 broke ``Struct`` and ``Union`` due to API changes for
+`deferred annotations <https://docs.python.org/3/whatsnew/3.14.html#whatsnew314-deferred-annotations>`_.
+Used ``annotationlib`` to get things working again.
+
+
 Version 0.19.0
 ==============
 
