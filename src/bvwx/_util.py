@@ -18,7 +18,7 @@ def clog2(x: int) -> int:
     >>> clog2(0)
     Traceback (most recent call last):
         ...
-    ValueError: math domain error
+    ValueError: ...
     """
     return ceil(log2(x))
 
