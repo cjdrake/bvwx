@@ -242,14 +242,14 @@ class Array(Bits):
     shape: tuple[int, ...]
     size: int
 
-    def __class_getitem__(cls, shape: int | tuple[int, ...]) -> type[Array]:
-        if isinstance(shape, int):
-            size = shape
+    def __class_getitem__(cls, key: int | tuple[int, ...]) -> type[Array]:
+        if isinstance(key, int):
+            size: int = key
             if size < 0:
                 raise ValueError(f"Expected size ≥ 0, got {size}")
             return vec_size(size)
 
-        # shape: tuple[int, ...]
+        shape: tuple[int, ...] = key
         for i, n in enumerate(shape):
             if n <= 1:
                 s = f"For shape dimension {i}: expected n > 1, got {n}"
@@ -742,10 +742,14 @@ class Vector(Array):
     __slots__ = ()
 
     @override
-    def __class_getitem__(cls, size: int) -> type[Vector]:  # pyright: ignore[reportIncompatibleMethodOverride]
-        if size < 0:
-            raise ValueError(f"Expected size ≥ 0, got {size}")
-        return vec_size(size)
+    def __class_getitem__(cls, key: int | tuple[int, ...]) -> type[Array]:
+        if isinstance(key, int):
+            size: int = key
+            if size < 0:
+                raise ValueError(f"Expected size ≥ 0, got {size}")
+            return vec_size(size)
+
+        raise TypeError(f"Expected key to be int, got {key.__class__}")
 
     @override
     def __repr__(self) -> str:
