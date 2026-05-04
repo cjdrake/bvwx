@@ -11,7 +11,7 @@ from ._bits import Array, ArrayLike, Bits, Vector, expect_array_size, vec_size
 from ._util import mask
 
 
-def _struct_init_source(fields: list[tuple[str, int, type]]) -> str:
+def _struct_init_source(fields: list[tuple[str, int, type[Array]]]) -> str:
     """Return source code for Struct __init__ method w/ fields."""
     lines: list[str] = []
     s = ", ".join(f"{fn}=None" for fn, _, _ in fields)
