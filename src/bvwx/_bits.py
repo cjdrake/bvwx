@@ -516,12 +516,14 @@ class Array(Bits):
         Raises:
             ValueError: Contains any unknown bits.
         """
+        if self.has_xw():
+            raise ValueError("Cannot convert unknown to int")
         if self.size == 0:
             return 0
         sign = self.get_index(self.size - 1)
         if sign == lb.T:
-            return -(bits_not(self).to_uint() + 1)
-        return self.to_uint()
+            return -(self._data[0] + 1)
+        return self._data[1]
 
     # Bitwise Operations
     def __invert__(self) -> Self:
