@@ -1382,27 +1382,25 @@ def i2bv(n: int, size: int | None = None) -> Vector:
         ValueError: ``n`` overflows the output size.
     """
     negative = n < 0
+    d1 = abs(n)
 
     # Compute required number of bits
     if negative:
-        d1 = -n
         min_size = clog2(d1) + 1
     else:
-        d1 = n
         min_size = clog2(d1 + 1) + 1
+
     if size is None:
         size = min_size
     elif size < min_size:
         s = f"Overflow: n = {n} required size ≥ {min_size}, got {size}"
         raise ValueError(s)
 
-    V = vec_size(size)
-    x = V(d1 ^ mask(size), d1)
     if negative:
-        x_n, _ = bits_neg(x)
-        assert isinstance(x_n, Vector)
-        return x_n
-    return x
+        d1 = (d1 ^ mask(size)) + 1
+
+    d0 = d1 ^ mask(size)
+    return vec_size(size)(d0, d1)
 
 
 def _chunk(data: lbv, base: int, size: int) -> lbv:
