@@ -68,7 +68,7 @@ class EnumType(type):
         V = vec_size(size)
 
         # Create Enum class
-        enum = super().__new__(mcs, name, bases + (V,), {"__slots__": ()})
+        enum = super().__new__(mcs, name, (V,), {"__slots__": ()})
 
         # Help the type checker
         assert issubclass(enum, V)

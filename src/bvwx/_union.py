@@ -47,7 +47,7 @@ class UnionType(type):
         V = vec_size(size)
 
         # Create Union class
-        union = super().__new__(mcs, name, bases + (V,), {"__slots__": ()})
+        union = super().__new__(mcs, name, (V,), {"__slots__": ()})
 
         # Override Array.__init__ method
         def _init(self: Vector, arg: ArrayLike):
