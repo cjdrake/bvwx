@@ -7,7 +7,7 @@ from ._lbool import parse_lit
 from ._util import mask
 
 
-class _EnumMeta(type):
+class EnumType(type):
     """Enum Metaclass: Create enum base classes."""
 
     def __new__(mcs, name: str, bases: tuple[()] | tuple[type], attrs: dict[str, Any]):
@@ -141,7 +141,7 @@ class _EnumMeta(type):
         return _attrs, data2key, size
 
 
-class Enum(metaclass=_EnumMeta):
+class Enum(metaclass=EnumType):
     """User-defined enumerated data type.
 
     Define a type from a collection of unique constants.
