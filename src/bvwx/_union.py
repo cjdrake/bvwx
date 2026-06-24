@@ -11,7 +11,7 @@ from ._bits import Array, ArrayLike, Bits, Vector, expect_array, vec_size
 from ._util import mask
 
 
-class _UnionMeta(type):
+class UnionType(type):
     """Union Metaclass: Create union base classes."""
 
     @classmethod
@@ -98,7 +98,7 @@ class _UnionMeta(type):
         return union
 
 
-class Union(metaclass=_UnionMeta):
+class Union(metaclass=UnionType):
     """User defined union data type.
 
     Compose a type from the union of other types.
