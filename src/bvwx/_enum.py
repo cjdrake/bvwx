@@ -6,6 +6,46 @@ from ._bits import Array, ArrayLike, Vector, expect_array_size, vec_size
 from ._lbool import parse_lit
 from ._util import mask
 
+type Data2Key = dict[tuple[int, int], str]
+
+
+def _parse_attrs(attrs: dict[str, Any]) -> tuple[dict[str, Any], Data2Key, int]:
+    _attrs: dict[str, Any] = {}
+    data2key: Data2Key = {}
+    size: int | None = None
+
+    for key, val in attrs.items():
+        if key.startswith("__"):
+            _attrs[key] = val
+        # NAME = lit
+        else:
+            if size is None:
+                size, data = parse_lit(val)
+            else:
+                size_i, data = parse_lit(val)
+                if size_i != size:
+                    s = f"Expected lit len {size}, got {size_i}"
+                    raise ValueError(s)
+            if key in ("X", "W"):
+                raise ValueError(f"Cannot use reserved name = '{key}'")
+            dmax = mask(size)
+            if data in ((0, 0), (dmax, dmax)):
+                raise ValueError(f"Cannot use reserved value = {val}")
+            if data in data2key:
+                raise ValueError(f"Duplicate value: {val}")
+            data2key[data] = key
+
+    # Empty Enum
+    if size is None:
+        raise ValueError("Empty Enum is not supported")
+
+    # Add X/W members
+    data2key[(0, 0)] = "X"
+    dmax = mask(size)
+    data2key[(dmax, dmax)] = "W"
+
+    return _attrs, data2key, size
+
 
 class EnumType(type):
     """Enum Metaclass: Create enum base classes."""
@@ -20,7 +60,7 @@ class EnumType(type):
         # Do not support multiple inheritance
         assert len(bases) == 1
 
-        _, data2key, size = mcs._parse_attrs(attrs)
+        _, data2key, size = _parse_attrs(attrs)
 
         # Get Vector[N] base class
         V = vec_size(size)
@@ -99,46 +139,6 @@ class EnumType(type):
         setattr(enum, "vcd_val", _name)
 
         return enum
-
-    @classmethod
-    def _parse_attrs(
-        mcs, attrs: dict[str, Any]
-    ) -> tuple[dict[str, Any], dict[tuple[int, int], str], int]:
-        _attrs: dict[str, Any] = {}
-        data2key: dict[tuple[int, int], str] = {}
-        size: int | None = None
-
-        for key, val in attrs.items():
-            if key.startswith("__"):
-                _attrs[key] = val
-            # NAME = lit
-            else:
-                if size is None:
-                    size, data = parse_lit(val)
-                else:
-                    size_i, data = parse_lit(val)
-                    if size_i != size:
-                        s = f"Expected lit len {size}, got {size_i}"
-                        raise ValueError(s)
-                if key in ("X", "W"):
-                    raise ValueError(f"Cannot use reserved name = '{key}'")
-                dmax = mask(size)
-                if data in ((0, 0), (dmax, dmax)):
-                    raise ValueError(f"Cannot use reserved value = {val}")
-                if data in data2key:
-                    raise ValueError(f"Duplicate value: {val}")
-                data2key[data] = key
-
-        # Empty Enum
-        if size is None:
-            raise ValueError("Empty Enum is not supported")
-
-        # Add X/W members
-        data2key[(0, 0)] = "X"
-        dmax = mask(size)
-        data2key[(dmax, dmax)] = "W"
-
-        return _attrs, data2key, size
 
 
 class Enum(metaclass=EnumType):
