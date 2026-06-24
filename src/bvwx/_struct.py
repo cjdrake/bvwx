@@ -21,7 +21,7 @@ def _struct_init_source(fields: list[tuple[str, int, type[Array]]]) -> str:
     return "".join(lines)
 
 
-class _StructMeta(type):
+class StructType(type):
     """Struct Metaclass: Create struct base classes."""
 
     @classmethod
@@ -117,7 +117,7 @@ class _StructMeta(type):
         return struct
 
 
-class Struct(metaclass=_StructMeta):
+class Struct(metaclass=StructType):
     """User defined struct data type.
 
     Compose a type from a sequence of other types.
