@@ -13,6 +13,8 @@ def _parse_attrs(attrs: dict[str, Any]) -> tuple[dict[str, Any], Data2Key, int]:
     _attrs: dict[str, Any] = {}
     data2key: Data2Key = {}
     size: int | None = None
+    xx = (0, 0)
+    ww = (-1, -1)
 
     for key, val in attrs.items():
         if key.startswith("__"):
@@ -21,6 +23,8 @@ def _parse_attrs(attrs: dict[str, Any]) -> tuple[dict[str, Any], Data2Key, int]:
         else:
             if size is None:
                 size, data = parse_lit(val)
+                dmax = mask(size)
+                ww = (dmax, dmax)
             else:
                 size_i, data = parse_lit(val)
                 if size_i != size:
@@ -28,8 +32,7 @@ def _parse_attrs(attrs: dict[str, Any]) -> tuple[dict[str, Any], Data2Key, int]:
                     raise ValueError(s)
             if key in ("X", "W"):
                 raise ValueError(f"Cannot use reserved name = '{key}'")
-            dmax = mask(size)
-            if data in ((0, 0), (dmax, dmax)):
+            if data in (xx, ww):
                 raise ValueError(f"Cannot use reserved value = {val}")
             if data in data2key:
                 raise ValueError(f"Duplicate value: {val}")
@@ -40,9 +43,8 @@ def _parse_attrs(attrs: dict[str, Any]) -> tuple[dict[str, Any], Data2Key, int]:
         raise ValueError("Empty Enum is not supported")
 
     # Add X/W members
-    data2key[(0, 0)] = "X"
-    dmax = mask(size)
-    data2key[(dmax, dmax)] = "W"
+    data2key[xx] = "X"
+    data2key[ww] = "W"
 
     return _attrs, data2key, size
 
