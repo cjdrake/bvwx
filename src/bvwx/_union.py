@@ -15,7 +15,7 @@ class UnionType(type):
     """Union Metaclass: Create union base classes."""
 
     @classmethod
-    def _get_annotations(mcs, attrs: dict[str, Any]) -> dict[str, type[Array]]:
+    def _get_annotations(mcls, attrs: dict[str, Any]) -> dict[str, type[Array]]:
         if sys.version_info >= (3, 14):
             f = get_annotate_from_class_namespace(attrs)
             if f is not None:
@@ -27,17 +27,17 @@ class UnionType(type):
         except KeyError as e:
             raise ValueError("Empty Union is not supported") from e
 
-    def __new__(mcs, name: str, bases: tuple[type], attrs: dict[str, Any]):
+    def __new__(mcls, name: str, bases: tuple[type], attrs: dict[str, Any]):
         # Base case for API
         if name == "Union":
             attrs["__slots__"] = ()
-            return super().__new__(mcs, name, bases, attrs)
+            return super().__new__(mcls, name, bases, attrs)
 
         # Do not support multiple inheritance
         assert len(bases) == 1
 
         # Get field_name: field_type items
-        annotations = mcs._get_annotations(attrs)
+        annotations = mcls._get_annotations(attrs)
 
         # [(name, type), ...]
         fields = list(annotations.items())
@@ -47,7 +47,7 @@ class UnionType(type):
         V = vec_size(size)
 
         # Create Union class
-        union = super().__new__(mcs, name, (V,), {"__slots__": ()})
+        union = super().__new__(mcls, name, (V,), {"__slots__": ()})
 
         # Override Array.__init__ method
         def _init(self: Vector, arg: ArrayLike):

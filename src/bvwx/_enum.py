@@ -52,12 +52,12 @@ def _parse_attrs(attrs: dict[str, Any]) -> tuple[dict[str, Any], Data2Key, int]:
 class EnumType(type):
     """Enum Metaclass: Create enum base classes."""
 
-    def __new__(mcs, name: str, bases: tuple[()] | tuple[type], attrs: dict[str, Any]):
+    def __new__(mcls, name: str, bases: tuple[()] | tuple[type], attrs: dict[str, Any]):
         # Base case for API
         if name == "Enum":
             assert not bases
             attrs["__slots__"] = ()
-            return super().__new__(mcs, name, bases, attrs)
+            return super().__new__(mcls, name, bases, attrs)
 
         # Do not support multiple inheritance
         assert len(bases) == 1
@@ -68,7 +68,7 @@ class EnumType(type):
         V = vec_size(size)
 
         # Create Enum class
-        enum = super().__new__(mcs, name, (V,), {"__slots__": ()})
+        enum = super().__new__(mcls, name, (V,), {"__slots__": ()})
 
         # Help the type checker
         assert issubclass(enum, V)
