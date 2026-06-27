@@ -78,13 +78,6 @@ class EnumType(type):
             Array.__init__(obj, d0, d1)
             return obj
 
-        # Instantiate members
-        key2obj: dict[str, Vector] = {}
-        for (d0, d1), key in data2key.items():
-            key2obj[key] = new_init(d0, d1)
-        for key, obj in key2obj.items():
-            setattr(cls, key, obj)
-
         def _new(cls: type[Vector], arg: ArrayLike) -> Vector:
             x = expect_array_size(arg, cls.size)
             return cls.cast(x)
@@ -139,6 +132,13 @@ class EnumType(type):
 
         setattr(cls, "vcd_var", _vcd_var)
         setattr(cls, "vcd_val", _name)
+
+        # Instantiate members
+        key2obj: dict[str, Vector] = {}
+        for (d0, d1), key in data2key.items():
+            key2obj[key] = new_init(d0, d1)
+        for key, obj in key2obj.items():
+            setattr(cls, key, obj)
 
         return cls
 
