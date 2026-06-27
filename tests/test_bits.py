@@ -271,7 +271,7 @@ def test_scalar_iter():
 
 def test_empty():
     assert not list(E)
-    assert list(reversed(E)) == [E]
+    assert not list(reversed(E))
     with pytest.raises(IndexError):
         E[0]
 

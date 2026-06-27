@@ -889,9 +889,6 @@ class Empty(Vector):
     def cast_data(cls, d0: int, d1: int) -> Empty:
         return _empty
 
-    def __reversed__(self):
-        yield self
-
     @override
     def __repr__(self) -> str:
         return "bits([])"
