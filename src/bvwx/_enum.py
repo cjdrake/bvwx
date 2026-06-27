@@ -78,17 +78,6 @@ class EnumType(type):
             Array.__init__(obj, d0, d1)
             return obj
 
-        def _new(cls: type[Vector], arg: ArrayLike) -> Vector:
-            x = expect_array_size(arg, cls.size)
-            return cls.cast(x)
-
-        setattr(cls, "__new__", _new)
-
-        def _init(obj: Vector, arg: ArrayLike):
-            pass
-
-        setattr(cls, "__init__", _init)
-
         # Override Vector.cast_data method
         def _cast_data(cls: type[Vector], d0: int, d1: int) -> Vector:
             try:
@@ -138,6 +127,10 @@ class EnumType(type):
             setattr(cls, key, new_init(d0, d1))
 
         return cls
+
+    def __call__(cls: type[Vector], arg: ArrayLike) -> Vector:  # pyright: ignore[reportGeneralTypeIssues]
+        x = expect_array_size(arg, cls.size)
+        return cls.cast_data(x.data[0], x.data[1])
 
 
 class Enum(metaclass=EnumType):
