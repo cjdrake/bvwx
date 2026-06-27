@@ -68,13 +68,13 @@ class EnumType(type):
         V = vec_size(size)
 
         # Create Enum class
-        enum = super().__new__(mcls, name, (V,), {"__slots__": ()})
+        cls = super().__new__(mcls, name, (V,), {"__slots__": ()})
 
         # Help the type checker
-        assert issubclass(enum, V)
+        assert issubclass(cls, V)
 
         def new_init(d0: int, d1: int) -> Vector:
-            obj = object.__new__(enum)
+            obj = object.__new__(cls)
             Array.__init__(obj, d0, d1)
             return obj
 
@@ -83,18 +83,18 @@ class EnumType(type):
         for (d0, d1), key in data2key.items():
             key2obj[key] = new_init(d0, d1)
         for key, obj in key2obj.items():
-            setattr(enum, key, obj)
+            setattr(cls, key, obj)
 
         def _new(cls: type[Vector], arg: ArrayLike) -> Vector:
             x = expect_array_size(arg, cls.size)
             return cls.cast(x)
 
-        setattr(enum, "__new__", _new)
+        setattr(cls, "__new__", _new)
 
         def _init(obj: Vector, arg: ArrayLike):
             pass
 
-        setattr(enum, "__init__", _init)
+        setattr(cls, "__init__", _init)
 
         # Override Vector.cast_data method
         def _cast_data(cls: type[Vector], d0: int, d1: int) -> Vector:
@@ -104,7 +104,7 @@ class EnumType(type):
                 obj = new_init(d0, d1)
             return obj
 
-        setattr(enum, "cast_data", classmethod(_cast_data))
+        setattr(cls, "cast_data", classmethod(_cast_data))
 
         # Override Vector.__repr__ method
         def _repr(self: Vector) -> str:
@@ -113,7 +113,7 @@ class EnumType(type):
             except KeyError:
                 return f'{name}("{V.__str__(self)}")'
 
-        setattr(enum, "__repr__", _repr)
+        setattr(cls, "__repr__", _repr)
 
         # Override Vector.__str__ method
         def _str(self: Vector) -> str:
@@ -122,7 +122,7 @@ class EnumType(type):
             except KeyError:
                 return f"{name}({V.__str__(self)})"
 
-        setattr(enum, "__str__", _str)
+        setattr(cls, "__str__", _str)
 
         # Create name property
         def _name(self: Vector) -> str:
@@ -131,16 +131,16 @@ class EnumType(type):
             except KeyError:
                 return f"{name}({V.__str__(self)})"
 
-        setattr(enum, "name", property(fget=_name))
+        setattr(cls, "name", property(fget=_name))
 
         # Override VCD methods
         def _vcd_var(self: Vector) -> str:
             return "string"
 
-        setattr(enum, "vcd_var", _vcd_var)
-        setattr(enum, "vcd_val", _name)
+        setattr(cls, "vcd_var", _vcd_var)
+        setattr(cls, "vcd_val", _name)
 
-        return enum
+        return cls
 
 
 class Enum(metaclass=EnumType):

@@ -62,7 +62,7 @@ class StructType(type):
         V = vec_size(field_offset)
 
         # Create Struct class
-        struct = super().__new__(mcls, name, (V,), {"__slots__": ()})
+        cls = super().__new__(mcls, name, (V,), {"__slots__": ()})
 
         # Override Array.__init__ method
         def _init_body(obj: Vector, *args: ArrayLike | None):
@@ -78,7 +78,7 @@ class StructType(type):
         globals_ = {"_init_body": _init_body}
         locals_: dict[str, Any] = {}
         exec(source, globals_, locals_)
-        struct.__init__ = locals_["init"]
+        cls.__init__ = locals_["init"]
 
         # Override Array.__repr__ method
         def _repr(self: Vector) -> str:
@@ -90,7 +90,7 @@ class StructType(type):
             parts.append(")")
             return "\n".join(parts)
 
-        setattr(struct, "__repr__", _repr)
+        setattr(cls, "__repr__", _repr)
 
         # Override Array.__str__ method
         def _str(self: Vector) -> str:
@@ -102,7 +102,7 @@ class StructType(type):
             parts.append(")")
             return "\n".join(parts)
 
-        setattr(struct, "__str__", _str)
+        setattr(cls, "__str__", _str)
 
         # Create Struct fields
         def _fget(fo: int, ft: type[Array], self: Vector):
@@ -112,9 +112,9 @@ class StructType(type):
             return ft.cast_data(d0, d1)
 
         for fn, fo, ft in fields:
-            setattr(struct, fn, property(fget=partial(_fget, fo, ft)))
+            setattr(cls, fn, property(fget=partial(_fget, fo, ft)))
 
-        return struct
+        return cls
 
 
 class Struct(metaclass=StructType):

@@ -47,7 +47,7 @@ class UnionType(type):
         V = vec_size(size)
 
         # Create Union class
-        union = super().__new__(mcls, name, (V,), {"__slots__": ()})
+        cls = super().__new__(mcls, name, (V,), {"__slots__": ()})
 
         # Override Array.__init__ method
         def _init(self: Vector, arg: ArrayLike):
@@ -59,7 +59,7 @@ class UnionType(type):
                 raise TypeError(s)
             Bits.__init__(self, *x.data)
 
-        setattr(union, "__init__", _init)
+        setattr(cls, "__init__", _init)
 
         # Override Array.__repr__ method
         def _repr(self: Vector) -> str:
@@ -71,7 +71,7 @@ class UnionType(type):
             parts.append(")")
             return "\n".join(parts)
 
-        setattr(union, "__repr__", _repr)
+        setattr(cls, "__repr__", _repr)
 
         # Override Array.__str__ method
         def _str(self: Vector) -> str:
@@ -83,7 +83,7 @@ class UnionType(type):
             parts.append(")")
             return "\n".join(parts)
 
-        setattr(union, "__str__", _str)
+        setattr(cls, "__str__", _str)
 
         # Create Union fields
         def _fget(ft: type[Array], self: Vector):
@@ -93,9 +93,9 @@ class UnionType(type):
             return ft.cast_data(d0, d1)
 
         for fn, ft in fields:
-            setattr(union, fn, property(fget=partial(_fget, ft)))
+            setattr(cls, fn, property(fget=partial(_fget, ft)))
 
-        return union
+        return cls
 
 
 class Union(metaclass=UnionType):
