@@ -81,7 +81,7 @@ class StructType(type):
             Bits.__init__(obj, d0, d1)
 
         source = _struct_init_source(fields)
-        globals_ = {"_init_body": _init_body}
+        globals_: dict[str, Any] = {"_init_body": _init_body}
         locals_: dict[str, Any] = {}
         exec(source, globals_, locals_)
         cls.__init__ = locals_["init"]
