@@ -390,7 +390,7 @@ class Array(Bits):
         return mask(cls.size)
 
     def __hash__(self) -> int:
-        return hash(self.shape) ^ hash(self._data)
+        return hash(self.shape + self._data)
 
     def __eq__(self, obj: Any) -> bool:
         if isinstance(obj, str):
