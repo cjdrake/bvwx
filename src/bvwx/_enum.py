@@ -52,7 +52,12 @@ def _parse_attrs(attrs: dict[str, Any]) -> tuple[dict[str, Any], Data2Key, int]:
 class EnumType(type):
     """Enum Metaclass: Create enum base classes."""
 
-    def __new__(mcls, name: str, bases: tuple[()] | tuple[type], attrs: dict[str, Any]):
+    def __new__(
+        mcls,
+        name: str,
+        bases: tuple[()] | tuple[type],
+        attrs: dict[str, Any],
+    ):
         # Base case for API
         if name == "Enum":
             assert not bases

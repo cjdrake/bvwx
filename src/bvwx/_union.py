@@ -27,9 +27,15 @@ class UnionType(type):
         except KeyError as e:
             raise ValueError("Empty Union is not supported") from e
 
-    def __new__(mcls, name: str, bases: tuple[type], attrs: dict[str, Any]):
+    def __new__(
+        mcls,
+        name: str,
+        bases: tuple[()] | tuple[type],
+        attrs: dict[str, Any],
+    ):
         # Base case for API
         if name == "Union":
+            assert not bases
             attrs["__slots__"] = ()
             return super().__new__(mcls, name, bases, attrs)
 
