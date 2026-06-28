@@ -11,6 +11,19 @@ from ._bits import Array, ArrayLike, Bits, Vector, expect_array_size, vec_size
 from ._util import mask
 
 
+def _get_annotations(attrs: dict[str, Any]) -> dict[str, type[Array]]:
+    if sys.version_info >= (3, 14):
+        f = get_annotate_from_class_namespace(attrs)
+        if f is not None:
+            return f(Format.VALUE)
+        else:
+            raise ValueError("Empty Struct is not supported")
+    try:
+        return attrs["__annotations__"]
+    except KeyError as e:
+        raise ValueError("Empty Struct is not supported") from e
+
+
 def _struct_init_source(fields: list[tuple[str, int, type[Array]]]) -> str:
     """Return source code for Struct __init__ method w/ fields."""
     lines: list[str] = []
@@ -23,19 +36,6 @@ def _struct_init_source(fields: list[tuple[str, int, type[Array]]]) -> str:
 
 class StructType(type):
     """Struct Metaclass: Create struct base classes."""
-
-    @classmethod
-    def _get_annotations(mcls, attrs: dict[str, Any]) -> dict[str, type[Array]]:
-        if sys.version_info >= (3, 14):
-            f = get_annotate_from_class_namespace(attrs)
-            if f is not None:
-                return f(Format.VALUE)
-            else:
-                raise ValueError("Empty Struct is not supported")
-        try:
-            return attrs["__annotations__"]
-        except KeyError as e:
-            raise ValueError("Empty Struct is not supported") from e
 
     def __new__(
         mcls,
@@ -53,7 +53,7 @@ class StructType(type):
         assert len(bases) == 1
 
         # Get field_name: field_type items
-        annotations = mcls._get_annotations(attrs)
+        annotations = _get_annotations(attrs)
 
         # [(name, offset, type), ...]
         fields: list[tuple[str, int, type[Array]]] = []
