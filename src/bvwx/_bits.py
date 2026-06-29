@@ -404,9 +404,9 @@ class Array(Bits):
     def __eq__(self, obj: Any) -> bool:
         if isinstance(obj, str):
             size, data = lb.parse_lit(obj)
-            return self.size == size and self._data == data
+            return size == self.size and data == self._data
         if isinstance(obj, Array):
-            return self.size == obj.size and self._data == obj.data
+            return obj.size == self.size and obj.data == self._data
         return False
 
     def __repr__(self) -> str:
