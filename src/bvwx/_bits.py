@@ -93,33 +93,33 @@ def _b2s(arg: int) -> Scalar:
         raise ValueError(s) from e
 
 
-def expect_array(arg: ArrayLike) -> Array:
-    """Any Array-like object that defines its own size"""
-    if isinstance(arg, int):
-        return _b2s(arg)
-    # Array | str
-    if isinstance(arg, str):
-        return lit2bv(arg)
-    # Array
+def _i2v(arg: int, size: int) -> Vector:
+    if arg < 0:
+        return i2bv(arg, size)
+    return u2bv(arg, size)
+
+
+def _expect_size[T: Array](arg: T, size: int) -> T:
+    if arg.size != size:
+        raise TypeError(f"Expected size {size}, got {arg.size}")
     return arg
 
 
-def expect_scalar(arg: ScalarLike) -> Scalar:
-    """Any Scalar-like object"""
+def expect_array(arg: ArrayLike) -> Array:
+    """Any Array-like object that defines its own size"""
+    # arg: Array | str | int
     if isinstance(arg, int):
         return _b2s(arg)
-    # Scalar | str
+    # arg: Array | str
     if isinstance(arg, str):
-        x = lit2bv(arg)
-        s = _expect_size(x, 1)
-        assert isinstance(s, Scalar)
-        return s
-    # Scalar
+        return lit2bv(arg)
+    # arg: Array
     return arg
 
 
 def expect_uint(arg: UintLike) -> Array:
     """Any Array-like object that defines its own size"""
+    # arg: Array | str | int
     if isinstance(arg, int):
         return u2bv(arg)
     # arg: Array | str
@@ -129,35 +129,44 @@ def expect_uint(arg: UintLike) -> Array:
     return arg
 
 
-def _i2v(arg: int, size: int) -> Vector:
-    if arg < 0:
-        return i2bv(arg, size)
-    return u2bv(arg, size)
-
-
 def expect_array_size(arg: ArrayLike, size: int) -> Array:
     """Any Array-Like object that may or may not define its own size"""
+    # arg: Array | str | int
     if isinstance(arg, int):
         return _i2v(arg, size)
     # arg: Array | str
     if isinstance(arg, str):
-        arg = lit2bv(arg)
+        x = lit2bv(arg)
+        return _expect_size(x, size)
+    # arg: Array
     return _expect_size(arg, size)
 
 
 def _expect_vec_size(arg: VectorLike, size: int) -> Vector:
     """Any Vector-Like object that may or may not define its own size"""
+    # arg: Vector | str | int
     if isinstance(arg, int):
         return _i2v(arg, size)
     # arg: Vector | str
     if isinstance(arg, str):
-        arg = lit2bv(arg)
+        x = lit2bv(arg)
+        return _expect_size(x, size)
+    # arg: Vector
     return _expect_size(arg, size)
 
 
-def _expect_size[T: Array](arg: T, size: int) -> T:
-    if arg.size != size:
-        raise TypeError(f"Expected size {size}, got {arg.size}")
+def expect_scalar(arg: ScalarLike) -> Scalar:
+    """Any Scalar-like object"""
+    # arg: Scalar | str | int
+    if isinstance(arg, int):
+        return _b2s(arg)
+    # arg: Scalar | str
+    if isinstance(arg, str):
+        x = lit2bv(arg)
+        s = _expect_size(x, 1)
+        assert isinstance(s, Scalar)
+        return s
+    # arg: Scalar
     return arg
 
 
