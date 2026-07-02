@@ -63,14 +63,20 @@ Data Types
 .. autoclass:: bvwx.Empty
     :show-inheritance:
 
+.. autoclass:: bvwx.EnumType
+
 .. autoclass:: bvwx.Enum
     :show-inheritance:
 
     .. py:property:: name
         :type: str
 
+.. autoclass:: bvwx.StructType
+
 .. autoclass:: bvwx.Struct
     :show-inheritance:
+
+.. autoclass:: bvwx.UnionType
 
 .. autoclass:: bvwx.Union
     :show-inheritance:
