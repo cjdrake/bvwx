@@ -8,7 +8,6 @@ if sys.version_info >= (3, 14):
     from annotationlib import Format, get_annotate_from_class_namespace
 
 from ._bits import Array, ArrayLike, expect_array, vec_size
-from ._util import mask
 
 
 def _get_annotations(attrs: dict[str, Any]) -> dict[str, Any]:
@@ -91,9 +90,8 @@ class UnionType(type):
             return "\n".join(parts)
 
         def _fget(ft: type[Array], self):
-            m = mask(ft.size)
-            d0 = self._data[0] & m
-            d1 = self._data[1] & m
+            d0 = self._data[0] & ft._dmax
+            d1 = self._data[1] & ft._dmax
             return ft._cast_data(d0, d1)
 
         # Override Array methods

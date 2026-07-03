@@ -8,7 +8,6 @@ if sys.version_info >= (3, 14):
     from annotationlib import Format, get_annotate_from_class_namespace
 
 from ._bits import Array, ArrayLike, Vector, expect_array_size, vec_size
-from ._util import mask
 
 type Field = tuple[str, int, type[Array]]
 
@@ -113,9 +112,8 @@ class StructType(type):
             return "\n".join(parts)
 
         def _fget(fo: int, ft: type[Array], self):
-            m = mask(ft.size)
-            d0 = (self._data[0] >> fo) & m
-            d1 = (self._data[1] >> fo) & m
+            d0 = (self._data[0] >> fo) & ft._dmax
+            d1 = (self._data[1] >> fo) & ft._dmax
             return ft._cast_data(d0, d1)
 
         # Override Array methods
