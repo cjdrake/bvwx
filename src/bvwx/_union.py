@@ -7,7 +7,7 @@ from typing import Any
 if sys.version_info >= (3, 14):
     from annotationlib import Format, get_annotate_from_class_namespace
 
-from ._bits import Array, ArrayLike, Bits, Vector, expect_array, vec_size
+from ._bits import Array, ArrayLike, Vector, expect_array, vec_size
 from ._util import mask
 
 
@@ -63,7 +63,6 @@ class UnionType(type):
         ns: dict[str, Any] = {"__slots__": ()}
         cls = super().__new__(mcls, name, (V,), ns)
 
-        # Override Array.__init__ method
         def _init(self: Vector, arg: ArrayLike):
             x = expect_array(arg)
             ts = {ft for _, ft in fields}
@@ -71,11 +70,8 @@ class UnionType(type):
                 s = ", ".join(t.__name__ for t in ts)
                 s = f"Expected arg to be {{{s}}}, or str literal"
                 raise TypeError(s)
-            Bits.__init__(self, *x._data)
+            self._data = x._data
 
-        setattr(cls, "__init__", _init)
-
-        # Override Array.__repr__ method
         def _repr(self: Vector) -> str:
             parts = [f"{name}("]
             for fn, _ in fields:
@@ -85,9 +81,6 @@ class UnionType(type):
             parts.append(")")
             return "\n".join(parts)
 
-        setattr(cls, "__repr__", _repr)
-
-        # Override Array.__str__ method
         def _str(self: Vector) -> str:
             parts = [f"{name}("]
             for fn, _ in fields:
@@ -97,14 +90,17 @@ class UnionType(type):
             parts.append(")")
             return "\n".join(parts)
 
-        setattr(cls, "__str__", _str)
-
         # Create Union fields
         def _fget(ft: type[Array], self: Vector):
             m = mask(ft.size)
             d0 = self._data[0] & m
             d1 = self._data[1] & m
             return ft._cast_data(d0, d1)
+
+        # Override Array methods
+        setattr(cls, "__init__", _init)
+        setattr(cls, "__repr__", _repr)
+        setattr(cls, "__str__", _str)
 
         for fn, ft in fields:
             setattr(cls, fn, property(fget=partial(_fget, ft)))
