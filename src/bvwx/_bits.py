@@ -60,7 +60,8 @@ def _get_array_shape(shape: tuple[int, ...]) -> type[Array]:
     except KeyError:
         name = f"Array[{','.join(str(n) for n in shape)}]"
         size = math.prod(shape)
-        ns: dict[str, Any] = {"__slots__": (), "shape": shape, "size": size}
+        dmax = mask(size)
+        ns: dict[str, Any] = {"__slots__": (), "shape": shape, "size": size, "_dmax": dmax}
         A = type(name, (Array,), ns)
         _ArrayShape[shape] = A
         return A
@@ -74,7 +75,8 @@ def _get_vec_size(size: int) -> type[Vector]:
     except KeyError:
         name = f"Vector[{size}]"
         shape = (size,)
-        ns: dict[str, Any] = {"__slots__": (), "size": size, "shape": shape}
+        dmax = mask(size)
+        ns: dict[str, Any] = {"__slots__": (), "size": size, "shape": shape, "_dmax": dmax}
         V = type(name, (Vector,), ns)
         _VectorSize[size] = V
         return V
@@ -256,6 +258,7 @@ class Array(Bits):
 
     shape: tuple[int, ...]
     size: int
+    _dmax: int
 
     def __class_getitem__(cls, key: int | tuple[int, ...]) -> type[Array]:
         if isinstance(key, int):
@@ -308,7 +311,7 @@ class Array(Bits):
         >>> Vector[4].zeros()
         bits("4b0000")
         """
-        return cls._cast_data(cls._dmax(), 0)
+        return cls._cast_data(cls._dmax, 0)
 
     @classmethod
     def ones(cls) -> Self:
@@ -319,7 +322,7 @@ class Array(Bits):
         >>> Vector[4].ones()
         bits("4b1111")
         """
-        return cls._cast_data(0, cls._dmax())
+        return cls._cast_data(0, cls._dmax)
 
     @classmethod
     def ws(cls) -> Self:
@@ -330,13 +333,13 @@ class Array(Bits):
         >>> Vector[4].ws()
         bits("4b----")
         """
-        return cls._cast_data(cls._dmax(), cls._dmax())
+        return cls._cast_data(cls._dmax, cls._dmax)
 
     @classmethod
     def rand(cls) -> Self:
         """Return an instance filled with random bits."""
         d1 = random.getrandbits(cls.size)
-        return cls._cast_data(cls._dmax() ^ d1, d1)
+        return cls._cast_data(cls._dmax ^ d1, d1)
 
     @classmethod
     def xprop(cls, sel: Array) -> Self:
@@ -399,10 +402,6 @@ class Array(Bits):
             return (i, i + 1)
 
         return tuple(f(n, key) for n, key in zip(cls.shape, keys))
-
-    @classmethod
-    def _dmax(cls) -> int:
-        return mask(cls.size)
 
     def __hash__(self) -> int:
         return hash(self.shape + self._data)
@@ -655,17 +654,17 @@ class Array(Bits):
 
     def count_zeros(self) -> int:
         """Return count of of ``0`` bits."""
-        d: int = self._data[0] & (self._data[1] ^ self._dmax())
+        d: int = self._data[0] & (self._data[1] ^ self._dmax)
         return d.bit_count()
 
     def count_ones(self) -> int:
         """Return count of ``1`` bits."""
-        d: int = (self._data[0] ^ self._dmax()) & self._data[1]
+        d: int = (self._data[0] ^ self._dmax) & self._data[1]
         return d.bit_count()
 
     def count_xs(self) -> int:
         """Return count of ``X`` bits."""
-        d: int = (self._data[0] | self._data[1]) ^ self._dmax()
+        d: int = (self._data[0] | self._data[1]) ^ self._dmax
         return d.bit_count()
 
     def count_ws(self) -> int:
@@ -675,7 +674,7 @@ class Array(Bits):
 
     def count_unknown(self) -> int:
         """Return count of unknown bits."""
-        d: int = self._data[0] ^ self._data[1] ^ self._dmax()
+        d: int = self._data[0] ^ self._data[1] ^ self._dmax
         return d.bit_count()
 
     def onehot(self) -> bool:
@@ -688,15 +687,15 @@ class Array(Bits):
 
     def has_0(self) -> bool:
         """Return True if contains at least one ``0`` bit."""
-        return bool(self._data[0] & (self._data[1] ^ self._dmax()))
+        return bool(self._data[0] & (self._data[1] ^ self._dmax))
 
     def has_1(self) -> bool:
         """Return True if contains at least one ``1`` bit."""
-        return bool((self._data[0] ^ self._dmax()) & self._data[1])
+        return bool((self._data[0] ^ self._dmax) & self._data[1])
 
     def has_x(self) -> bool:
         """Return True if contains at least one ``X`` bit."""
-        return bool((self._data[0] | self._data[1]) ^ self._dmax())
+        return bool((self._data[0] | self._data[1]) ^ self._dmax)
 
     def has_w(self) -> bool:
         """Return True if contains at least one ``-`` bit."""
@@ -704,11 +703,11 @@ class Array(Bits):
 
     def has_xw(self) -> bool:
         """Return True if contains at least one unknown bit."""
-        return bool(self._data[0] ^ self._data[1] ^ self._dmax())
+        return bool(self._data[0] ^ self._data[1] ^ self._dmax)
 
     def has_unknown(self) -> bool:
         """Return True if contains at least one unknown bit."""
-        return bool(self._data[0] ^ self._data[1] ^ self._dmax())
+        return bool(self._data[0] ^ self._data[1] ^ self._dmax)
 
     def vcd_var(self) -> str:
         """Return VCD variable type."""
@@ -847,6 +846,7 @@ class Scalar(Vector):
 
     size = 1
     shape = (1,)
+    _dmax = 1
 
     @classmethod
     def _cast_data(cls, d0: int, d1: int) -> Scalar:
@@ -899,6 +899,7 @@ class Empty(Vector):
 
     size = 0
     shape = (0,)
+    _dmax = 0
 
     @classmethod
     def _cast_data(cls, d0: int, d1: int) -> Empty:
