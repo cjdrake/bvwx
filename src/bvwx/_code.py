@@ -55,8 +55,9 @@ def encode_onehot(x: ArrayLike) -> Vector:
     if not is_onehot:
         raise ValueError(f"Expected x to be one-hot encoded, got {x}")
 
-    y = clog2(d1)
-    return V(y ^ mask(n), y)
+    y1 = clog2(d1)
+    y0 = y1 ^ mask(n)
+    return V(y0, y1)
 
 
 def encode_priority(x: ArrayLike) -> tuple[Vector, Scalar]:
@@ -112,8 +113,9 @@ def encode_priority(x: ArrayLike) -> tuple[Vector, Scalar]:
     if d1 == 0:
         return V.ws(), scalar0
 
-    y = clog2(d1 + 1) - 1
-    return V(y ^ mask(n), y), scalar1
+    y1 = clog2(d1 + 1) - 1
+    y0 = y1 ^ mask(n)
+    return V(y0, y1), scalar1
 
 
 def decode(x: ArrayLike) -> Vector:
@@ -159,4 +161,5 @@ def decode(x: ArrayLike) -> Vector:
         return V.ws()
 
     d1 = 1 << x.to_uint()
-    return V(d1 ^ mask(n), d1)
+    d0 = d1 ^ mask(n)
+    return V(d0, d1)
