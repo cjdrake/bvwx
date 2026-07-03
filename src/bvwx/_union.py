@@ -96,7 +96,7 @@ class UnionType(type):
             m = mask(ft.size)
             d0 = self._data[0] & m
             d1 = self._data[1] & m
-            return ft.cast_data(d0, d1)
+            return ft._cast_data(d0, d1)
 
         for fn, ft in fields:
             setattr(cls, fn, property(fget=partial(_fget, ft)))

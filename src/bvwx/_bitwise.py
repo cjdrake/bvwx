@@ -229,7 +229,7 @@ def xor(x0: ArrayLike, *xs: ArrayLike) -> Array:
 def _impl[T: Array](p: T, q: Array) -> T | Vector:
     d0, d1 = lb.impl(p._data, q._data)
     t = resolve_type(p, q)
-    return t.cast_data(d0, d1)
+    return t._cast_data(d0, d1)
 
 
 def impl(p: ArrayLike, q: ArrayLike) -> Array:
@@ -266,7 +266,7 @@ def _ite[T: Array](s: Array, x1: T, x0: Array) -> T | Vector:
     s1 = mask(x1.size) * s._data[1]
     d0, d1 = lb.ite((s0, s1), x1._data, x0._data)
     t = resolve_type(x1, x0)
-    return t.cast_data(d0, d1)
+    return t._cast_data(d0, d1)
 
 
 def ite(s: ScalarLike, x1: ArrayLike, x0: ArrayLike) -> Array:
@@ -333,7 +333,7 @@ def _mux[T: Array](t: type[T], s: Array, xs: dict[int, Array]) -> T:
     _xs = {i: x._data for i, x in xs.items()}
     w = t.ws()
     d0, d1 = lb.mux(_s, _xs, w._data)
-    return t.cast_data(d0, d1)
+    return t._cast_data(d0, d1)
 
 
 _MUX_XN_RE = re.compile(r"x(\d+)")

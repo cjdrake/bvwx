@@ -336,7 +336,7 @@ def _srsh[T: Array](x: T, n: Array) -> T:
     sh_size, (sh0, sh1) = x._get_slice(_n, x.size)
     d0 = sh0 | si0 << sh_size
     d1 = sh1 | si1 << sh_size
-    y = x.cast_data(d0, d1)
+    y = x._cast_data(d0, d1)
 
     return y
 

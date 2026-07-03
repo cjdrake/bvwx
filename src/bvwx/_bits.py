@@ -185,7 +185,7 @@ class Bits:
     __slots__ = ("_data",)
 
     @classmethod
-    def cast_data(cls, d0: int, d1: int) -> Self:
+    def _cast_data(cls, d0: int, d1: int) -> Self:
         obj = object.__new__(cls)
         Bits.__init__(obj, d0, d1)
         return obj
@@ -275,7 +275,7 @@ class Array(Bits):
         """
         if x.size != cls.size:
             raise TypeError(f"Expected size {cls.size}, got {x.size}")
-        return cls.cast_data(x._data[0], x._data[1])
+        return cls._cast_data(x._data[0], x._data[1])
 
     @classmethod
     def xs(cls) -> Self:
@@ -286,7 +286,7 @@ class Array(Bits):
         >>> Vector[4].xs()
         bits("4bXXXX")
         """
-        return cls.cast_data(0, 0)
+        return cls._cast_data(0, 0)
 
     @classmethod
     def zeros(cls) -> Self:
@@ -297,7 +297,7 @@ class Array(Bits):
         >>> Vector[4].zeros()
         bits("4b0000")
         """
-        return cls.cast_data(cls._dmax(), 0)
+        return cls._cast_data(cls._dmax(), 0)
 
     @classmethod
     def ones(cls) -> Self:
@@ -308,7 +308,7 @@ class Array(Bits):
         >>> Vector[4].ones()
         bits("4b1111")
         """
-        return cls.cast_data(0, cls._dmax())
+        return cls._cast_data(0, cls._dmax())
 
     @classmethod
     def ws(cls) -> Self:
@@ -319,13 +319,13 @@ class Array(Bits):
         >>> Vector[4].ws()
         bits("4b----")
         """
-        return cls.cast_data(cls._dmax(), cls._dmax())
+        return cls._cast_data(cls._dmax(), cls._dmax())
 
     @classmethod
     def rand(cls) -> Self:
         """Return an instance filled with random bits."""
         d1 = random.getrandbits(cls.size)
-        return cls.cast_data(cls._dmax() ^ d1, d1)
+        return cls._cast_data(cls._dmax() ^ d1, d1)
 
     @classmethod
     def xprop(cls, sel: Array) -> Self:
@@ -838,7 +838,7 @@ class Scalar(Vector):
     shape = (1,)
 
     @classmethod
-    def cast_data(cls, d0: int, d1: int) -> Scalar:
+    def _cast_data(cls, d0: int, d1: int) -> Scalar:
         return scalars[(d0, d1)]
 
 
@@ -890,7 +890,7 @@ class Empty(Vector):
     shape = (0,)
 
     @classmethod
-    def cast_data(cls, d0: int, d1: int) -> Empty:
+    def _cast_data(cls, d0: int, d1: int) -> Empty:
         return _empty
 
     @override
@@ -917,31 +917,31 @@ type Key = UintLike | KeySlice
 # Bitwise
 def bits_not[T: Array](x: T) -> T:
     d0, d1 = lb.not_(x._data)
-    return x.cast_data(d0, d1)
+    return x._cast_data(d0, d1)
 
 
 def bits_or[T: Array](x0: T, x1: Array) -> T | Vector:
     d0, d1 = lb.or_(x0._data, x1._data)
     t = resolve_type(x0, x1)
-    return t.cast_data(d0, d1)
+    return t._cast_data(d0, d1)
 
 
 def bits_and[T: Array](x0: T, x1: Array) -> T | Vector:
     d0, d1 = lb.and_(x0._data, x1._data)
     t = resolve_type(x0, x1)
-    return t.cast_data(d0, d1)
+    return t._cast_data(d0, d1)
 
 
 def bits_xnor[T: Array](x0: T, x1: Array) -> T | Vector:
     d0, d1 = lb.xnor(x0._data, x1._data)
     t = resolve_type(x0, x1)
-    return t.cast_data(d0, d1)
+    return t._cast_data(d0, d1)
 
 
 def bits_xor[T: Array](x0: T, x1: Array) -> T | Vector:
     d0, d1 = lb.xor(x0._data, x1._data)
     t = resolve_type(x0, x1)
-    return t.cast_data(d0, d1)
+    return t._cast_data(d0, d1)
 
 
 # Unary
@@ -991,7 +991,7 @@ def bits_add[T: Array](a: T, b: Array, ci: Scalar) -> tuple[T | Vector, Scalar]:
     co = bool2scalar[s > dmax]
     s &= dmax
 
-    return t.cast_data(s ^ dmax, s), co
+    return t._cast_data(s ^ dmax, s), co
 
 
 def bits_inc[T: Array](a: T) -> tuple[T, Scalar]:
@@ -1006,7 +1006,7 @@ def bits_inc[T: Array](a: T) -> tuple[T, Scalar]:
     co = bool2scalar[s > dmax]
     s &= dmax
 
-    return a.cast_data(s ^ dmax, s), co
+    return a._cast_data(s ^ dmax, s), co
 
 
 def bits_sub[T: Array](a: T, b: Array) -> tuple[T | Vector, Scalar]:
@@ -1045,7 +1045,7 @@ def bits_div[T: Array](a: T, b: Array) -> T:
     dmax = mask(a.size)
     q = a._data[1] // b._data[1]
 
-    return a.cast_data(q ^ dmax, q)
+    return a._cast_data(q ^ dmax, q)
 
 
 def bits_mod[T: Array](a: Array, b: T) -> T:
@@ -1061,7 +1061,7 @@ def bits_mod[T: Array](a: Array, b: T) -> T:
     dmax = mask(b.size)
     r = a._data[1] % b._data[1]
 
-    return b.cast_data(r ^ dmax, r)
+    return b._cast_data(r ^ dmax, r)
 
 
 def _and_or(a: Array, b: Array) -> Scalar:
@@ -1105,7 +1105,7 @@ def bits_lsh[T: Array](x: T, n: Array) -> T:
     _, (sh0, sh1) = x._get_slice(0, x.size - _n)
     d0 = mask(_n) | sh0 << _n
     d1 = sh1 << _n
-    y = x.cast_data(d0, d1)
+    y = x._cast_data(d0, d1)
 
     return y
 
@@ -1125,7 +1125,7 @@ def bits_rsh[T: Array](x: T, n: Array) -> T:
     sh_size, (sh0, sh1) = x._get_slice(_n, x.size)
     d0 = sh0 | (mask(_n) << sh_size)
     d1 = sh1
-    y = x.cast_data(d0, d1)
+    y = x._cast_data(d0, d1)
 
     return y
 

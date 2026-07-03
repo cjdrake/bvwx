@@ -83,7 +83,7 @@ class EnumType(type):
             Array.__init__(obj, d0, d1)
             return obj
 
-        # Override Vector.cast_data method
+        # Override Vector._cast_data method
         def _cast_data(cls: type[Vector], d0: int, d1: int) -> Vector:
             try:
                 obj = getattr(cls, data2key[(d0, d1)])
@@ -91,7 +91,7 @@ class EnumType(type):
                 obj = new_init(d0, d1)
             return obj
 
-        setattr(cls, "cast_data", classmethod(_cast_data))
+        setattr(cls, "_cast_data", classmethod(_cast_data))
 
         # Override Vector.__repr__ method
         def _repr(self: Vector) -> str:
@@ -135,7 +135,7 @@ class EnumType(type):
 
     def __call__(cls: type[Vector], arg: ArrayLike) -> Vector:
         x = expect_array_size(arg, cls.size)
-        return cls.cast_data(x._data[0], x._data[1])
+        return cls._cast_data(x._data[0], x._data[1])
 
 
 class Enum(metaclass=EnumType):

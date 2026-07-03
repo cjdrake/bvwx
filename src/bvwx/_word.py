@@ -121,7 +121,7 @@ def _lrot[T: Array](x: T, n: Array) -> T:
     _, (sh0, sh1) = x._get_slice(0, x.size - _n)
     d0 = co0 | sh0 << _n
     d1 = co1 | sh1 << _n
-    return x.cast_data(d0, d1)
+    return x._cast_data(d0, d1)
 
 
 def lrot(x: ArrayLike, n: UintLike) -> Array:
@@ -167,7 +167,7 @@ def _rrot[T: Array](x: T, n: Array) -> T:
     sh_size, (sh0, sh1) = x._get_slice(_n, x.size)
     d0 = sh0 | co0 << sh_size
     d1 = sh1 | co1 << sh_size
-    return x.cast_data(d0, d1)
+    return x._cast_data(d0, d1)
 
 
 def rrot(x: ArrayLike, n: UintLike) -> Array:
@@ -249,7 +249,7 @@ def _pack[T: Array](x: T, n: int) -> T:
         d0 = (d0 << n) | (xd0 & m)
         d1 = (d1 << n) | (xd1 & m)
 
-    return x.cast_data(d0, d1)
+    return x._cast_data(d0, d1)
 
 
 def pack(x: ArrayLike, n: int = 1) -> Array:
