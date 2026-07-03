@@ -11,7 +11,7 @@ from ._bits import Array, ArrayLike, Bits, Vector, expect_array, vec_size
 from ._util import mask
 
 
-def _get_annotations(attrs: dict[str, Any]) -> dict[str, type[Array]]:
+def _get_annotations(attrs: dict[str, Any]) -> dict[str, Any]:
     if sys.version_info >= (3, 14):
         f = get_annotate_from_class_namespace(attrs)
         if f is not None:
