@@ -117,8 +117,8 @@ def _lrot[T: Array](x: T, n: Array) -> T:
     if _n >= x.size:
         raise ValueError(f"Expected n < {x.size}, got {_n}")
 
-    _, (co0, co1) = x.get_slice(x.size - _n, x.size)
-    _, (sh0, sh1) = x.get_slice(0, x.size - _n)
+    _, (co0, co1) = x._get_slice(x.size - _n, x.size)
+    _, (sh0, sh1) = x._get_slice(0, x.size - _n)
     d0 = co0 | sh0 << _n
     d1 = co1 | sh1 << _n
     return x.cast_data(d0, d1)
@@ -163,8 +163,8 @@ def _rrot[T: Array](x: T, n: Array) -> T:
     if _n >= x.size:
         raise ValueError(f"Expected n < {x.size}, got {_n}")
 
-    _, (co0, co1) = x.get_slice(0, _n)
-    sh_size, (sh0, sh1) = x.get_slice(_n, x.size)
+    _, (co0, co1) = x._get_slice(0, _n)
+    sh_size, (sh0, sh1) = x._get_slice(_n, x.size)
     d0 = sh0 | co0 << sh_size
     d1 = sh1 | co1 << sh_size
     return x.cast_data(d0, d1)

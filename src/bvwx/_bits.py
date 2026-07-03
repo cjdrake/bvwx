@@ -198,7 +198,7 @@ class Bits:
         d1 = (self._data[1] >> i) & 1
         return d0, d1
 
-    def get_slice(self, i: int, j: int) -> tuple[int, lbv]:
+    def _get_slice(self, i: int, j: int) -> tuple[int, lbv]:
         size = j - i
         m = mask(size)
         d0 = (self._data[0] >> i) & m
@@ -428,7 +428,7 @@ class Array(Bits):
         if isinstance(key, slice):
             start, stop = _norm_slice(self.size, key)
             if start != 0 or stop != self.size:
-                return self.get_slice(start, stop)
+                return self._get_slice(start, stop)
             return self.size, self._data
         # key: UintLike
         if isinstance(key, int):
@@ -1102,7 +1102,7 @@ def bits_lsh[T: Array](x: T, n: Array) -> T:
     if _n > x.size:
         raise ValueError(f"Expected n ≤ {x.size}, got {_n}")
 
-    _, (sh0, sh1) = x.get_slice(0, x.size - _n)
+    _, (sh0, sh1) = x._get_slice(0, x.size - _n)
     d0 = mask(_n) | sh0 << _n
     d1 = sh1 << _n
     y = x.cast_data(d0, d1)
@@ -1122,7 +1122,7 @@ def bits_rsh[T: Array](x: T, n: Array) -> T:
     if _n > x.size:
         raise ValueError(f"Expected n ≤ {x.size}, got {_n}")
 
-    sh_size, (sh0, sh1) = x.get_slice(_n, x.size)
+    sh_size, (sh0, sh1) = x._get_slice(_n, x.size)
     d0 = sh0 | (mask(_n) << sh_size)
     d1 = sh1
     y = x.cast_data(d0, d1)

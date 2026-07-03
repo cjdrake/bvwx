@@ -333,7 +333,7 @@ def _srsh[T: Array](x: T, n: Array) -> T:
     sign0, sign1 = x._get_index(x.size - 1)
     si0, si1 = mask(_n) * sign0, mask(_n) * sign1
 
-    sh_size, (sh0, sh1) = x.get_slice(_n, x.size)
+    sh_size, (sh0, sh1) = x._get_slice(_n, x.size)
     d0 = sh0 | si0 << sh_size
     d1 = sh1 | si1 << sh_size
     y = x.cast_data(d0, d1)
