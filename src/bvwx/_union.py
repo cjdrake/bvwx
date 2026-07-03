@@ -52,7 +52,8 @@ class UnionType(type):
         V = vec_size(size)
 
         # Create Union class
-        cls = super().__new__(mcls, name, (V,), {"__slots__": ()})
+        ns: dict[str, Any] = {"__slots__": ()}
+        cls = super().__new__(mcls, name, (V,), ns)
 
         # Override Array.__init__ method
         def _init(self: Vector, arg: ArrayLike):

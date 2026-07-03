@@ -67,7 +67,8 @@ class StructType(type):
         V = vec_size(field_offset)
 
         # Create Struct class
-        cls = super().__new__(mcls, name, (V,), {"__slots__": ()})
+        ns: dict[str, Any] = {"__slots__": ()}
+        cls = super().__new__(mcls, name, (V,), ns)
 
         # Override Array.__init__ method
         def _init_body(obj: Vector, *args: ArrayLike | None):
