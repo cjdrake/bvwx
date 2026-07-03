@@ -60,7 +60,8 @@ def _get_array_shape(shape: tuple[int, ...]) -> type[Array]:
     except KeyError:
         name = f"Array[{','.join(str(n) for n in shape)}]"
         size = math.prod(shape)
-        A = type(name, (Array,), {"__slots__": (), "shape": shape, "size": size})
+        ns: dict[str, Any] = {"__slots__": (), "shape": shape, "size": size}
+        A = type(name, (Array,), ns)
         _ArrayShape[shape] = A
         return A
 
@@ -73,7 +74,8 @@ def _get_vec_size(size: int) -> type[Vector]:
     except KeyError:
         name = f"Vector[{size}]"
         shape = (size,)
-        V = type(name, (Vector,), {"__slots__": (), "size": size, "shape": shape})
+        ns: dict[str, Any] = {"__slots__": (), "size": size, "shape": shape}
+        V = type(name, (Vector,), ns)
         _VectorSize[size] = V
         return V
 
