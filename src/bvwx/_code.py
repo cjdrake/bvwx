@@ -50,7 +50,7 @@ def encode_onehot(x: ArrayLike) -> Vector:
     if x.has_w():
         return V.ws()
 
-    d1 = x.data[1]
+    d1 = x._data[1]
     is_onehot = d1 != 0 and d1 & (d1 - 1) == 0
     if not is_onehot:
         raise ValueError(f"Expected x to be one-hot encoded, got {x}")
@@ -107,7 +107,7 @@ def encode_priority(x: ArrayLike) -> tuple[Vector, Scalar]:
         # Not possible to get here
         assert False  # pragma: no cover
 
-    d1 = x.data[1]
+    d1 = x._data[1]
 
     if d1 == 0:
         return V.ws(), scalar0

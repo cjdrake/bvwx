@@ -26,8 +26,8 @@ def _xt[T: Array](x: T, n: Array) -> T | Vector:
         return x
 
     ext0 = mask(_n)
-    d0 = x.data[0] | ext0 << x.size
-    d1 = x.data[1]
+    d0 = x._data[0] | ext0 << x.size
+    d1 = x._data[1]
     return vec_size(x.size + _n)(d0, d1)
 
 
@@ -74,8 +74,8 @@ def _sxt[T: Array](x: T, n: Array) -> T | Vector:
     sign0, sign1 = x.get_index(x.size - 1)
     ext0 = mask(_n) * sign0
     ext1 = mask(_n) * sign1
-    d0 = x.data[0] | ext0 << x.size
-    d1 = x.data[1] | ext1 << x.size
+    d0 = x._data[0] | ext0 << x.size
+    d1 = x._data[1] | ext1 << x.size
     return vec_size(x.size + _n)(d0, d1)
 
 
@@ -241,7 +241,7 @@ def _pack[T: Array](x: T, n: int) -> T:
         return x
 
     m = mask(n)
-    xd0, xd1 = x.data
+    xd0, xd1 = x._data
     d0, d1 = xd0 & m, xd1 & m
     for _ in range(n, x.size, n):
         xd0 >>= n

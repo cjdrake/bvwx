@@ -45,15 +45,15 @@ def test_lit_bin():
     # Valid inputs w/o X
     for lit, (n, d1) in BIN_LITS.items():
         x = bits(lit)
-        assert len(x) == n and x.data[1] == d1
+        assert len(x) == n and x._data[1] == d1
 
     # Valid inputs w/ X
     x = bits("4bW1_0X")
-    assert len(x) == 4 and x.data == (0b1010, 0b1100)
+    assert len(x) == 4 and x._data == (0b1010, 0b1100)
     x = bits("4b-1_0X")
-    assert len(x) == 4 and x.data == (0b1010, 0b1100)
+    assert len(x) == 4 and x._data == (0b1010, 0b1100)
     x = bits("4bX01-")
-    assert len(x) == 4 and x.data == (0b0101, 0b0011)
+    assert len(x) == 4 and x._data == (0b0101, 0b0011)
 
     # Not a literal
     with pytest.raises(ValueError):
@@ -111,7 +111,7 @@ def test_lit2bv_dec():
     # Valid inputs
     for lit, (n, d1) in DEC_LITS.items():
         x = bits(lit)
-        assert len(x) == n and x.data[1] == d1
+        assert len(x) == n and x._data[1] == d1
 
     # Not a literal
     with pytest.raises(ValueError):
@@ -165,7 +165,7 @@ def test_lit2bv_hex():
     # Valid inputs
     for lit, (n, d1) in HEX_LITS.items():
         x = bits(lit)
-        assert len(x) == n and x.data[1] == d1
+        assert len(x) == n and x._data[1] == d1
 
     # Not a literal
     with pytest.raises(ValueError):

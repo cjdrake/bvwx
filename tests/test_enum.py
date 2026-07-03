@@ -26,7 +26,7 @@ def test_basic():
     assert repr(Color.RED) == "Color.RED"
     assert str(Color.RED) == "Color.RED"
     assert Color.RED.name == "RED"
-    assert Color.RED.data[1] == 0b00
+    assert Color.RED._data[1] == 0b00
     assert Color("2b00") is Color.RED
     assert Color(Vec[2](0b11, 0b00)) is Color.RED
 
@@ -34,7 +34,7 @@ def test_basic():
     assert repr(Color.X) == "Color.X"
     assert str(Color.X) == "Color.X"
     assert Color.X.name == "X"
-    assert Color.X.data == (0b00, 0b00)
+    assert Color.X._data == (0b00, 0b00)
     assert Color("2bXX") is Color.X
     assert Color.xs() is Color.X
     assert Color(Vec[2](0, 0)) is Color.X
@@ -43,7 +43,7 @@ def test_basic():
     assert repr(Color.W) == "Color.W"
     assert str(Color.W) == "Color.W"
     assert Color.W.name == "W"
-    assert Color.W.data == (0b11, 0b11)
+    assert Color.W._data == (0b11, 0b11)
     assert Color("2b--") is Color.W
     assert Color.ws() is Color.W
     assert Color(Vec[2](0b11, 0b11)) is Color.W

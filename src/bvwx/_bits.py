@@ -193,11 +193,6 @@ class Bits:
     def __init__(self, d0: int, d1: int):
         self._data = (d0, d1)
 
-    @property
-    def data(self) -> lbv:
-        """Internal representation."""
-        return self._data
-
     def get_index(self, i: int) -> lbv:
         d0 = (self._data[0] >> i) & 1
         d1 = (self._data[1] >> i) & 1
@@ -280,7 +275,7 @@ class Array(Bits):
         """
         if x.size != cls.size:
             raise TypeError(f"Expected size {cls.size}, got {x.size}")
-        return cls.cast_data(x.data[0], x.data[1])
+        return cls.cast_data(x._data[0], x._data[1])
 
     @classmethod
     def xs(cls) -> Self:
@@ -406,7 +401,7 @@ class Array(Bits):
             size, data = lb.parse_lit(obj)
             return size == self.size and data == self._data
         if isinstance(obj, Array):
-            return obj.size == self.size and obj.data == self._data
+            return obj.size == self.size and obj._data == self._data
         return False
 
     def __repr__(self) -> str:
@@ -921,30 +916,30 @@ type Key = UintLike | KeySlice
 
 # Bitwise
 def bits_not[T: Array](x: T) -> T:
-    d0, d1 = lb.not_(x.data)
+    d0, d1 = lb.not_(x._data)
     return x.cast_data(d0, d1)
 
 
 def bits_or[T: Array](x0: T, x1: Array) -> T | Vector:
-    d0, d1 = lb.or_(x0.data, x1.data)
+    d0, d1 = lb.or_(x0._data, x1._data)
     t = resolve_type(x0, x1)
     return t.cast_data(d0, d1)
 
 
 def bits_and[T: Array](x0: T, x1: Array) -> T | Vector:
-    d0, d1 = lb.and_(x0.data, x1.data)
+    d0, d1 = lb.and_(x0._data, x1._data)
     t = resolve_type(x0, x1)
     return t.cast_data(d0, d1)
 
 
 def bits_xnor[T: Array](x0: T, x1: Array) -> T | Vector:
-    d0, d1 = lb.xnor(x0.data, x1.data)
+    d0, d1 = lb.xnor(x0._data, x1._data)
     t = resolve_type(x0, x1)
     return t.cast_data(d0, d1)
 
 
 def bits_xor[T: Array](x0: T, x1: Array) -> T | Vector:
-    d0, d1 = lb.xor(x0.data, x1.data)
+    d0, d1 = lb.xor(x0._data, x1._data)
     t = resolve_type(x0, x1)
     return t.cast_data(d0, d1)
 
@@ -975,7 +970,7 @@ def bits_uxor(x: Array) -> Scalar:
         return scalarX
     if x.has_w():
         return scalarW
-    return bool2scalar[x.data[1].bit_count() & 1]
+    return bool2scalar[x._data[1].bit_count() & 1]
 
 
 # Arithmetic
@@ -992,7 +987,7 @@ def bits_add[T: Array](a: T, b: Array, ci: Scalar) -> tuple[T | Vector, Scalar]:
         return t.ws(), scalarW
 
     dmax = mask(t.size)
-    s = a.data[1] + b.data[1] + ci.data[1]
+    s = a._data[1] + b._data[1] + ci._data[1]
     co = bool2scalar[s > dmax]
     s &= dmax
 
@@ -1007,7 +1002,7 @@ def bits_inc[T: Array](a: T) -> tuple[T, Scalar]:
         return a.ws(), scalarW
 
     dmax = mask(a.size)
-    s = a.data[1] + 1
+    s = a._data[1] + 1
     co = bool2scalar[s > dmax]
     s &= dmax
 
@@ -1032,7 +1027,7 @@ def bits_mul(a: Array, b: Array) -> Vector:
         return V.ws()
 
     dmax = mask(V.size)
-    p = a.data[1] * b.data[1]
+    p = a._data[1] * b._data[1]
 
     return V(p ^ dmax, p)
 
@@ -1048,7 +1043,7 @@ def bits_div[T: Array](a: T, b: Array) -> T:
         return a.ws()
 
     dmax = mask(a.size)
-    q = a.data[1] // b.data[1]
+    q = a._data[1] // b._data[1]
 
     return a.cast_data(q ^ dmax, q)
 
@@ -1064,7 +1059,7 @@ def bits_mod[T: Array](a: Array, b: T) -> T:
         return b.ws()
 
     dmax = mask(b.size)
-    r = a.data[1] % b.data[1]
+    r = a._data[1] % b._data[1]
 
     return b.cast_data(r ^ dmax, r)
 
@@ -1145,8 +1140,8 @@ def bits_cat(*xs: Array) -> Array:
     size = 0
     d0, d1 = 0, 0
     for x in xs:
-        d0 |= x.data[0] << size
-        d1 |= x.data[1] << size
+        d0 |= x._data[0] << size
+        d1 |= x._data[1] << size
         size += x.size
     return vec_size(size)(d0, d1)
 
@@ -1170,11 +1165,11 @@ def _bools2vec(x0: int, *xs: int) -> Vector:
 
 
 def _rank2(fst: Vector, *rst: VectorLike) -> Array:
-    d0, d1 = fst.data
+    d0, d1 = fst._data
     for i, x in enumerate(rst, start=1):
         _x = _expect_vec_size(x, fst.size)
-        d0 |= _x.data[0] << (fst.size * i)
-        d1 |= _x.data[1] << (fst.size * i)
+        d0 |= _x._data[0] << (fst.size * i)
+        d1 |= _x._data[1] << (fst.size * i)
     if fst.shape == (1,):
         size = len(rst) + 1
         return _get_vec_size(size)(d0, d1)
@@ -1251,13 +1246,13 @@ def _stack(*xs: Array) -> Array:
     fst, rst = xs[0], xs[1:]
 
     size = fst.size
-    d0, d1 = fst.data
+    d0, d1 = fst._data
     for x in rst:
         if x.shape != fst.shape:
             s = f"Expected shape {fst.shape}, got {x.shape}"
             raise TypeError(s)
-        d0 |= x.data[0] << size
-        d1 |= x.data[1] << size
+        d0 |= x._data[0] << size
+        d1 |= x._data[1] << size
         size += x.size
 
     # {Empty, Empty, ...} => Empty
@@ -1424,21 +1419,21 @@ def _sel(x: Array, key: tuple[tuple[int, int], ...]) -> Array:
     if start != 0 or stop != x.shape[0]:
         if len(key_r) == 0:
             size = stop - start
-            d0, d1 = _chunk(x.data, start, size)
+            d0, d1 = _chunk(x._data, start, size)
             return vec_size(size)(d0, d1)
 
         if len(key_r) == 1:
             V = _get_vec_size(x.shape[1])
             vecs: list[Vector] = []
             for i in range(start, stop):
-                d0, d1 = _chunk(x.data, V.size * i, V.size)
+                d0, d1 = _chunk(x._data, V.size * i, V.size)
                 vecs.append(V(d0, d1))
             return _stack(*[_sel(vec, key_r) for vec in vecs])
 
         A = _get_array_shape(x.shape[1:])
         arrays: list[Array] = []
         for i in range(start, stop):
-            d0, d1 = _chunk(x.data, A.size * i, A.size)
+            d0, d1 = _chunk(x._data, A.size * i, A.size)
             arrays.append(A(d0, d1))
         return _stack(*[_sel(array, key_r) for array in arrays])
 

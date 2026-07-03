@@ -7,7 +7,7 @@ from ._bits import Scalar, ScalarLike, expect_scalar, scalars
 def _lor(*xs: Scalar) -> Scalar:
     y = lb.F
     for x in xs:
-        y = lb.or_(y, x.data)
+        y = lb.or_(y, x._data)
     return scalars[y]
 
 
@@ -42,7 +42,7 @@ def lor(*xs: ScalarLike) -> Scalar:
 def _land(*xs: Scalar) -> Scalar:
     y = lb.T
     for x in xs:
-        y = lb.and_(y, x.data)
+        y = lb.and_(y, x._data)
     return scalars[y]
 
 
@@ -77,7 +77,7 @@ def land(*xs: ScalarLike) -> Scalar:
 def _lxor(*xs: Scalar) -> Scalar:
     y = lb.F
     for x in xs:
-        y = lb.xor(y, x.data)
+        y = lb.xor(y, x._data)
     return scalars[y]
 
 

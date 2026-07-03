@@ -76,8 +76,8 @@ class StructType(type):
             for arg, (_, fo, ft) in zip(args, fields):
                 if arg is not None:
                     x = expect_array_size(arg, ft.size)
-                    d0 |= x.data[0] << fo
-                    d1 |= x.data[1] << fo
+                    d0 |= x._data[0] << fo
+                    d1 |= x._data[1] << fo
             Bits.__init__(obj, d0, d1)
 
         source = _struct_init_source(fields)

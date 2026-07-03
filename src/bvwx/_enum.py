@@ -135,7 +135,7 @@ class EnumType(type):
 
     def __call__(cls: type[Vector], arg: ArrayLike) -> Vector:
         x = expect_array_size(arg, cls.size)
-        return cls.cast_data(x.data[0], x.data[1])
+        return cls.cast_data(x._data[0], x._data[1])
 
 
 class Enum(metaclass=EnumType):

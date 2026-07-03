@@ -63,7 +63,7 @@ class UnionType(type):
                 s = ", ".join(t.__name__ for t in ts)
                 s = f"Expected arg to be {{{s}}}, or str literal"
                 raise TypeError(s)
-            Bits.__init__(self, *x.data)
+            Bits.__init__(self, *x._data)
 
         setattr(cls, "__init__", _init)
 
