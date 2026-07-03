@@ -7,7 +7,7 @@ from typing import Any
 if sys.version_info >= (3, 14):
     from annotationlib import Format, get_annotate_from_class_namespace
 
-from ._bits import Array, ArrayLike, Bits, Vector, expect_array_size, vec_size
+from ._bits import Array, ArrayLike, Vector, expect_array_size, vec_size
 from ._util import mask
 
 type Field = tuple[str, int, type[Array]]
@@ -80,7 +80,6 @@ class StructType(type):
         ns: dict[str, Any] = {"__slots__": ()}
         cls = super().__new__(mcls, name, (V,), ns)
 
-        # Override Array.__init__ method
         def _init_body(obj: Vector, *args: ArrayLike | None):
             d0, d1 = 0, 0
             for arg, (_, fo, ft) in zip(args, fields):
@@ -88,15 +87,13 @@ class StructType(type):
                     x = expect_array_size(arg, ft.size)
                     d0 |= x._data[0] << fo
                     d1 |= x._data[1] << fo
-            Bits.__init__(obj, d0, d1)
+            obj._data = (d0, d1)
 
         source = _struct_init_source(fields)
         globals_: dict[str, Any] = {"_init_body": _init_body}
         locals_: dict[str, Any] = {}
         exec(source, globals_, locals_)
-        cls.__init__ = locals_["init"]
 
-        # Override Array.__repr__ method
         def _repr(self: Vector) -> str:
             parts = [f"{name}("]
             for fn, _, _ in fields:
@@ -106,9 +103,6 @@ class StructType(type):
             parts.append(")")
             return "\n".join(parts)
 
-        setattr(cls, "__repr__", _repr)
-
-        # Override Array.__str__ method
         def _str(self: Vector) -> str:
             parts = [f"{name}("]
             for fn, _, _ in fields:
@@ -118,15 +112,18 @@ class StructType(type):
             parts.append(")")
             return "\n".join(parts)
 
-        setattr(cls, "__str__", _str)
-
-        # Create Struct fields
         def _fget(fo: int, ft: type[Array], self: Vector):
             m = mask(ft.size)
             d0 = (self._data[0] >> fo) & m
             d1 = (self._data[1] >> fo) & m
             return ft._cast_data(d0, d1)
 
+        # Override Array methods
+        setattr(cls, "__init__", locals_["init"])
+        setattr(cls, "__repr__", _repr)
+        setattr(cls, "__str__", _str)
+
+        # Create Struct fields
         for fn, fo, ft in fields:
             setattr(cls, fn, property(fget=partial(_fget, fo, ft)))
 

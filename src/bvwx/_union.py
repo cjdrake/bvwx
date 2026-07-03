@@ -90,7 +90,6 @@ class UnionType(type):
             parts.append(")")
             return "\n".join(parts)
 
-        # Create Union fields
         def _fget(ft: type[Array], self: Vector):
             m = mask(ft.size)
             d0 = self._data[0] & m
@@ -102,6 +101,7 @@ class UnionType(type):
         setattr(cls, "__repr__", _repr)
         setattr(cls, "__str__", _str)
 
+        # Create Union fields
         for fn, ft in fields:
             setattr(cls, fn, property(fget=partial(_fget, ft)))
 
