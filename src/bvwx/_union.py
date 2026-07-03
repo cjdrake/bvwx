@@ -7,7 +7,7 @@ from typing import Any
 if sys.version_info >= (3, 14):
     from annotationlib import Format, get_annotate_from_class_namespace
 
-from ._bits import Array, ArrayLike, Vector, expect_array, vec_size
+from ._bits import Array, ArrayLike, expect_array, vec_size
 from ._util import mask
 
 
@@ -63,7 +63,7 @@ class UnionType(type):
         ns: dict[str, Any] = {"__slots__": ()}
         cls = super().__new__(mcls, name, (V,), ns)
 
-        def _init(self: Vector, arg: ArrayLike):
+        def _init(self, arg: ArrayLike):
             x = expect_array(arg)
             ts = {ft for _, ft in fields}
             if not isinstance(x, tuple(ts)):
@@ -72,7 +72,7 @@ class UnionType(type):
                 raise TypeError(s)
             self._data = x._data
 
-        def _repr(self: Vector) -> str:
+        def _repr(self) -> str:
             parts = [f"{name}("]
             for fn, _ in fields:
                 x = getattr(self, fn)
@@ -81,7 +81,7 @@ class UnionType(type):
             parts.append(")")
             return "\n".join(parts)
 
-        def _str(self: Vector) -> str:
+        def _str(self) -> str:
             parts = [f"{name}("]
             for fn, _ in fields:
                 x = getattr(self, fn)
@@ -90,7 +90,7 @@ class UnionType(type):
             parts.append(")")
             return "\n".join(parts)
 
-        def _fget(ft: type[Array], self: Vector):
+        def _fget(ft: type[Array], self):
             m = mask(ft.size)
             d0 = self._data[0] & m
             d1 = self._data[1] & m

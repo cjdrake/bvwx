@@ -2,7 +2,7 @@
 
 from typing import Any
 
-from ._bits import Array, ArrayLike, Vector, expect_array_size, vec_size
+from ._bits import ArrayLike, Vector, cast_data, expect_array_size, vec_size
 from ._lbool import parse_lit
 from ._util import mask
 
@@ -49,6 +49,10 @@ def _parse_attrs(attrs: dict[str, Any]) -> tuple[dict[str, Any], Data2Key, int]:
     return _attrs, data2key, size
 
 
+def _vcd_var(self) -> str:
+    return "string"
+
+
 class EnumType(type):
     """Enum Metaclass: Create enum base classes."""
 
@@ -72,68 +76,61 @@ class EnumType(type):
         V = vec_size(size)
 
         # Create Enum class
-        ns: dict[str, Any] = {"__slots__": ()}
+        ns: dict[str, Any] = {"__slots__": (), "_data2key": data2key}
         cls = super().__new__(mcls, name, (V,), ns)
 
-        # Help the type checker
-        assert issubclass(cls, V)
-
-        def new_init(d0: int, d1: int) -> Vector:
-            obj = object.__new__(cls)
-            Array.__init__(obj, d0, d1)
-            return obj
-
-        # Override Vector._cast_data method
-        def _cast_data(cls: type[Vector], d0: int, d1: int) -> Vector:
+        def _cast_data(cls, d0: int, d1: int) -> Vector:
             try:
-                obj = getattr(cls, data2key[(d0, d1)])
+                return getattr(cls, data2key[(d0, d1)])
             except KeyError:
-                obj = new_init(d0, d1)
-            return obj
+                return cast_data(cls, d0, d1)
 
-        setattr(cls, "_cast_data", classmethod(_cast_data))
-
-        # Override Vector.__repr__ method
-        def _repr(self: Vector) -> str:
+        def _repr(self) -> str:
             try:
                 return f"{name}.{data2key[self._data]}"
             except KeyError:
                 return f'{name}("{V.__str__(self)}")'
 
-        setattr(cls, "__repr__", _repr)
-
-        # Override Vector.__str__ method
-        def _str(self: Vector) -> str:
+        def _str(self) -> str:
             try:
                 return f"{name}.{data2key[self._data]}"
             except KeyError:
                 return f"{name}({V.__str__(self)})"
 
-        setattr(cls, "__str__", _str)
-
-        # Create name property
-        def _name(self: Vector) -> str:
+        def _name(self) -> str:
             try:
                 return data2key[self._data]
             except KeyError:
                 return f"{name}({V.__str__(self)})"
 
-        setattr(cls, "name", property(fget=_name))
-
-        # Override VCD methods
-        def _vcd_var(self: Vector) -> str:
-            return "string"
-
+        # Override Array methods
+        setattr(cls, "_cast_data", classmethod(_cast_data))
+        setattr(cls, "__repr__", _repr)
+        setattr(cls, "__str__", _str)
         setattr(cls, "vcd_var", _vcd_var)
         setattr(cls, "vcd_val", _name)
 
-        # Instantiate members
-        for (d0, d1), key in data2key.items():
-            setattr(cls, key, new_init(d0, d1))
+        # Enum.name
+        setattr(cls, "name", property(fget=_name))
 
         return cls
 
-    def __call__(cls: type[Vector], arg: ArrayLike) -> Vector:
+    def __init__(
+        cls,
+        name: str,
+        bases: tuple[()] | tuple[type],
+        attrs: dict[str, Any],
+    ):
+        # Base case for API
+        if name == "Enum":
+            assert not bases
+            return
+
+        # Instantiate members
+        for (d0, d1), key in cls._data2key.items():
+            setattr(cls, key, cast_data(cls, d0, d1))
+
+    def __call__(cls, arg: ArrayLike) -> Vector:
         x = expect_array_size(arg, cls.size)
         return cls._cast_data(x._data[0], x._data[1])
 

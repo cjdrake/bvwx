@@ -94,7 +94,7 @@ class StructType(type):
         locals_: dict[str, Any] = {}
         exec(source, globals_, locals_)
 
-        def _repr(self: Vector) -> str:
+        def _repr(self) -> str:
             parts = [f"{name}("]
             for fn, _, _ in fields:
                 x = getattr(self, fn)
@@ -103,7 +103,7 @@ class StructType(type):
             parts.append(")")
             return "\n".join(parts)
 
-        def _str(self: Vector) -> str:
+        def _str(self) -> str:
             parts = [f"{name}("]
             for fn, _, _ in fields:
                 x = getattr(self, fn)
@@ -112,7 +112,7 @@ class StructType(type):
             parts.append(")")
             return "\n".join(parts)
 
-        def _fget(fo: int, ft: type[Array], self: Vector):
+        def _fget(fo: int, ft: type[Array], self):
             m = mask(ft.size)
             d0 = (self._data[0] >> fo) & m
             d1 = (self._data[1] >> fo) & m

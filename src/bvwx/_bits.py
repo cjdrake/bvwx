@@ -46,6 +46,12 @@ _ArrayShape: dict[tuple[int, ...], type[Array]] = {}
 _VectorSize: dict[int, type[Vector]] = {}
 
 
+def cast_data[T: Array](cls: type[T], d0: int, d1: int) -> T:
+    obj: T = object.__new__(cls)
+    obj._data = (d0, d1)
+    return obj
+
+
 def _get_array_shape(shape: tuple[int, ...]) -> type[Array]:
     """Return Array[shape] type."""
     assert len(shape) > 1 and all(isinstance(n, int) and n > 1 for n in shape)
