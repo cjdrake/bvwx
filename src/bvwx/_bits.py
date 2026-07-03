@@ -152,6 +152,9 @@ def _expect_vec_size(arg: VectorLike, size: int) -> Vector:
         x = lit2bv(arg)
         return _expect_size(x, size)
     # arg: Vector
+    if len(arg.shape) != 1:
+        s = f"Expected one-dimensional shape, got {arg.shape}"
+        raise TypeError(s)
     return _expect_size(arg, size)
 
 

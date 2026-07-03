@@ -2,7 +2,7 @@
 
 import pytest
 
-from bvwx import Vec, bits, i2bv, stack, u2bv
+from bvwx import Array, Vec, bits, i2bv, stack, u2bv
 
 E = bits()
 F = bits(False)
@@ -378,6 +378,10 @@ def test_bits():
         stack(0, 0, 0, 42)
     with pytest.raises(TypeError):
         bits(1.0e42)
+
+    x = Array[4, 4].rand()
+    with pytest.raises(TypeError):
+        bits(["16hdead", x])
 
 
 def test_stack():
