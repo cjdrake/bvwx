@@ -17,7 +17,6 @@ from ._bits import (
     expect_scalar,
     resolve_type,
 )
-from ._util import mask
 
 
 def not_(x: ArrayLike) -> Array:
@@ -262,8 +261,8 @@ def impl(p: ArrayLike, q: ArrayLike) -> Array:
 
 
 def _ite[T: Array](s: Array, x1: T, x0: Array) -> T | Vector:
-    s0 = mask(x1.size) * s._data[0]
-    s1 = mask(x1.size) * s._data[1]
+    s0 = x1._dmax * s._data[0]
+    s1 = x1._dmax * s._data[1]
     d0, d1 = lb.ite((s0, s1), x1._data, x0._data)
     t = resolve_type(x1, x0)
     return t._cast_data(d0, d1)
@@ -327,9 +326,8 @@ def ite(s: ScalarLike, x1: ArrayLike, x0: ArrayLike) -> Array:
 
 
 def _mux[T: Array](t: type[T], s: Array, xs: dict[int, Array]) -> T:
-    m = mask(t.size)
     si = (s._get_index(i) for i in range(s.size))
-    _s = tuple((m * d0, m * d1) for d0, d1 in si)
+    _s = tuple((t._dmax * d0, t._dmax * d1) for d0, d1 in si)
     _xs = {i: x._data for i, x in xs.items()}
     w = t.ws()
     d0, d1 = lb.mux(_s, _xs, w._data)
