@@ -339,7 +339,8 @@ class Array(Bits):
     def rand(cls) -> Self:
         """Return an instance filled with random bits."""
         d1 = random.getrandbits(cls.size)
-        return cls._cast_data(cls._dmax ^ d1, d1)
+        d0 = cls._dmax ^ d1
+        return cls._cast_data(d0, d1)
 
     @classmethod
     def xprop(cls, sel: Array) -> Self:
