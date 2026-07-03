@@ -12,7 +12,7 @@ from ._bits import (
     scalarX,
     vec_size,
 )
-from ._util import clog2, mask
+from ._util import clog2
 
 
 def encode_onehot(x: ArrayLike) -> Vector:
@@ -56,7 +56,7 @@ def encode_onehot(x: ArrayLike) -> Vector:
         raise ValueError(f"Expected x to be one-hot encoded, got {x}")
 
     y1 = clog2(d1)
-    y0 = y1 ^ mask(n)
+    y0 = y1 ^ V._dmax
     return V(y0, y1)
 
 
@@ -100,7 +100,7 @@ def encode_priority(x: ArrayLike) -> tuple[Vector, Scalar]:
             x_i = x._get_index(i)
             # 0*1{0,1,-}*
             if x_i == lb.T:
-                return V(i ^ mask(n), i), scalar1
+                return V(i ^ V._dmax, i), scalar1
             # 0*-{0,1,-}* => W
             if x_i == lb.W:
                 return V.ws(), scalarW
@@ -114,7 +114,7 @@ def encode_priority(x: ArrayLike) -> tuple[Vector, Scalar]:
         return V.ws(), scalar0
 
     y1 = clog2(d1 + 1) - 1
-    y0 = y1 ^ mask(n)
+    y0 = y1 ^ V._dmax
     return V(y0, y1), scalar1
 
 
@@ -161,5 +161,5 @@ def decode(x: ArrayLike) -> Vector:
         return V.ws()
 
     d1 = 1 << x.to_uint()
-    d0 = d1 ^ mask(n)
+    d0 = d1 ^ V._dmax
     return V(d0, d1)
