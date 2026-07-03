@@ -34,7 +34,7 @@ from __future__ import annotations
 
 import math
 import random
-from collections.abc import Generator
+from collections.abc import Iterator
 from functools import partial
 from typing import Any, Self, override
 
@@ -429,7 +429,7 @@ class Array(Bits):
             keys = list(key)
         return _sel(self, self._norm_key(keys))
 
-    def __iter__(self) -> Generator[Array, None, None]:
+    def __iter__(self) -> Iterator[Array]:
         for i in range(self.shape[0]):
             yield _sel(x=self, key=self._norm_key([i]))
 
@@ -789,7 +789,7 @@ class Vector(Array):
         return vec_size(size)(d0, d1)
 
     @override
-    def __iter__(self) -> Generator[Scalar, None, None]:
+    def __iter__(self) -> Iterator[Scalar]:
         for i in range(self.size):
             yield scalars[self._get_index(i)]
 
