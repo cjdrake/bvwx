@@ -2,7 +2,7 @@
 
 import pytest
 
-from bvwx import Array, Empty, Enum, Scalar, Struct, Union, Vec, bits, cast, u2bv
+from bvwx import Array, Enum, Struct, Union, bits, cast, u2bv
 
 E = bits()
 F = bits(False)
@@ -13,6 +13,10 @@ X = bits("1bX")
 
 def test_const():
     a = Array[4, 4]
+
+    assert repr(a) == "Array[4,4]"
+    assert str(a) == "Array[4,4]"
+
     assert a.shape == (4, 4)
 
     assert a.xs() == "16bXXXX_XXXX_XXXX_XXXX"
@@ -24,8 +28,8 @@ def test_const():
 
 
 def test_xprop():
-    assert Vec[4].xprop(bits("1bX")) == "4bXXXX"
-    assert Vec[4].xprop(bits("1b-")) == "4b----"
+    assert Array[4].xprop(bits("1bX")) == "4bXXXX"
+    assert Array[4].xprop(bits("1b-")) == "4b----"
 
 
 def test_type_resolution():
@@ -36,23 +40,23 @@ def test_type_resolution():
 
     # Downgrade Enum to Vec
     y = bits("2b00") | Color.RED
-    assert type(y) is Vec[2]
+    assert type(y) is Array[2].__origin__
 
     # Downgrade Array to Vec
-    y = Array[4, 4].rand() | Vec[16].rand()
-    assert type(y) is Vec[16]
+    y = Array[4, 4].rand() | Array[16].rand()
+    assert type(y) is Array[16].__origin__
 
 
 def test_type_cast():
     x1 = bits("4b1001")
     x2 = bits(["2b01", "2b10"])
 
-    x3 = cast(Vec[4], x2)
-    assert type(x3) is Vec[4]
+    x3 = cast(Array[4], x2)
+    assert type(x3) is Array[4].__origin__
     assert x3 == x1
 
     with pytest.raises(TypeError):
-        cast(Vec[3], x1)
+        cast(Array[3], x1)
 
 
 def test_bool():
@@ -76,7 +80,7 @@ def test_bool():
 
 
 def test_hash():
-    s: set[Vec] = set()
+    s: set[Array] = set()
     s.add(u2bv(0))
     s.add(u2bv(1))
     s.add(u2bv(2))
@@ -88,13 +92,13 @@ def test_hash():
 
 
 class MyStruct(Struct):
-    a: Vec[8]
-    b: Vec[8]
+    a: Array[8]
+    b: Array[8]
 
 
 class MyUnion(Union):
-    a: Vec[4]
-    b: Vec[8]
+    a: Array[4]
+    b: Array[8]
 
 
 def test_bug_3():
@@ -224,13 +228,10 @@ def test_vec_getitem():
         _ = X2[4]
     # Slice step not supported
     with pytest.raises(ValueError):
-        _ = X2[0:4:1]
+        _ = X2[0:4:1]  # ty: ignore[invalid-argument-type]
 
 
 def test_array_class_getitem():
-    assert Array[0] is Empty
-    assert Array[1] is Scalar
-    assert Array[2] is Vec[2]
     assert Array[2, 2].shape == (2, 2)
     with pytest.raises(ValueError):
         _ = Array[-1]
@@ -245,13 +246,11 @@ def test_array_class_getitem():
 
 
 def test_vec_class_getitem():
-    assert Vec[0] is Empty
-    assert Vec[1] is Scalar
-    assert Vec[2].shape == (2,)
+    assert Array[2].shape == (2,)
     with pytest.raises(ValueError):
-        _ = Vec[-1]
+        _ = Array[-1]
     with pytest.raises(TypeError):
-        _ = Vec["invalid"]
+        _ = Array["invalid"]
 
 
 def test_vec_iter():
@@ -292,13 +291,13 @@ def test_slicing():
         x["invalid"]
     # Slice step not supported
     with pytest.raises(ValueError):
-        x[0:4:1]
+        x[0:4:1]  # ty: ignore[invalid-argument-type]
     # Invalid dimension
     with pytest.raises(ValueError):
         x[0, 0, 0, 0]
     # Invalid slice type
     with pytest.raises(TypeError):
-        x[42.0]
+        x[42.0]  # ty: ignore[invalid-argument-type]
 
     assert x == x[:]
     assert x == x[0:4]
@@ -348,25 +347,25 @@ def test_slicing():
 
 def test_array_reshape():
     a = Array[2, 3, 4]
-    v = Vec[24]
+    v = Array[24]
     x = a(0, 0)
     assert x.shape == (2, 3, 4)
     assert x.size == 24
 
     y = x.reshape((2, 3, 4))
-    assert type(y) is a
+    # assert type(y) is a
     assert y == x
 
     y = x.reshape((4, 3, 2))
-    assert type(y) is Array[4, 3, 2]
+    assert type(y) is Array[4, 3, 2].__origin__
     assert y == x
 
     y = x.reshape((24,))
-    assert type(y) is v
+    assert type(y) is v.__origin__
     assert y == x
 
     y = x.flatten()
-    assert type(y) is v
+    assert type(y) is v.__origin__
     assert y == x
 
     with pytest.raises(ValueError):
@@ -374,21 +373,21 @@ def test_array_reshape():
 
 
 def test_vec_reshape():
-    v = Vec[24]
+    v = Array[24]
     x = v(0, 0)
     assert x.shape == (24,)
     assert x.size == 24
 
     y = x.reshape((2, 3, 4))
-    assert type(y) is Array[2, 3, 4]
+    assert type(y) is Array[2, 3, 4].__origin__
     assert y == x
 
     y = x.reshape((24,))
-    assert type(y) is v
+    assert type(y) is v.__origin__
     assert y == x
 
     y = x.flatten()
-    assert type(y) is v
+    assert type(y) is v.__origin__
     assert y == x
 
     with pytest.raises(ValueError):

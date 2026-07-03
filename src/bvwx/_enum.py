@@ -2,7 +2,7 @@
 
 from typing import Any
 
-from ._bits import ArrayLike, Vector, cast_data, expect_array_size, vec_size
+from ._bits import Array, ArrayLike, cast_data, expect_array_size, vec
 from ._lbool import parse_lit
 from ._util import mask
 
@@ -75,13 +75,13 @@ class EnumType(type):
         _, data2key, size = _parse_attrs(attrs)
 
         # Get Vector[N] base class
-        V = vec_size(size)
+        V = vec(size)
 
         # Create Enum class
         ns: dict[str, Any] = {"__slots__": (), "_data2key": data2key}
         cls = super().__new__(mcls, name, (V,), ns)
 
-        def _cast_data(cls, d0: int, d1: int) -> Vector:
+        def _cast_data(cls, d0: int, d1: int) -> Array:
             try:
                 return getattr(cls, data2key[(d0, d1)])
             except KeyError:
@@ -128,14 +128,14 @@ class EnumType(type):
             assert not bases
             return
 
-        assert issubclass(cls, Vector)  # Help type checker
+        assert issubclass(cls, Array)  # Help type checker
 
         # Instantiate members
         for (d0, d1), key in cls._data2key.items():
             setattr(cls, key, cast_data(cls, d0, d1))
 
     def __call__(cls, arg: ArrayLike):
-        assert issubclass(cls, Vector)  # Help type checker
+        assert issubclass(cls, Array)  # Help type checker
         x = expect_array_size(arg, cls.size)
         return cls._cast_data(x._data[0], x._data[1])
 
@@ -184,7 +184,7 @@ class Enum(metaclass=EnumType):
 
     To cast an ``Enum`` to a ``Vec``, use the ``cast`` method:
 
-    >>> from bvwx import Vec, cast
-    >>> cast(Vec[2], Color.RED)
+    >>> from bvwx import Array, cast
+    >>> cast(Array[2], Color.RED)
     bits("2b00")
     """

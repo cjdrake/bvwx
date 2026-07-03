@@ -2,7 +2,7 @@
 
 import pytest
 
-from bvwx import Struct, Vec
+from bvwx import Array, Struct
 
 
 def test_empty():
@@ -13,9 +13,9 @@ def test_empty():
 
 
 class Simple(Struct):
-    a: Vec[2]
-    b: Vec[3]
-    c: Vec[4]
+    a: Array[2]
+    b: Array[3]
+    c: Array[4]
 
 
 class Compound(Struct):
@@ -116,7 +116,7 @@ def test_bad_type():
     with pytest.raises(TypeError):
 
         class BadType(Struct):
-            a: Vec[4]
+            a: Array[4]
             b: Simple
             c: int  # Error!
-            d: Vec[4]
+            d: Array[4]

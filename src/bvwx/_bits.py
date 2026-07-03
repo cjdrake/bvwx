@@ -36,14 +36,14 @@ import math
 import random
 from collections.abc import Iterator
 from functools import partial
-from typing import Any, Self, override
+from types import GenericAlias
+from typing import Any, Self
 
 from . import _lbool as lb
 from ._lbool import lbv
 from ._util import clog2, mask
 
 _ArrayShape: dict[tuple[int, ...], type[Array]] = {}
-_VectorSize: dict[int, type[Vector]] = {}
 
 
 def cast_data[T: Array](cls: type[T], d0: int, d1: int) -> T:
@@ -58,7 +58,7 @@ def cast[T: Array](cls: type[T], x: Array) -> T:
     For example, to cast an ``Array[2,2]`` to a ``Vector[4]``:
 
     >>> x = bits(["2b00", "2b11"])
-    >>> cast(Vector[4], x)
+    >>> cast(Array[4], x)
     bits("4b1100")
 
     Raises:
@@ -69,50 +69,7 @@ def cast[T: Array](cls: type[T], x: Array) -> T:
     return cls._cast_data(x._data[0], x._data[1])
 
 
-def _get_array_shape(shape: tuple[int, ...]) -> type[Array]:
-    """Return Array[shape] type."""
-    assert len(shape) > 1 and all(isinstance(n, int) and n > 1 for n in shape)
-    try:
-        return _ArrayShape[shape]
-    except KeyError:
-        name = f"Array[{','.join(str(n) for n in shape)}]"
-        size = math.prod(shape)
-        dmax = mask(size)
-        ns: dict[str, Any] = {"__slots__": (), "shape": shape, "size": size, "_dmax": dmax}
-        A = type(name, (Array,), ns)
-        _ArrayShape[shape] = A
-        return A
-
-
-def _get_vec_size(size: int) -> type[Vector]:
-    """Return Vector[size] type."""
-    assert isinstance(size, int) and size > 1
-    try:
-        return _VectorSize[size]
-    except KeyError:
-        name = f"Vector[{size}]"
-        shape = (size,)
-        dmax = mask(size)
-        ns: dict[str, Any] = {"__slots__": (), "size": size, "shape": shape, "_dmax": dmax}
-        V = type(name, (Vector,), ns)
-        _VectorSize[size] = V
-        return V
-
-
-def vec_size(size: int) -> type[Vector]:
-    """Vector[size] class factory."""
-    assert size >= 0
-    # Degenerate case: Null
-    if size == 0:
-        return Empty
-    # Degenerate case: 0-D
-    if size == 1:
-        return Scalar
-    # General case: 1-D
-    return _get_vec_size(size)
-
-
-def _b2s(arg: int) -> Scalar:
+def _b2s(arg: int) -> Array:
     try:
         return bool2scalar[arg]
     except IndexError as e:
@@ -120,7 +77,7 @@ def _b2s(arg: int) -> Scalar:
         raise ValueError(s) from e
 
 
-def _i2v(arg: int, size: int) -> Vector:
+def _i2v(arg: int, size: int) -> Array:
     if arg < 0:
         return i2bv(arg, size)
     return u2bv(arg, size)
@@ -169,7 +126,7 @@ def expect_array_size(arg: ArrayLike, size: int) -> Array:
     return _expect_size(arg, size)
 
 
-def _expect_vec_size(arg: VectorLike, size: int) -> Vector:
+def expect_vec_size(arg: VectorLike, size: int) -> Array:
     """Any Vector-Like object that may or may not define its own size"""
     # arg: Vector | str | int
     if isinstance(arg, int):
@@ -185,7 +142,7 @@ def _expect_vec_size(arg: VectorLike, size: int) -> Vector:
     return _expect_size(arg, size)
 
 
-def expect_scalar(arg: ScalarLike) -> Scalar:
+def expect_scalar(arg: ScalarLike) -> Array:
     """Any Scalar-like object"""
     # arg: Scalar | str | int
     if isinstance(arg, int):
@@ -193,50 +150,31 @@ def expect_scalar(arg: ScalarLike) -> Scalar:
     # arg: Scalar | str
     if isinstance(arg, str):
         x = lit2bv(arg)
-        s = _expect_size(x, 1)
-        assert isinstance(s, Scalar)
-        return s
+        return _expect_size(x, 1)
     # arg: Scalar
-    return arg
+    return _expect_size(arg, 1)
 
 
-def resolve_type[T: Array](x0: T, x1: Array) -> type[T] | type[Vector]:
+def resolve_type[T: Array](x0: T, x1: Array) -> type[T] | type[Array]:
     t = type(x0)
 
     # T (op) T -> T
     if t is type(x1):
         return t
 
-    # Otherwise, downgrade to Scalar/Vector
-    return vec_size(x0.size)
+    # Otherwise, downgrade to Vector
+    return vec(x0.size)
 
 
-class Bits:
-    __slots__ = ("_data",)
+class ArrayGenericAlias(GenericAlias):
+    def __repr__(self) -> str:
+        return self.__origin__.__name__
 
-    @classmethod
-    def _cast_data(cls, d0: int, d1: int) -> Self:
-        obj = object.__new__(cls)
-        Bits.__init__(obj, d0, d1)
-        return obj
-
-    def __init__(self, d0: int, d1: int):
-        self._data = (d0, d1)
-
-    def _get_index(self, i: int) -> lbv:
-        d0 = (self._data[0] >> i) & 1
-        d1 = (self._data[1] >> i) & 1
-        return d0, d1
-
-    def _get_slice(self, i: int, j: int) -> tuple[int, lbv]:
-        size = j - i
-        m = mask(size)
-        d0 = (self._data[0] >> i) & m
-        d1 = (self._data[1] >> i) & m
-        return size, (d0, d1)
+    def __str__(self) -> str:
+        return self.__origin__.__name__
 
 
-class Array(Bits):
+class Array[*Shape]:
     """Multi dimensional array of bits.
 
     To create an ``Array`` instance, use the ``bits`` function:
@@ -271,25 +209,29 @@ class Array(Bits):
     bits("8b1110_0100")
     """
 
-    __slots__ = ()
+    __slots__ = ("_data",)
 
     shape: tuple[int, ...]
     size: int
     _dmax: int
 
-    def __class_getitem__(cls, key: int | tuple[int, ...]) -> type[Array]:
+    def __class_getitem__(cls, key: int | tuple[int, ...]) -> ArrayGenericAlias:
         if isinstance(key, int):
             size: int = key
             if size < 0:
                 raise ValueError(f"Expected size ≥ 0, got {size}")
-            return vec_size(size)
+            return ArrayGenericAlias(vec(size), (size,))
 
         shape: tuple[int, ...] = key
         for i, n in enumerate(shape):
             if n <= 1:
                 s = f"For shape dimension {i}: expected n > 1, got {n}"
                 raise ValueError(s)
-        return _get_array_shape(shape)
+        return ArrayGenericAlias(array(shape), shape)
+
+    @classmethod
+    def _cast_data(cls, d0: int, d1: int) -> Self:
+        return cast_data(cls, d0, d1)
 
     @classmethod
     def xs(cls) -> Self:
@@ -297,7 +239,7 @@ class Array(Bits):
 
         For example:
 
-        >>> Vector[4].xs()
+        >>> Array[4].xs()
         bits("4bXXXX")
         """
         return cls._cast_data(0, 0)
@@ -308,7 +250,7 @@ class Array(Bits):
 
         For example:
 
-        >>> Vector[4].zeros()
+        >>> Array[4].zeros()
         bits("4b0000")
         """
         return cls._cast_data(cls._dmax, 0)
@@ -319,7 +261,7 @@ class Array(Bits):
 
         For example:
 
-        >>> Vector[4].ones()
+        >>> Array[4].ones()
         bits("4b1111")
         """
         return cls._cast_data(0, cls._dmax)
@@ -330,7 +272,7 @@ class Array(Bits):
 
         For example:
 
-        >>> Vector[4].ws()
+        >>> Array[4].ws()
         bits("4b----")
         """
         return cls._cast_data(cls._dmax, cls._dmax)
@@ -351,12 +293,12 @@ class Array(Bits):
 
         For example:
 
-        >>> def f(x: Vector[1]) -> Vector[1]:
+        >>> def f(x: Array[1]) -> Array[1]:
         ...     match x:
         ...         case "1b0":
         ...             return bits("1b1")
         ...         case _:
-        ...             return Vector[1].xprop(x)
+        ...             return Array[1].xprop(x)
 
         >>> f(bits("1b0"))  # Match!
         bits("1b1")
@@ -404,6 +346,9 @@ class Array(Bits):
 
         return tuple(f(n, key) for n, key in zip(cls.shape, keys))
 
+    def __init__(self, d0: int, d1: int) -> None:
+        self._data = (d0, d1)
+
     def __hash__(self) -> int:
         return hash(self.shape + self._data)
 
@@ -415,14 +360,29 @@ class Array(Bits):
             return obj.size == self.size and obj._data == self._data
         return False
 
-    def __repr__(self) -> str:
-        prefix = "bits"
-        indent = " " * len(prefix) + "  "
-        return f"{prefix}({_array_repr(indent, self)})"
+    def _str(self) -> str:
+        prefix = f"{self.size}b"
+        chars = [lb.to_char[self._get_index(0)]]
+        for i in range(1, self.size):
+            if i % 4 == 0:
+                chars.append("_")
+            chars.append(lb.to_char[self._get_index(i)])
+        return prefix + "".join(reversed(chars))
 
-    def __str__(self) -> str:
-        indent = " "
-        return f"{_array_str(indent, self)}"
+    def _get_index(self, i: int) -> lbv:
+        d0 = (self._data[0] >> i) & 1
+        d1 = (self._data[1] >> i) & 1
+        return d0, d1
+
+    def _get_slice(self, i: int, j: int) -> tuple[int, lbv]:
+        size = j - i
+        m = mask(size)
+        d0 = (self._data[0] >> i) & m
+        d1 = (self._data[1] >> i) & m
+        return size, (d0, d1)
+
+    def __len__(self) -> int:
+        return self.shape[0]
 
     def __getitem__(self, key: Key | tuple[Key, ...]) -> Array:
         if isinstance(key, (int, slice, Array, str)):
@@ -435,22 +395,6 @@ class Array(Bits):
         for i in range(self.shape[0]):
             yield _sel(x=self, key=self._norm_key([i]))
 
-    def get_key(self, key: Key) -> tuple[int, lbv]:
-        if isinstance(key, slice):
-            start, stop = _norm_slice(self.size, key)
-            if start != 0 or stop != self.size:
-                return self._get_slice(start, stop)
-            return self.size, self._data
-        # key: UintLike
-        if isinstance(key, int):
-            index = _norm_index(self.size, key)
-        else:
-            if isinstance(key, str):
-                key = lit2bv(key)
-            # key: Array
-            index = _norm_index(self.size, key.to_uint())
-        return 1, self._get_index(index)
-
     def reshape(self, shape: tuple[int, ...]) -> Array:
         if shape == self.shape:
             return self
@@ -458,11 +402,11 @@ class Array(Bits):
             s = f"Expected shape with size {self.size}, got {shape}"
             raise ValueError(s)
         if len(shape) == 1:
-            return _get_vec_size(shape[0])(self._data[0], self._data[1])
-        return _get_array_shape(shape)(self._data[0], self._data[1])
+            return vec_obj(size=shape[0], d0=self._data[0], d1=self._data[1])
+        return array_obj(shape, d0=self._data[0], d1=self._data[1])
 
-    def flatten(self) -> Vector:
-        return _get_vec_size(self.size)(self._data[0], self._data[1])
+    def flatten(self) -> Array:
+        raise NotImplementedError()  # pragma: no cover
 
     def __bool__(self) -> bool:
         """Convert to Python ``bool``.
@@ -544,7 +488,7 @@ class Array(Bits):
     def __invert__(self) -> Self:
         return bits_not(self)
 
-    def __or__(self, other: ArrayLike) -> Self | Vector:
+    def __or__(self, other: ArrayLike) -> Self | Array:
         other = expect_array_size(other, self.size)
         return bits_or(self, other)
 
@@ -552,7 +496,7 @@ class Array(Bits):
         other = expect_array_size(other, self.size)
         return bits_or(other, self)
 
-    def __and__(self, other: ArrayLike) -> Self | Vector:
+    def __and__(self, other: ArrayLike) -> Self | Array:
         other = expect_array_size(other, self.size)
         return bits_and(self, other)
 
@@ -560,7 +504,7 @@ class Array(Bits):
         other = expect_array_size(other, self.size)
         return bits_and(other, self)
 
-    def __xor__(self, other: ArrayLike) -> Self | Vector:
+    def __xor__(self, other: ArrayLike) -> Self | Array:
         other = expect_array_size(other, self.size)
         return bits_xor(self, other)
 
@@ -587,47 +531,37 @@ class Array(Bits):
         return bits_rsh(other, self)
 
     # Note: Keep carry-out
-    def __add__(self, other: ArrayLike) -> Vector:
+    def __add__(self, other: ArrayLike) -> Array:
         other = expect_array(other)
         s, co = bits_add(self, other, scalar0)
-        v = bits_cat(s, co)
-        assert isinstance(v, Vector)
-        return v
+        return bits_cat(s, co)
 
-    def __radd__(self, other: ArrayLike) -> Vector:
+    def __radd__(self, other: ArrayLike) -> Array:
         other = expect_array(other)
         s, co = bits_add(other, self, scalar0)
-        v = bits_cat(s, co)
-        assert isinstance(v, Vector)
-        return v
+        return bits_cat(s, co)
 
     # Note: Keep carry-out
-    def __sub__(self, other: ArrayLike) -> Vector:
+    def __sub__(self, other: ArrayLike) -> Array:
         other = expect_array_size(other, self.size)
         s, co = bits_sub(self, other)
-        v = bits_cat(s, co)
-        assert isinstance(v, Vector)
-        return v
+        return bits_cat(s, co)
 
-    def __rsub__(self, other: ArrayLike) -> Vector:
+    def __rsub__(self, other: ArrayLike) -> Array:
         other = expect_array_size(other, self.size)
         s, co = bits_sub(other, self)
-        v = bits_cat(s, co)
-        assert isinstance(v, Vector)
-        return v
+        return bits_cat(s, co)
 
     # Note: Keep carry-out
-    def __neg__(self) -> Vector:
+    def __neg__(self) -> Array:
         s, co = bits_neg(self)
-        v = bits_cat(s, co)
-        assert isinstance(v, Vector)
-        return v
+        return bits_cat(s, co)
 
-    def __mul__(self, other: ArrayLike) -> Vector:
+    def __mul__(self, other: ArrayLike) -> Array:
         other = expect_array(other)
         return bits_mul(self, other)
 
-    def __rmul__(self, other: ArrayLike) -> Vector:
+    def __rmul__(self, other: ArrayLike) -> Array:
         other = expect_array(other)
         return bits_mul(other, self)
 
@@ -719,209 +653,127 @@ class Array(Bits):
         return "".join(lb.to_vcd_char[self._get_index(i)] for i in range(self.size - 1, -1, -1))
 
 
-class Vector(Array):
-    """One dimensional sequence of bits.
+def _array_new(shape: tuple[int, ...]) -> type[Array]:
+    name = f"Array[{','.join(str(n) for n in shape)}]"
+    size = math.prod(shape)
+    dmax = mask(size)
+    ns: dict[str, Any] = {"__slots__": (), "shape": shape, "size": size, "_dmax": dmax}
+    cls = type(name, (Array,), ns)
 
-    To create a ``Vector`` instance,
-    use binary, decimal, or hexadecimal string literals:
+    # Vector
+    if len(shape) == 1:
+        # Empty
+        if shape == (0,):
 
-    >>> bits("4b1010")
-    bits("4b1010")
-    >>> bits("4d10")
-    bits("4b1010")
-    >>> bits("4ha")
-    bits("4b1010")
+            def _repr(self) -> str:
+                return "bits([])"
 
-    ``Vector`` implements ``size`` and ``shape`` attributes,
-    as well as ``__len__`` and ``__getitem__`` methods:
+            def _str(self) -> str:
+                return "[]"
 
-    >>> x = bits("8b1111_0000")
-    >>> x.size
-    8
-    >>> x.shape
-    (8,)
-    >>> len(x)
-    8
-    >>> x[3]
-    bits("1b0")
-    >>> x[4]
-    bits("1b1")
-    >>> x[2:6]
-    bits("4b1100")
+        # Scalar / Vector
+        else:
 
-    A ``Vector`` may be converted into an equal-size multi-dimensional ``Array``
-    using the ``reshape`` method:
+            def _repr(self) -> str:
+                return f'bits("{self._str()}")'
 
-    >>> x.reshape((2,4))
-    bits(["4b0000", "4b1111"])
-    """
+            def _str(self) -> str:
+                return self._str()
 
-    __slots__ = ()
-
-    @override
-    def __class_getitem__(cls, key: int | tuple[int, ...]) -> type[Array]:
-        if isinstance(key, int):
-            size: int = key
-            if size < 0:
-                raise ValueError(f"Expected size ≥ 0, got {size}")
-            return vec_size(size)
-
-        raise TypeError(f"Expected key to be int, got {key.__class__}")
-
-    @override
-    def __repr__(self) -> str:
-        return f'bits("{self.__str__()}")'
-
-    @override
-    def __str__(self) -> str:
-        prefix = f"{self.size}b"
-        chars = [lb.to_char[self._get_index(0)]]
-        for i in range(1, self.size):
-            if i % 4 == 0:
-                chars.append("_")
-            chars.append(lb.to_char[self._get_index(i)])
-        return prefix + "".join(reversed(chars))
-
-    def __len__(self) -> int:
-        return self.size
-
-    @override
-    def __getitem__(self, key: Key) -> Vector:
-        size, (d0, d1) = self.get_key(key)
-        return vec_size(size)(d0, d1)
-
-    @override
-    def __iter__(self) -> Iterator[Scalar]:
-        for i in range(self.size):
-            yield scalars[self._get_index(i)]
-
-    @override
-    def reshape(self, shape: tuple[int, ...]) -> Array:
-        if shape == self.shape:
+        def flatten(self) -> Array:
             return self
-        if math.prod(shape) != self.size:
-            s = f"Expected shape with size {self.size}, got {shape}"
-            raise ValueError(s)
-        return _get_array_shape(shape)(self._data[0], self._data[1])
 
-    @override
-    def flatten(self) -> Vector:
-        return self
+    # Array
+    else:
 
+        def _repr(self) -> str:
+            return f"bits({_array_repr(indent='      ', x=self)})"
 
-class Scalar(Vector):
-    """Zero dimensional (scalar) sequence of bits.
+        def _str(self) -> str:
+            return _array_str(indent=" ", x=self)
 
-    Degenerate form of a ``Vector`` resulting from a one bit slice.
+        def flatten(self) -> Array:
+            return vec_obj(size=self.size, d0=self._data[0], d1=self._data[1])
 
-    >>> from bvwx import Vec
-    >>> Vec[1] is Scalar
-    True
+    setattr(cls, "__repr__", _repr)
+    setattr(cls, "__str__", _str)
+    setattr(cls, "flatten", flatten)
 
-    To get a handle to a ``Scalar`` instance:
-
-    >>> f = bits("1b0")
-    >>> t = bits("1b1")
-    >>> x = bits("1bX")
-    >>> w = bits("1b-")
-
-    For convenience, ``False`` and ``True`` also work:
-
-    >>> bits(False) == f and bits(True) == t
-    True
-
-    ``Scalar`` implements ``Vector`` methods,
-    including ``__getitem__``:
-
-    >>> t.size
-    1
-    >>> t.shape
-    (1,)
-    >>> len(t)
-    1
-    >>> t[0]
-    bits("1b1")
-    """
-
-    __slots__ = ()
-
-    size = 1
-    shape = (1,)
-    _dmax = 1
-
-    @classmethod
-    def _cast_data(cls, d0: int, d1: int) -> Scalar:
-        return scalars[(d0, d1)]
+    return cls
 
 
-scalarX: Scalar = Scalar(*lb.X)
-scalar0: Scalar = Scalar(*lb.F)
-scalar1: Scalar = Scalar(*lb.T)
-scalarW: Scalar = Scalar(*lb.W)
+def array(shape: tuple[int, ...]) -> type[Array]:
+    """Return Array[shape] type."""
+    assert shape
+    assert len(shape) == 1 and shape[0] >= 0 or all(isinstance(n, int) and n > 1 for n in shape)
 
-scalars: dict[lbv, Scalar] = {
-    lb.X: scalarX,
-    lb.F: scalar0,
-    lb.T: scalar1,
-    lb.W: scalarW,
+    try:
+        return _ArrayShape[shape]
+    except KeyError:
+        cls = _array_new(shape)
+        _ArrayShape[shape] = cls
+        return cls
+
+
+def vec(size: int) -> type[Array]:
+    return array(shape=(size,))
+
+
+def scalar() -> type[Array]:
+    return vec(size=1)
+
+
+def empty() -> type[Array]:
+    return vec(size=0)
+
+
+def array_obj(shape: tuple[int, ...], d0: int, d1: int) -> Array:
+    return array(shape)(d0, d1)
+
+
+def vec_obj(size: int, d0: int, d1: int) -> Array:
+    return vec(size)(d0, d1)
+
+
+_scalars: dict[tuple[int, int], Array | None] = {
+    lb.X: None,
+    lb.F: None,
+    lb.T: None,
+    lb.W: None,
 }
+
+
+def scalar_obj(d0: int, d1: int) -> Array:
+    data = (d0, d1)
+    if _scalars[data] is None:
+        _scalars[data] = scalar()(d0, d1)
+    x = _scalars[data]
+    assert x is not None
+    return x
+
+
+scalarX = scalar_obj(*lb.X)
+scalar0 = scalar_obj(*lb.F)
+scalar1 = scalar_obj(*lb.T)
+scalarW = scalar_obj(*lb.W)
+
 bool2scalar = (scalar0, scalar1)
 
 
-class Empty(Vector):
-    """Null dimensional sequence of bits.
-
-    Degenerate form of a ``Vector`` resulting from an empty slice.
-
-    >>> from bvwx import Vec
-    >>> Vec[0] is Empty
-    True
-
-    To get a handle to an ``Empty`` instance:
-
-    >>> empty = bits()
-
-    ``Empty`` implements ``Vector`` methods,
-    but __getitem__ will always raise an exception:
-
-    >>> empty.size
-    0
-    >>> empty.shape
-    (0,)
-    >>> len(empty)
-    0
-    >>> empty[0]
-    Traceback (most recent call last):
-        ...
-    IndexError: Expected index in [0, 0), got 0
-    """
-
-    __slots__ = ()
-
-    size = 0
-    shape = (0,)
-    _dmax = 0
-
-    @classmethod
-    def _cast_data(cls, d0: int, d1: int) -> Empty:
-        return _empty
-
-    @override
-    def __repr__(self) -> str:
-        return "bits([])"
-
-    @override
-    def __str__(self) -> str:
-        return "[]"
+_empty: Array | None = None
 
 
-_empty = Empty(0, 0)
+def empty_obj() -> Array:
+    global _empty  # noqa: PLW0603
+    if _empty is None:
+        _empty = empty()(d0=0, d1=0)
+    return _empty
 
 
 # Type Aliases
 type ArrayLike = Array | str | int
-type VectorLike = Vector | str | int
-type ScalarLike = Scalar | str | int
+type VectorLike = Array | str | int
+type ScalarLike = Array | str | int
 type UintLike = Array | str | int
 type KeySlice = slice[int | None, int | None, None]
 type Key = UintLike | KeySlice
@@ -933,32 +785,32 @@ def bits_not[T: Array](x: T) -> T:
     return x._cast_data(d0, d1)
 
 
-def bits_or[T: Array](x0: T, x1: Array) -> T | Vector:
+def bits_or[T: Array](x0: T, x1: Array) -> T | Array:
     d0, d1 = lb.or_(x0._data, x1._data)
     t = resolve_type(x0, x1)
     return t._cast_data(d0, d1)
 
 
-def bits_and[T: Array](x0: T, x1: Array) -> T | Vector:
+def bits_and[T: Array](x0: T, x1: Array) -> T | Array:
     d0, d1 = lb.and_(x0._data, x1._data)
     t = resolve_type(x0, x1)
     return t._cast_data(d0, d1)
 
 
-def bits_xnor[T: Array](x0: T, x1: Array) -> T | Vector:
+def bits_xnor[T: Array](x0: T, x1: Array) -> T | Array:
     d0, d1 = lb.xnor(x0._data, x1._data)
     t = resolve_type(x0, x1)
     return t._cast_data(d0, d1)
 
 
-def bits_xor[T: Array](x0: T, x1: Array) -> T | Vector:
+def bits_xor[T: Array](x0: T, x1: Array) -> T | Array:
     d0, d1 = lb.xor(x0._data, x1._data)
     t = resolve_type(x0, x1)
     return t._cast_data(d0, d1)
 
 
 # Unary
-def bits_uor(x: Array) -> Scalar:
+def bits_uor(x: Array) -> Array:
     if x.has_x():
         return scalarX
     if x.has_1():
@@ -968,7 +820,7 @@ def bits_uor(x: Array) -> Scalar:
     return scalar0
 
 
-def bits_uand(x: Array) -> Scalar:
+def bits_uand(x: Array) -> Array:
     if x.has_x():
         return scalarX
     if x.has_0():
@@ -978,7 +830,7 @@ def bits_uand(x: Array) -> Scalar:
     return scalar1
 
 
-def bits_uxor(x: Array) -> Scalar:
+def bits_uxor(x: Array) -> Array:
     if x.has_x():
         return scalarX
     if x.has_w():
@@ -987,11 +839,11 @@ def bits_uxor(x: Array) -> Scalar:
 
 
 # Arithmetic
-def bits_add[T: Array](a: T, b: Array, ci: Scalar) -> tuple[T | Vector, Scalar]:
+def bits_add[T: Array](a: T, b: Array, ci: Array) -> tuple[T | Array, Array]:
     if a.size == b.size:
         t = resolve_type(a, b)
     else:
-        t = vec_size(max(a.size, b.size))
+        t = vec(max(a.size, b.size))
 
     # X/W propagation
     if a.has_x() or b.has_x() or ci.has_x():
@@ -1007,7 +859,7 @@ def bits_add[T: Array](a: T, b: Array, ci: Scalar) -> tuple[T | Vector, Scalar]:
     return t._cast_data(s0, s1), co
 
 
-def bits_inc[T: Array](a: T) -> tuple[T, Scalar]:
+def bits_inc[T: Array](a: T) -> tuple[T, Array]:
     # X/W propagation
     if a.has_x():
         return a.xs(), scalarX
@@ -1022,16 +874,16 @@ def bits_inc[T: Array](a: T) -> tuple[T, Scalar]:
     return a._cast_data(s0, s1), co
 
 
-def bits_sub[T: Array](a: T, b: Array) -> tuple[T | Vector, Scalar]:
+def bits_sub[T: Array](a: T, b: Array) -> tuple[T | Array, Array]:
     return bits_add(a, bits_not(b), ci=scalar1)
 
 
-def bits_neg[T: Array](x: T) -> tuple[T, Scalar]:
+def bits_neg[T: Array](x: T) -> tuple[T, Array]:
     return bits_inc(bits_not(x))
 
 
-def bits_mul(a: Array, b: Array) -> Vector:
-    V = vec_size(a.size + b.size)
+def bits_mul(a: Array, b: Array) -> Array:
+    V = vec(a.size + b.size)
 
     # X/W propagation
     if a.has_x() or b.has_x():
@@ -1077,7 +929,7 @@ def bits_mod[T: Array](a: Array, b: T) -> T:
     return b._cast_data(r0, r1)
 
 
-def _and_or(a: Array, b: Array) -> Scalar:
+def _and_or(a: Array, b: Array) -> Array:
     return bits_uor(bits_and(a, b))
 
 
@@ -1146,7 +998,7 @@ def bits_rsh[T: Array](x: T, n: Array) -> T:
 # Word
 def bits_cat(*xs: Array) -> Array:
     if len(xs) == 0:
-        return _empty
+        return empty_obj()
     if len(xs) == 1:
         return xs[0]
 
@@ -1156,10 +1008,10 @@ def bits_cat(*xs: Array) -> Array:
         d0 |= x._data[0] << size
         d1 |= x._data[1] << size
         size += x.size
-    return vec_size(size)(d0, d1)
+    return vec(size)(d0, d1)
 
 
-def _bools2vec(x0: int, *xs: int) -> Vector:
+def _bools2vec(x0: int, *xs: int) -> Array:
     """Convert an iterable of bools to a vec.
 
     This is a convenience function.
@@ -1175,20 +1027,20 @@ def _bools2vec(x0: int, *xs: int) -> Vector:
             raise TypeError(f"Expected x in {{0, 1}}, got {x}")
         size += 1
     d0 = d1 ^ mask(size)
-    return vec_size(size)(d0, d1)
+    return vec_obj(size, d0, d1)
 
 
-def _rank2(fst: Vector, *rst: VectorLike) -> Array:
+def _rank2(fst: Array, *rst: VectorLike) -> Array:
     d0, d1 = fst._data
     for i, x in enumerate(rst, start=1):
-        _x = _expect_vec_size(x, fst.size)
+        _x = expect_vec_size(x, fst.size)
         d0 |= _x._data[0] << (fst.size * i)
         d1 |= _x._data[1] << (fst.size * i)
     if fst.shape == (1,):
         size = len(rst) + 1
-        return _get_vec_size(size)(d0, d1)
+        return vec_obj(size, d0, d1)
     shape = (len(rst) + 1,) + fst.shape
-    return _get_array_shape(shape)(d0, d1)
+    return array_obj(shape, d0, d1)
 
 
 def bits(obj: Any = None) -> Array:
@@ -1230,20 +1082,20 @@ def bits(obj: Any = None) -> Array:
     """
     match obj:
         case None | []:
-            y = _empty
-        case 0 | 1 as x:
-            assert x in (0, 1)  # Help the type checker
+            y = empty_obj()
+        case 0 | 1:
+            x: int = obj  # Help type checker
             y = bool2scalar[x]
         case [0 | 1 as fst, *rst]:
             y = _bools2vec(fst, *rst)
+            y = _bools2vec(fst, *rst)
         case str() as lit:
+            y = lit2bv(lit)
             y = lit2bv(lit)
         case [str() as lit, *rst]:
             x = lit2bv(lit)
             y = _rank2(x, *rst)
-        case [Scalar() as x, *rst]:
-            y = _rank2(x, *rst)
-        case [Vector() as x, *rst]:
+        case [Array() as x, *rst] if len(x.shape) == 1:
             y = _rank2(x, *rst)
         case [*objs]:
             y = _stack(*[bits(obj) for obj in objs])
@@ -1255,7 +1107,7 @@ def bits(obj: Any = None) -> Array:
 
 def _stack(*xs: Array) -> Array:
     if len(xs) == 0:
-        return _empty
+        return empty_obj()
     if len(xs) == 1:
         return xs[0]
 
@@ -1273,17 +1125,17 @@ def _stack(*xs: Array) -> Array:
 
     # {Empty, Empty, ...} => Empty
     if fst.shape == (0,):
-        return _empty
+        return empty_obj()
 
     # {Scalar, Scalar, ...} => Vector[K]
     if fst.shape == (1,):
         size = len(xs)
-        return vec_size(size)(d0, d1)
+        return vec_obj(size, d0, d1)
 
     # {Vector[K], Vector[K], ...} => Array[J,K]
     # {Array[J,K], Array[J,K], ...} => Array[I,J,K]
     shape = (len(xs),) + fst.shape
-    return _get_array_shape(shape)(d0, d1)
+    return array_obj(shape, d0, d1)
 
 
 def stack(*objs: ArrayLike) -> Array:
@@ -1320,7 +1172,7 @@ def stack(*objs: ArrayLike) -> Array:
     return _stack(*[expect_array(obj) for obj in objs])
 
 
-def lit2bv(lit: str) -> Vector:
+def lit2bv(lit: str) -> Array:
     """Convert string literal to Vector.
 
     A string literal is in the form {width}{base}{characters},
@@ -1341,10 +1193,10 @@ def lit2bv(lit: str) -> Vector:
         ValueError: If input literal has a syntax error.
     """
     size, (d0, d1) = lb.parse_lit(lit)
-    return vec_size(size)(d0, d1)
+    return vec_obj(size, d0, d1)
 
 
-def u2bv(n: int, size: int | None = None) -> Vector:
+def u2bv(n: int, size: int | None = None) -> Array:
     """Convert nonnegative int to Vector.
 
     For example:
@@ -1377,10 +1229,10 @@ def u2bv(n: int, size: int | None = None) -> Vector:
     d1 = n
     d0 = d1 ^ mask(size)
 
-    return vec_size(size)(d0, d1)
+    return vec_obj(size, d0, d1)
 
 
-def i2bv(n: int, size: int | None = None) -> Vector:
+def i2bv(n: int, size: int | None = None) -> Array:
     """Convert int to Vector.
 
     For example:
@@ -1420,7 +1272,7 @@ def i2bv(n: int, size: int | None = None) -> Vector:
         d1 = (d1 ^ mask(size)) + 1
 
     d0 = d1 ^ mask(size)
-    return vec_size(size)(d0, d1)
+    return vec_obj(size, d0, d1)
 
 
 def _chunk(data: lbv, base: int, mask: int) -> lbv:
@@ -1438,17 +1290,17 @@ def _sel(x: Array, key: tuple[tuple[int, int], ...]) -> Array:
         if len(key_r) == 0:
             size = stop - start
             d0, d1 = _chunk(x._data, start, mask(size))
-            return vec_size(size)(d0, d1)
+            return vec_obj(size, d0, d1)
 
         if len(key_r) == 1:
-            V = _get_vec_size(x.shape[1])
-            vecs: list[Vector] = []
+            V = vec(x.shape[1])
+            vecs: list[Array] = []
             for i in range(start, stop):
                 d0, d1 = _chunk(x._data, V.size * i, V._dmax)
                 vecs.append(V(d0, d1))
             return _stack(*[_sel(vec, key_r) for vec in vecs])
 
-        A = _get_array_shape(x.shape[1:])
+        A = array(x.shape[1:])
         arrays: list[Array] = []
         for i in range(start, stop):
             d0, d1 = _chunk(x._data, A.size * i, A._dmax)

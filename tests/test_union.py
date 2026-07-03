@@ -2,7 +2,7 @@
 
 import pytest
 
-from bvwx import Union, Vec, bits
+from bvwx import Array, Union, bits
 
 
 def test_empty():
@@ -13,9 +13,9 @@ def test_empty():
 
 
 class Simple(Union):
-    a: Vec[2]
-    b: Vec[3]
-    c: Vec[4]
+    a: Array[2]
+    b: Array[3]
+    c: Array[4]
 
 
 class Compound(Union):
@@ -108,6 +108,6 @@ def test_bad_type():
     with pytest.raises(TypeError):
 
         class BadType(Union):
-            a: Vec[4]
+            a: Array[4]
             b: Simple
             c: int  # Error!

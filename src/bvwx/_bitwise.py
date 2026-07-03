@@ -7,7 +7,6 @@ from ._bits import (
     Array,
     ArrayLike,
     ScalarLike,
-    Vector,
     bits_and,
     bits_not,
     bits_or,
@@ -225,7 +224,7 @@ def xor(x0: ArrayLike, *xs: ArrayLike) -> Array:
     return y
 
 
-def _impl[T: Array](p: T, q: Array) -> T | Vector:
+def _impl[T: Array](p: T, q: Array) -> T | Array:
     d0, d1 = lb.impl(p._data, q._data)
     t = resolve_type(p, q)
     return t._cast_data(d0, d1)
@@ -260,7 +259,7 @@ def impl(p: ArrayLike, q: ArrayLike) -> Array:
     return _impl(p, q)
 
 
-def _ite[T: Array](s: Array, x1: T, x0: Array) -> T | Vector:
+def _ite[T: Array](s: Array, x1: T, x0: Array) -> T | Array:
     s0 = x1._dmax * s._data[0]
     s1 = x1._dmax * s._data[1]
     d0, d1 = lb.ite((s0, s1), x1._data, x0._data)

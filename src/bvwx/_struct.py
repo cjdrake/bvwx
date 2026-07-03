@@ -2,12 +2,13 @@
 
 import sys
 from functools import partial
+from types import GenericAlias
 from typing import Any
 
 if sys.version_info >= (3, 14):
     from annotationlib import Format, get_annotate_from_class_namespace
 
-from ._bits import Array, ArrayLike, Vector, expect_array_size, vec_size
+from ._bits import Array, ArrayLike, expect_array_size, vec
 
 type Field = tuple[str, int, type[Array]]
 
@@ -57,7 +58,8 @@ class StructType(type):
 
         # Fix / Check annotation types
         annotations: dict[str, type[Array]] = {}
-        for k, ft in _annotations.items():
+        for k, v in _annotations.items():
+            ft: type[Array] = v.__origin__ if isinstance(v, GenericAlias) else v
             if not issubclass(ft, Array):
                 s = f"Expected annotation type Array, got {ft.__name__}"
                 raise TypeError(s)
@@ -73,13 +75,13 @@ class StructType(type):
             field_offset += field_type.size
 
         # Get Vector[N] base class
-        V = vec_size(field_offset)
+        V = vec(field_offset)
 
         # Create Struct class
         ns: dict[str, Any] = {"__slots__": ()}
         cls = super().__new__(mcls, name, (V,), ns)
 
-        def _init_body(obj: Vector, *args: ArrayLike | None):
+        def _init_body(obj: Array, *args: ArrayLike | None):
             d0, d1 = 0, 0
             for arg, (_, fo, ft) in zip(args, fields):
                 if arg is not None:
@@ -135,11 +137,11 @@ class Struct(metaclass=StructType):
 
     Extend from ``Struct`` to define a struct:
 
-    >>> from bvwx import Vec
+    >>> from bvwx import Array
     >>> class Pixel(Struct):
-    ...     red: Vec[8]
-    ...     green: Vec[8]
-    ...     blue: Vec[8]
+    ...     red: Array[8]
+    ...     green: Array[8]
+    ...     blue: Array[8]
 
     Use the new type's constructor to create ``Struct`` instances:
 

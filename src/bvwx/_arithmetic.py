@@ -5,7 +5,6 @@ from ._bits import (
     ArrayLike,
     ScalarLike,
     UintLike,
-    Vector,
     bits_add,
     bits_cat,
     bits_div,
@@ -56,7 +55,7 @@ def add(a: ArrayLike, b: ArrayLike, ci: ScalarLike | None = None) -> Array:
     return s
 
 
-def adc(a: ArrayLike, b: ArrayLike, ci: ScalarLike | None = None) -> Vector:
+def adc(a: ArrayLike, b: ArrayLike, ci: ScalarLike | None = None) -> Array:
     """Addition with carry-in, and carry-out.
 
     For example:
@@ -85,9 +84,7 @@ def adc(a: ArrayLike, b: ArrayLike, ci: ScalarLike | None = None) -> Vector:
     b = expect_array(b)
     ci = scalar0 if ci is None else expect_scalar(ci)
     s, co = bits_add(a, b, ci)
-    v = bits_cat(s, co)
-    assert isinstance(v, Vector)
-    return v
+    return bits_cat(s, co)
 
 
 def sub(a: ArrayLike, b: ArrayLike) -> Array:
@@ -111,7 +108,7 @@ def sub(a: ArrayLike, b: ArrayLike) -> Array:
     return s
 
 
-def sbc(a: ArrayLike, b: ArrayLike) -> Vector:
+def sbc(a: ArrayLike, b: ArrayLike) -> Array:
     """Twos complement subtraction, with carry-out.
 
     Args:
@@ -130,9 +127,7 @@ def sbc(a: ArrayLike, b: ArrayLike) -> Vector:
     a = expect_array(a)
     b = expect_array_size(b, a.size)
     s, co = bits_sub(a, b)
-    v = bits_cat(s, co)
-    assert isinstance(v, Vector)
-    return v
+    return bits_cat(s, co)
 
 
 def neg(x: ArrayLike) -> Array:
@@ -153,7 +148,7 @@ def neg(x: ArrayLike) -> Array:
     return s
 
 
-def ngc(x: ArrayLike) -> Vector:
+def ngc(x: ArrayLike) -> Array:
     """Twos complement negation, with carry-out.
 
     Args:
@@ -169,12 +164,10 @@ def ngc(x: ArrayLike) -> Vector:
     """
     x = expect_array(x)
     s, co = bits_neg(x)
-    v = bits_cat(s, co)
-    assert isinstance(v, Vector)
-    return v
+    return bits_cat(s, co)
 
 
-def mul(a: ArrayLike, b: ArrayLike) -> Vector:
+def mul(a: ArrayLike, b: ArrayLike) -> Array:
     """Unsigned multiply.
 
     For example:

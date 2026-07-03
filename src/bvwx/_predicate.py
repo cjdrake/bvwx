@@ -6,7 +6,6 @@ from collections.abc import Callable
 from ._bits import (
     Array,
     ArrayLike,
-    Scalar,
     bits_uand,
     bits_uor,
     bits_xnor,
@@ -21,11 +20,11 @@ from ._bits import (
 )
 
 
-def _eq(x0: Array, x1: Array) -> Scalar:
+def _eq(x0: Array, x1: Array) -> Array:
     return bits_uand(bits_xnor(x0, x1))
 
 
-def eq(x0: ArrayLike, x1: ArrayLike) -> Scalar:
+def eq(x0: ArrayLike, x1: ArrayLike) -> Array:
     """Binary logical Equal (==) reduction operator.
 
     Equivalent to ``uand(xnor(x0, x1))``.
@@ -56,11 +55,11 @@ def eq(x0: ArrayLike, x1: ArrayLike) -> Scalar:
     return _eq(x0, x1)
 
 
-def _ne(x0: Array, x1: Array) -> Scalar:
+def _ne(x0: Array, x1: Array) -> Array:
     return bits_uor(bits_xor(x0, x1))
 
 
-def ne(x0: ArrayLike, x1: ArrayLike) -> Scalar:
+def ne(x0: ArrayLike, x1: ArrayLike) -> Array:
     """Binary logical NotEqual (!=) reduction operator.
 
     Equivalent to ``uor(xor(x0, x1))``.
@@ -91,7 +90,7 @@ def ne(x0: ArrayLike, x1: ArrayLike) -> Scalar:
     return _ne(x0, x1)
 
 
-def _cmp(op: Callable[[int, int], bool], x0: Array, x1: Array) -> Scalar:
+def _cmp(op: Callable[[int, int], bool], x0: Array, x1: Array) -> Array:
     # X/W propagation
     if x0.has_x() or x1.has_x():
         return scalarX
@@ -100,7 +99,7 @@ def _cmp(op: Callable[[int, int], bool], x0: Array, x1: Array) -> Scalar:
     return bool2scalar[op(x0.to_uint(), x1.to_uint())]
 
 
-def lt(x0: ArrayLike, x1: ArrayLike) -> Scalar:
+def lt(x0: ArrayLike, x1: ArrayLike) -> Array:
     """Binary logical Unsigned LessThan (<) reduction operator.
 
     Returns ``Scalar`` result of ``x0.to_uint() < x1.to_uint()``.
@@ -133,7 +132,7 @@ def lt(x0: ArrayLike, x1: ArrayLike) -> Scalar:
     return _cmp(operator.lt, x0, x1)
 
 
-def le(x0: ArrayLike, x1: ArrayLike) -> Scalar:
+def le(x0: ArrayLike, x1: ArrayLike) -> Array:
     """Binary logical Unsigned LessThanOrEqual (≤) reduction operator.
 
     Returns ``Scalar`` result of ``x0.to_uint() <= x1.to_uint()``.
@@ -166,7 +165,7 @@ def le(x0: ArrayLike, x1: ArrayLike) -> Scalar:
     return _cmp(operator.le, x0, x1)
 
 
-def gt(x0: ArrayLike, x1: ArrayLike) -> Scalar:
+def gt(x0: ArrayLike, x1: ArrayLike) -> Array:
     """Binary logical Unsigned GreaterThan (>) reduction operator.
 
     Returns ``Scalar`` result of ``x0.to_uint() > x1.to_uint()``.
@@ -199,7 +198,7 @@ def gt(x0: ArrayLike, x1: ArrayLike) -> Scalar:
     return _cmp(operator.gt, x0, x1)
 
 
-def ge(x0: ArrayLike, x1: ArrayLike) -> Scalar:
+def ge(x0: ArrayLike, x1: ArrayLike) -> Array:
     """Binary logical Unsigned GreaterThanOrEqual (≥) reduction operator.
 
     Returns ``Scalar`` result of ``x0.to_uint() >= x1.to_uint()``.
@@ -232,7 +231,7 @@ def ge(x0: ArrayLike, x1: ArrayLike) -> Scalar:
     return _cmp(operator.ge, x0, x1)
 
 
-def _scmp(op: Callable[[int, int], bool], x0: Array, x1: Array) -> Scalar:
+def _scmp(op: Callable[[int, int], bool], x0: Array, x1: Array) -> Array:
     # X/W propagation
     if x0.has_x() or x1.has_x():
         return scalarX
@@ -241,7 +240,7 @@ def _scmp(op: Callable[[int, int], bool], x0: Array, x1: Array) -> Scalar:
     return bool2scalar[op(x0.to_int(), x1.to_int())]
 
 
-def slt(x0: ArrayLike, x1: ArrayLike) -> Scalar:
+def slt(x0: ArrayLike, x1: ArrayLike) -> Array:
     """Binary logical Signed LessThan (<) reduction operator.
 
     Returns ``Scalar`` result of ``x0.to_int() < x1.to_int()``.
@@ -274,7 +273,7 @@ def slt(x0: ArrayLike, x1: ArrayLike) -> Scalar:
     return _scmp(operator.lt, x0, x1)
 
 
-def sle(x0: ArrayLike, x1: ArrayLike) -> Scalar:
+def sle(x0: ArrayLike, x1: ArrayLike) -> Array:
     """Binary logical Signed LessThanOrEqual (≤) reduction operator.
 
     Returns ``Scalar`` result of ``x0.to_int() <= x1.to_int()``.
@@ -307,7 +306,7 @@ def sle(x0: ArrayLike, x1: ArrayLike) -> Scalar:
     return _scmp(operator.le, x0, x1)
 
 
-def sgt(x0: ArrayLike, x1: ArrayLike) -> Scalar:
+def sgt(x0: ArrayLike, x1: ArrayLike) -> Array:
     """Binary logical Signed GreaterThan (>) reduction operator.
 
     Returns ``Scalar`` result of ``x0.to_int() > x1.to_int()``.
@@ -340,7 +339,7 @@ def sgt(x0: ArrayLike, x1: ArrayLike) -> Scalar:
     return _scmp(operator.gt, x0, x1)
 
 
-def sge(x0: ArrayLike, x1: ArrayLike) -> Scalar:
+def sge(x0: ArrayLike, x1: ArrayLike) -> Array:
     """Binary logical Signed GreaterThanOrEqual (≥) reduction operator.
 
     Returns ``Scalar`` result of ``x0.to_int() >= x1.to_int()``.
@@ -373,7 +372,7 @@ def sge(x0: ArrayLike, x1: ArrayLike) -> Scalar:
     return _scmp(operator.ge, x0, x1)
 
 
-def _match(x0: Array, x1: Array) -> Scalar:
+def _match(x0: Array, x1: Array) -> Array:
     # Propagate X
     if x0.has_x() or x1.has_x():
         return scalarX
@@ -386,7 +385,7 @@ def _match(x0: Array, x1: Array) -> Scalar:
     return scalar1
 
 
-def match(x0: ArrayLike, x1: ArrayLike) -> Scalar:
+def match(x0: ArrayLike, x1: ArrayLike) -> Array:
     """Pattern match operator.
 
     Similar to ``eq`` operator, but with support for ``-`` wildcards.

@@ -2,12 +2,13 @@
 
 import sys
 from functools import partial
+from types import GenericAlias
 from typing import Any
 
 if sys.version_info >= (3, 14):
     from annotationlib import Format, get_annotate_from_class_namespace
 
-from ._bits import Array, ArrayLike, expect_array, vec_size
+from ._bits import Array, ArrayLike, expect_array, vec
 
 
 def _get_annotations(attrs: dict[str, Any]) -> dict[str, Any]:
@@ -45,7 +46,8 @@ class UnionType(type):
 
         # Fix / Check annotation types
         annotations: dict[str, type[Array]] = {}
-        for k, ft in _annotations.items():
+        for k, v in _annotations.items():
+            ft: type[Array] = v.__origin__ if isinstance(v, GenericAlias) else v
             if not issubclass(ft, Array):
                 s = f"Expected annotation type Array, got {ft.__name__}"
                 raise TypeError(s)
@@ -56,7 +58,7 @@ class UnionType(type):
 
         # Get Vector[N] base class
         size = max(field_type.size for _, field_type in fields)
-        V = vec_size(size)
+        V = vec(size)
 
         # Create Union class
         ns: dict[str, Any] = {"__slots__": ()}
@@ -113,10 +115,10 @@ class Union(metaclass=UnionType):
 
     Extend from ``Union`` to define a union:
 
-    >>> from bvwx import Vec
+    >>> from bvwx import Array
     >>> class Response(Union):
-    ...     error: Vec[4]
-    ...     data: Vec[8]
+    ...     error: Array[4]
+    ...     data: Array[8]
 
     Use the new type's constructor to create ``Union`` instances:
 

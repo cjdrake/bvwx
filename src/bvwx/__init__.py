@@ -4,12 +4,9 @@ from ._arithmetic import adc, add, div, lsh, matmul, mod, mul, neg, ngc, rsh, sb
 from ._bits import (
     Array,
     ArrayLike,
-    Empty,
     Key,
-    Scalar,
     ScalarLike,
     UintLike,
-    Vector,
     VectorLike,
     bits,
     cast,
@@ -30,16 +27,9 @@ from ._union import Union, UnionType
 from ._util import clog2
 from ._word import cat, lrot, pack, rep, rrot, sxt, xt
 
-# Alias Vector to Vec for brevity
-Vec = Vector
-
 __all__ = [
     # bits
     "Array",
-    "Vector",
-    "Vec",
-    "Scalar",
-    "Empty",
     "EnumType",
     "Enum",
     "StructType",

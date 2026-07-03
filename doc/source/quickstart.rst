@@ -111,9 +111,9 @@ Now define a C-style ``Struct``:
 .. code-block:: python
 
     >>> class Pixel(Struct):
-    ...     r: Vec[8]
-    ...     g: Vec[8]
-    ...     b: Vec[8]
+    ...     r: Array[8]
+    ...     g: Array[8]
+    ...     b: Array[8]
     ...
     >>> type(Pixel)
     bvwx._struct._StructMeta

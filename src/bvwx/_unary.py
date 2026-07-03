@@ -1,8 +1,8 @@
 """Unary Reduction Operators"""
 
 from ._bits import (
+    Array,
     ArrayLike,
-    Scalar,
     bits_uand,
     bits_uor,
     bits_uxor,
@@ -10,7 +10,7 @@ from ._bits import (
 )
 
 
-def uor(x: ArrayLike) -> Scalar:
+def uor(x: ArrayLike) -> Array:
     """Unary OR reduction operator.
 
     The identity of OR is ``0``.
@@ -41,7 +41,7 @@ def uor(x: ArrayLike) -> Scalar:
     return bits_uor(x)
 
 
-def uand(x: ArrayLike) -> Scalar:
+def uand(x: ArrayLike) -> Array:
     """Unary AND reduction operator.
 
     The identity of AND is ``1``.
@@ -72,7 +72,7 @@ def uand(x: ArrayLike) -> Scalar:
     return bits_uand(x)
 
 
-def uxor(x: ArrayLike) -> Scalar:
+def uxor(x: ArrayLike) -> Array:
     """Unary XOR reduction operator.
 
     The identity of XOR is ``0``.

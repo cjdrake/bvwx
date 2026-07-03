@@ -1,17 +1,17 @@
 """Logical Operators"""
 
 from . import _lbool as lb
-from ._bits import Scalar, ScalarLike, expect_scalar, scalars
+from ._bits import Array, ScalarLike, expect_scalar, scalar_obj
 
 
-def _lor(*xs: Scalar) -> Scalar:
+def _lor(*xs: Array) -> Array:
     y = lb.F
     for x in xs:
         y = lb.or_(y, x._data)
-    return scalars[y]
+    return scalar_obj(*y)
 
 
-def lor(*xs: ScalarLike) -> Scalar:
+def lor(*xs: ScalarLike) -> Array:
     """N-ary logical OR operator.
 
     The identity of OR is ``0``.
@@ -39,14 +39,14 @@ def lor(*xs: ScalarLike) -> Scalar:
     return _lor(*[expect_scalar(x) for x in xs])
 
 
-def _land(*xs: Scalar) -> Scalar:
+def _land(*xs: Array) -> Array:
     y = lb.T
     for x in xs:
         y = lb.and_(y, x._data)
-    return scalars[y]
+    return scalar_obj(*y)
 
 
-def land(*xs: ScalarLike) -> Scalar:
+def land(*xs: ScalarLike) -> Array:
     """N-ary logical AND operator.
 
     The identity of AND is ``1``.
@@ -74,14 +74,14 @@ def land(*xs: ScalarLike) -> Scalar:
     return _land(*[expect_scalar(x) for x in xs])
 
 
-def _lxor(*xs: Scalar) -> Scalar:
+def _lxor(*xs: Array) -> Array:
     y = lb.F
     for x in xs:
         y = lb.xor(y, x._data)
-    return scalars[y]
+    return scalar_obj(*y)
 
 
-def lxor(*xs: ScalarLike) -> Scalar:
+def lxor(*xs: ScalarLike) -> Array:
     """N-ary logical XOR operator.
 
     The identity of XOR is ``0``.

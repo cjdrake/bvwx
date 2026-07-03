@@ -2,20 +2,19 @@
 
 from . import _lbool as lb
 from ._bits import (
+    Array,
     ArrayLike,
-    Scalar,
-    Vector,
     expect_array,
     scalar0,
     scalar1,
     scalarW,
     scalarX,
-    vec_size,
+    vec,
 )
 from ._util import clog2
 
 
-def encode_onehot(x: ArrayLike) -> Vector:
+def encode_onehot(x: ArrayLike) -> Array:
     """Compress one-hot encoding to an index.
 
     The index is the highest bit set in the input.
@@ -42,7 +41,7 @@ def encode_onehot(x: ArrayLike) -> Vector:
     x = expect_array(x)
 
     n = clog2(x.size)
-    V = vec_size(n)
+    V = vec(n)
 
     # X/W propagation
     if x.has_x():
@@ -60,7 +59,7 @@ def encode_onehot(x: ArrayLike) -> Vector:
     return V(y0, y1)
 
 
-def encode_priority(x: ArrayLike) -> tuple[Vector, Scalar]:
+def encode_priority(x: ArrayLike) -> tuple[Array, Array]:
     """Compress priority encoding to (index, valid) tuple.
 
     The index is the highest bit set in the input.
@@ -88,7 +87,7 @@ def encode_priority(x: ArrayLike) -> tuple[Vector, Scalar]:
     x = expect_array(x)
 
     n = clog2(x.size)
-    V = vec_size(n)
+    V = vec(n)
 
     # X propagation
     if x.has_x():
@@ -118,7 +117,7 @@ def encode_priority(x: ArrayLike) -> tuple[Vector, Scalar]:
     return V(y0, y1), scalar1
 
 
-def decode(x: ArrayLike) -> Vector:
+def decode(x: ArrayLike) -> Array:
     """Decode dense encoding to sparse, one-hot encoding.
 
     For example:
@@ -152,7 +151,7 @@ def decode(x: ArrayLike) -> Vector:
 
     # Output has 2^N bits
     n = 1 << x.size
-    V = vec_size(n)
+    V = vec(n)
 
     # X/W propagation
     if x.has_x():

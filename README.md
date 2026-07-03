@@ -76,9 +76,9 @@ Color.RED
 
 >>> # Structs
 >>> class Pixel(Struct):
-...     r: Vec[8]
-...     g: Vec[8]
-...     b: Vec[8]
+...     r: Array[8]
+...     g: Array[8]
+...     b: Array[8]
 ...
 >>> maize = Pixel(r="8hFF", g="8hCB", b="8h05")
 >>> blue = Pixel(r="8h00", g="8h27", b="8h4C")

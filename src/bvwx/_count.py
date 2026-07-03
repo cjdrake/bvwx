@@ -1,15 +1,15 @@
 """Counting"""
 
-from ._bits import ArrayLike, Vector, expect_array, vec_size
+from ._bits import Array, ArrayLike, expect_array, vec
 from ._util import clog2
 
 
-def cpop(x: ArrayLike) -> Vector:
+def cpop(x: ArrayLike) -> Array:
     """Count population: return number of set bits."""
     x = expect_array(x)
 
     n = clog2(x.size + 1)
-    V = vec_size(n)
+    V = vec(n)
 
     if x.has_x():
         return V.xs()
@@ -21,12 +21,12 @@ def cpop(x: ArrayLike) -> Vector:
     return V(d0, d1)
 
 
-def clz(x: ArrayLike) -> Vector:
+def clz(x: ArrayLike) -> Array:
     """Count leading zeros."""
     x = expect_array(x)
 
     n = clog2(x.size + 1)
-    V = vec_size(n)
+    V = vec(n)
 
     if x.has_x():
         return V.xs()
@@ -38,12 +38,12 @@ def clz(x: ArrayLike) -> Vector:
     return V(d0, d1)
 
 
-def ctz(x: ArrayLike) -> Vector:
+def ctz(x: ArrayLike) -> Array:
     """Count trailing zeros."""
     x = expect_array(x)
 
     n = clog2(x.size + 1)
-    V = vec_size(n)
+    V = vec(n)
 
     if x.has_x():
         return V.xs()

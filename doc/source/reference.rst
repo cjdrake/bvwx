@@ -52,15 +52,6 @@ Data Types
     .. automethod:: bvwx.Array.vcd_var
     .. automethod:: bvwx.Array.vcd_val
 
-.. autoclass:: bvwx.Vector
-    :show-inheritance:
-
-.. autoclass:: bvwx.Scalar
-    :show-inheritance:
-
-.. autoclass:: bvwx.Empty
-    :show-inheritance:
-
 .. autoclass:: bvwx.EnumType
 
 .. autoclass:: bvwx.Enum

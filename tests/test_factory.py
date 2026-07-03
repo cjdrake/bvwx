@@ -2,7 +2,8 @@
 
 import pytest
 
-from bvwx import Array, Vec, bits, i2bv, stack, u2bv
+from bvwx import Array, bits, i2bv, stack, u2bv
+from bvwx._bits import vec_obj
 
 E = bits()
 F = bits(False)
@@ -368,7 +369,7 @@ def test_bits():
     assert bits([bits("2b00"), "2b01", "2b10", "2b11"]) == "8b11100100"
     assert bits([bits("2b00"), 1, -2, -1]) == "8b11100100"
 
-    assert bits("4b-10X") == Vec[4](0b1010, 0b1100)
+    assert bits("4b-10X") == vec_obj(4, 0b1010, 0b1100)
 
     with pytest.raises(TypeError):
         bits(42)

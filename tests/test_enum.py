@@ -2,7 +2,8 @@
 
 import pytest
 
-from bvwx import Enum, Vec
+from bvwx import Enum
+from bvwx._bits import vec_obj
 
 
 class Color(Enum):
@@ -28,7 +29,7 @@ def test_basic():
     assert Color.RED.name == "RED"
     assert Color.RED._data[1] == 0b00
     assert Color("2b00") is Color.RED
-    assert Color(Vec[2](0b11, 0b00)) is Color.RED
+    assert Color(vec_obj(2, 0b11, 0b00)) is Color.RED
 
     assert len(Color.X) == 2
     assert repr(Color.X) == "Color.X"
@@ -37,7 +38,7 @@ def test_basic():
     assert Color.X._data == (0b00, 0b00)
     assert Color("2bXX") is Color.X
     assert Color.xs() is Color.X
-    assert Color(Vec[2](0, 0)) is Color.X
+    assert Color(vec_obj(2, 0, 0)) is Color.X
 
     assert len(Color.W) == 2
     assert repr(Color.W) == "Color.W"
@@ -46,10 +47,10 @@ def test_basic():
     assert Color.W._data == (0b11, 0b11)
     assert Color("2b--") is Color.W
     assert Color.ws() is Color.W
-    assert Color(Vec[2](0b11, 0b11)) is Color.W
+    assert Color(vec_obj(2, 0b11, 0b11)) is Color.W
 
     assert Color("2b11").name == "Color(2b11)"
-    assert Color(Vec[2](0b00, 0b11)).name == "Color(2b11)"
+    assert Color(vec_obj(2, 0b00, 0b11)).name == "Color(2b11)"
     assert repr(Color("2b11")) == 'Color("2b11")'
     assert str(Color("2b11")) == "Color(2b11)"
 
