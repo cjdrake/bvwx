@@ -36,7 +36,6 @@ class UnionType(type):
         # Base case for API
         if name == "Union":
             assert not bases
-            attrs["__slots__"] = ()
             return super().__new__(mcls, name, bases, attrs)
 
         # Do not support multiple inheritance

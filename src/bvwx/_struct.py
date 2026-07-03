@@ -46,7 +46,6 @@ class StructType(type):
         # Base case for API
         if name == "Struct":
             assert not bases
-            attrs["__slots__"] = ()
             return super().__new__(mcls, name, bases, attrs)
 
         # Do not support multiple inheritance
