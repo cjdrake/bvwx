@@ -1,9 +1,5 @@
 """Test bvwx arithmetic operators."""
 
-# pyright: reportArgumentType=false
-# pyright: reportUnknownArgumentType=false
-# pyright: reportUnknownVariableType=false
-
 import pytest
 
 from bvwx import adc, add, bits, cat, div, lsh, matmul, mod, mul, neg, ngc, rsh, sbc, srsh, sub

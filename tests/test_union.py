@@ -1,10 +1,5 @@
 """Test bvwx Union."""
 
-# pyright: reportAttributeAccessIssue=false
-# pyright: reportCallIssue=false
-# pyright: reportIndexIssue=false
-# pyright: reportUnknownMemberType=false
-
 import pytest
 
 from bvwx import Union, Vec, bits
@@ -13,7 +8,7 @@ from bvwx import Union, Vec, bits
 def test_empty():
     with pytest.raises(ValueError):
 
-        class EmptyUnion(Union):  # pyright: ignore[reportUnusedClass]
+        class EmptyUnion(Union):
             pass
 
 

@@ -780,7 +780,7 @@ class Vector(Array):
         return self.size
 
     @override
-    def __getitem__(self, key: Key) -> Vector:  # pyright: ignore[reportIncompatibleMethodOverride]
+    def __getitem__(self, key: Key) -> Vector:
         size, (d0, d1) = self.get_key(key)
         return vec_size(size)(d0, d1)
 

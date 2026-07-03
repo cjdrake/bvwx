@@ -1,7 +1,5 @@
 """Test Bits factory functions."""
 
-# pyright: reportArgumentType=false
-
 import pytest
 
 from bvwx import Vec, bits, i2bv, stack, u2bv

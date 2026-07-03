@@ -113,8 +113,8 @@ class StructType(type):
         # Create Struct fields
         def _fget(fo: int, ft: type[Array], self: Vector):
             m = mask(ft.size)
-            d0 = (self._data[0] >> fo) & m  # pyright: ignore[reportPrivateUsage]
-            d1 = (self._data[1] >> fo) & m  # pyright: ignore[reportPrivateUsage]
+            d0 = (self._data[0] >> fo) & m
+            d1 = (self._data[1] >> fo) & m
             return ft.cast_data(d0, d1)
 
         for fn, fo, ft in fields:

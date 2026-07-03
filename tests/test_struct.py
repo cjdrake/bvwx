@@ -1,11 +1,5 @@
 """Test bvwx Struct."""
 
-# pyright: reportAttributeAccessIssue=false
-# pyright: reportCallIssue=false
-# pyright: reportIndexIssue=false
-# pyright: reportUnknownArgumentType=false
-# pyright: reportUnknownMemberType=false
-
 import pytest
 
 from bvwx import Struct, Vec
@@ -14,7 +8,7 @@ from bvwx import Struct, Vec
 def test_empty():
     with pytest.raises(ValueError):
 
-        class EmptyStruct(Struct):  # pyright: ignore[reportUnusedClass]
+        class EmptyStruct(Struct):
             pass
 
 

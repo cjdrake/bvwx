@@ -96,7 +96,7 @@ class EnumType(type):
         # Override Vector.__repr__ method
         def _repr(self: Vector) -> str:
             try:
-                return f"{name}.{data2key[self._data]}"  # pyright: ignore[reportPrivateUsage]
+                return f"{name}.{data2key[self._data]}"
             except KeyError:
                 return f'{name}("{V.__str__(self)}")'
 
@@ -105,7 +105,7 @@ class EnumType(type):
         # Override Vector.__str__ method
         def _str(self: Vector) -> str:
             try:
-                return f"{name}.{data2key[self._data]}"  # pyright: ignore[reportPrivateUsage]
+                return f"{name}.{data2key[self._data]}"
             except KeyError:
                 return f"{name}({V.__str__(self)})"
 
@@ -114,7 +114,7 @@ class EnumType(type):
         # Create name property
         def _name(self: Vector) -> str:
             try:
-                return data2key[self._data]  # pyright: ignore[reportPrivateUsage]
+                return data2key[self._data]
             except KeyError:
                 return f"{name}({V.__str__(self)})"
 
@@ -133,7 +133,7 @@ class EnumType(type):
 
         return cls
 
-    def __call__(cls: type[Vector], arg: ArrayLike) -> Vector:  # pyright: ignore[reportGeneralTypeIssues]
+    def __call__(cls: type[Vector], arg: ArrayLike) -> Vector:
         x = expect_array_size(arg, cls.size)
         return cls.cast_data(x.data[0], x.data[1])
 

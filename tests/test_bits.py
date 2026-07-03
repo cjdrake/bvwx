@@ -1,8 +1,5 @@
 """Test Bits methods."""
 
-# pyright: reportArgumentType=false
-# pyright: reportCallIssue=false
-
 import pytest
 
 from bvwx import Array, Empty, Enum, Scalar, Struct, Union, Vec, bits, u2bv

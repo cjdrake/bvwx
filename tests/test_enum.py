@@ -1,11 +1,5 @@
 """Test bvwx Enum."""
 
-# pyright: reportAttributeAccessIssue=false
-# pyright: reportCallIssue=false
-# pyright: reportOperatorIssue=false
-# pyright: reportUnknownArgumentType=false
-# pyright: reportUnknownMemberType=false
-
 import pytest
 
 from bvwx import Enum, Vec
@@ -23,7 +17,7 @@ def test_empty():
     # Empty Enum is not supported
     with pytest.raises(ValueError):
 
-        class EmptyEnum(Enum):  # pyright: ignore[reportUnusedClass]
+        class EmptyEnum(Enum):
             pass
 
 
@@ -83,29 +77,29 @@ def test_enum_error():
     """Test enum spec errors."""
     with pytest.raises(ValueError):
 
-        class InvalidName(Enum):  # pyright: ignore[reportUnusedClass]
+        class InvalidName(Enum):
             X = "4bXXXX"
 
     with pytest.raises(ValueError):
 
-        class InvalidData(Enum):  # pyright: ignore[reportUnusedClass]
+        class InvalidData(Enum):
             FOO = "4bXXXX"
 
     # The literal must be a str
     with pytest.raises(TypeError):
 
-        class InvalidType(Enum):  # pyright: ignore[reportUnusedClass]
+        class InvalidType(Enum):
             FOO = 42
 
     with pytest.raises(ValueError):
 
-        class InvalidMembers(Enum):  # pyright: ignore[reportUnusedClass]
+        class InvalidMembers(Enum):
             A = "2b00"
             B = "3b000"
 
     with pytest.raises(ValueError):
 
-        class DuplicateMembers(Enum):  # pyright: ignore[reportUnusedClass]
+        class DuplicateMembers(Enum):
             A = "2b00"
             B = "2b01"
             C = "2b00"
