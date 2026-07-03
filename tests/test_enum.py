@@ -48,8 +48,8 @@ def test_basic():
     assert Color.ws() is Color.W
     assert Color(Vec[2](0b11, 0b11)) is Color.W
 
-    assert str(Color("2b11").name) == "Color(2b11)"
-    assert str(Color(Vec[2](0b00, 0b11)).name) == "Color(2b11)"
+    assert Color("2b11").name == "Color(2b11)"
+    assert Color(Vec[2](0b00, 0b11)).name == "Color(2b11)"
     assert repr(Color("2b11")) == 'Color("2b11")'
     assert str(Color("2b11")) == "Color(2b11)"
 
