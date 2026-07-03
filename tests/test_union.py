@@ -102,3 +102,12 @@ def test_init():
 
     with pytest.raises(TypeError):
         _ = Simple(bits("8h0000"))
+
+
+def test_bad_type():
+    with pytest.raises(TypeError):
+
+        class BadType(Union):
+            a: Vec[4]
+            b: Simple
+            c: int  # Error!

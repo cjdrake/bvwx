@@ -110,3 +110,13 @@ def test_init():
 
     assert str(Simple.xs()) == "Simple(\n    a=2bXX,\n    b=3bXXX,\n    c=4bXXXX,\n)"
     assert str(Simple.ws()) == "Simple(\n    a=2b--,\n    b=3b---,\n    c=4b----,\n)"
+
+
+def test_bad_type():
+    with pytest.raises(TypeError):
+
+        class BadType(Struct):
+            a: Vec[4]
+            b: Simple
+            c: int  # Error!
+            d: Vec[4]

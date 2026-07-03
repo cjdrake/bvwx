@@ -42,7 +42,15 @@ class UnionType(type):
         assert len(bases) == 1
 
         # Get field_name: field_type items
-        annotations = _get_annotations(attrs)
+        _annotations = _get_annotations(attrs)
+
+        # Fix / Check annotation types
+        annotations: dict[str, type[Array]] = {}
+        for k, ft in _annotations.items():
+            if not issubclass(ft, Array):
+                s = f"Expected annotation type Array, got {ft.__name__}"
+                raise TypeError(s)
+            annotations[k] = ft
 
         # [(name, type), ...]
         fields = list(annotations.items())
