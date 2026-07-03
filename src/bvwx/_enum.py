@@ -56,6 +56,8 @@ def _vcd_var(self) -> str:
 class EnumType(type):
     """Enum Metaclass: Create enum base classes."""
 
+    _data2key: dict[tuple[int, int], str]
+
     def __new__(
         mcls,
         name: str,
