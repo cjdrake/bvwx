@@ -8,6 +8,15 @@ This chapter lists new features, API changes, and bug fixes.
 For a complete history, see the Git commit log.
 
 
+Version 0.22.0
+==============
+
+Added ``EnumType``, ``StructType``, and ``UnionType`` to public API.
+
+Replaced ``pyright`` with ``ty``.
+No waivers yet. Mostly just getting rid of old annotations.
+
+
 Version 0.21.0
 ==============
 
