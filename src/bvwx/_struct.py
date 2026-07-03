@@ -10,6 +10,8 @@ if sys.version_info >= (3, 14):
 from ._bits import Array, ArrayLike, Bits, Vector, expect_array_size, vec_size
 from ._util import mask
 
+type Field = tuple[str, int, type[Array]]
+
 
 def _get_annotations(attrs: dict[str, Any]) -> dict[str, type[Array]]:
     if sys.version_info >= (3, 14):
@@ -24,7 +26,7 @@ def _get_annotations(attrs: dict[str, Any]) -> dict[str, type[Array]]:
         raise ValueError("Empty Struct is not supported") from e
 
 
-def _struct_init_source(fields: list[tuple[str, int, type[Array]]]) -> str:
+def _struct_init_source(fields: list[Field]) -> str:
     """Return source code for Struct __init__ method w/ fields."""
     lines: list[str] = []
     s = ", ".join(f"{fn}=None" for fn, _, _ in fields)
@@ -63,7 +65,7 @@ class StructType(type):
             annotations[k] = ft
 
         # [(name, offset, type), ...]
-        fields: list[tuple[str, int, type[Array]]] = []
+        fields: list[Field] = []
 
         # Add struct member base/size attributes
         field_offset = 0
