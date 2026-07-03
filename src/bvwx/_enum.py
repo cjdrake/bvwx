@@ -56,7 +56,7 @@ def _vcd_var(self) -> str:
 class EnumType(type):
     """Enum Metaclass: Create enum base classes."""
 
-    _data2key: dict[tuple[int, int], str]
+    _data2key: Data2Key
 
     def __new__(
         mcls,
@@ -128,11 +128,14 @@ class EnumType(type):
             assert not bases
             return
 
+        assert issubclass(cls, Vector)  # Help type checker
+
         # Instantiate members
         for (d0, d1), key in cls._data2key.items():
             setattr(cls, key, cast_data(cls, d0, d1))
 
-    def __call__(cls, arg: ArrayLike) -> Vector:
+    def __call__(cls, arg: ArrayLike):
+        assert issubclass(cls, Vector)  # Help type checker
         x = expect_array_size(arg, cls.size)
         return cls._cast_data(x._data[0], x._data[1])
 
