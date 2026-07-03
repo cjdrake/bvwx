@@ -1,7 +1,7 @@
 """Counting"""
 
 from ._bits import ArrayLike, Vector, expect_array, vec_size
-from ._util import clog2, mask
+from ._util import clog2
 
 
 def cpop(x: ArrayLike) -> Vector:
@@ -17,7 +17,7 @@ def cpop(x: ArrayLike) -> Vector:
         return V.ws()
 
     d1 = x._data[1].bit_count()
-    d0 = d1 ^ mask(n)
+    d0 = d1 ^ V._dmax
     return V(d0, d1)
 
 
@@ -34,7 +34,7 @@ def clz(x: ArrayLike) -> Vector:
         return V.ws()
 
     d1 = x.size - clog2(x._data[1] + 1)
-    d0 = d1 ^ mask(n)
+    d0 = d1 ^ V._dmax
     return V(d0, d1)
 
 
@@ -52,5 +52,5 @@ def ctz(x: ArrayLike) -> Vector:
 
     d = (1 << x.size) - x._data[1]
     d1 = clog2(-d & d)
-    d0 = d1 ^ mask(n)
+    d0 = d1 ^ V._dmax
     return V(d0, d1)
