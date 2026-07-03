@@ -422,7 +422,7 @@ class Array(Bits):
 
     def __iter__(self) -> Generator[Array, None, None]:
         for i in range(self.shape[0]):
-            yield self[i]
+            yield _sel(x=self, key=self._norm_key([i]))
 
     def get_key(self, key: Key) -> tuple[int, lbv]:
         if isinstance(key, slice):
