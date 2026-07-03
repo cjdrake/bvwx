@@ -17,7 +17,8 @@ def cpop(x: ArrayLike) -> Vector:
         return V.ws()
 
     d1 = x._data[1].bit_count()
-    return V(d1 ^ mask(n), d1)
+    d0 = d1 ^ mask(n)
+    return V(d0, d1)
 
 
 def clz(x: ArrayLike) -> Vector:
@@ -33,7 +34,8 @@ def clz(x: ArrayLike) -> Vector:
         return V.ws()
 
     d1 = x.size - clog2(x._data[1] + 1)
-    return V(d1 ^ mask(n), d1)
+    d0 = d1 ^ mask(n)
+    return V(d0, d1)
 
 
 def ctz(x: ArrayLike) -> Vector:
@@ -50,4 +52,5 @@ def ctz(x: ArrayLike) -> Vector:
 
     d = (1 << x.size) - x._data[1]
     d1 = clog2(-d & d)
-    return V(d1 ^ mask(n), d1)
+    d0 = d1 ^ mask(n)
+    return V(d0, d1)
