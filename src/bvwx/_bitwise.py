@@ -328,7 +328,7 @@ def ite(s: ScalarLike, x1: ArrayLike, x0: ArrayLike) -> Array:
 
 def _mux[T: Array](t: type[T], s: Array, xs: dict[int, Array]) -> T:
     m = mask(t.size)
-    si = (s.get_index(i) for i in range(s.size))
+    si = (s._get_index(i) for i in range(s.size))
     _s = tuple((m * d0, m * d1) for d0, d1 in si)
     _xs = {i: x._data for i, x in xs.items()}
     w = t.ws()

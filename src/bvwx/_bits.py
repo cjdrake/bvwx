@@ -193,7 +193,7 @@ class Bits:
     def __init__(self, d0: int, d1: int):
         self._data = (d0, d1)
 
-    def get_index(self, i: int) -> lbv:
+    def _get_index(self, i: int) -> lbv:
         d0 = (self._data[0] >> i) & 1
         d1 = (self._data[1] >> i) & 1
         return d0, d1
@@ -438,7 +438,7 @@ class Array(Bits):
                 key = lit2bv(key)
             # key: Array
             index = _norm_index(self.size, key.to_uint())
-        return 1, self.get_index(index)
+        return 1, self._get_index(index)
 
     def reshape(self, shape: tuple[int, ...]) -> Array:
         if shape == self.shape:
@@ -524,7 +524,7 @@ class Array(Bits):
             raise ValueError("Cannot convert unknown to int")
         if self.size == 0:
             return 0
-        sign = self.get_index(self.size - 1)
+        sign = self._get_index(self.size - 1)
         if sign == lb.T:
             return -(self._data[0] + 1)
         return self._data[1]
@@ -705,7 +705,7 @@ class Array(Bits):
 
     def vcd_val(self) -> str:
         """Return VCD variable value."""
-        return "".join(lb.to_vcd_char[self.get_index(i)] for i in range(self.size - 1, -1, -1))
+        return "".join(lb.to_vcd_char[self._get_index(i)] for i in range(self.size - 1, -1, -1))
 
 
 class Vector(Array):
@@ -764,11 +764,11 @@ class Vector(Array):
     @override
     def __str__(self) -> str:
         prefix = f"{self.size}b"
-        chars = [lb.to_char[self.get_index(0)]]
+        chars = [lb.to_char[self._get_index(0)]]
         for i in range(1, self.size):
             if i % 4 == 0:
                 chars.append("_")
-            chars.append(lb.to_char[self.get_index(i)])
+            chars.append(lb.to_char[self._get_index(i)])
         return prefix + "".join(reversed(chars))
 
     def __len__(self) -> int:
@@ -782,7 +782,7 @@ class Vector(Array):
     @override
     def __iter__(self) -> Generator[Scalar, None, None]:
         for i in range(self.size):
-            yield scalars[self.get_index(i)]
+            yield scalars[self._get_index(i)]
 
     @override
     def reshape(self, shape: tuple[int, ...]) -> Array:

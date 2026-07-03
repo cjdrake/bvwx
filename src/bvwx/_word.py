@@ -71,7 +71,7 @@ def _sxt[T: Array](x: T, n: Array) -> T | Vector:
     if _n == 0:
         return x
 
-    sign0, sign1 = x.get_index(x.size - 1)
+    sign0, sign1 = x._get_index(x.size - 1)
     ext0 = mask(_n) * sign0
     ext1 = mask(_n) * sign1
     d0 = x._data[0] | ext0 << x.size

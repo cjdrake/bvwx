@@ -379,8 +379,8 @@ def _match(x0: Array, x1: Array) -> Scalar:
         return scalarX
 
     for i in range(x0.size):
-        a0, a1 = x0.get_index(i)
-        b0, b1 = x1.get_index(i)
+        a0, a1 = x0._get_index(i)
+        b0, b1 = x1._get_index(i)
         if a0 ^ b0 and a1 ^ b1:
             return scalar0
     return scalar1

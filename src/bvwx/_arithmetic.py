@@ -330,7 +330,7 @@ def _srsh[T: Array](x: T, n: Array) -> T:
     if _n > x.size:
         raise ValueError(f"Expected n ≤ {x.size}, got {_n}")
 
-    sign0, sign1 = x.get_index(x.size - 1)
+    sign0, sign1 = x._get_index(x.size - 1)
     si0, si1 = mask(_n) * sign0, mask(_n) * sign1
 
     sh_size, (sh0, sh1) = x.get_slice(_n, x.size)
