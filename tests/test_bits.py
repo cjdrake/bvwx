@@ -98,7 +98,7 @@ class MyUnion(Union):
 
 
 def test_bug_3():
-    s: set[MyStruct] = set()
+    s: set[MyStruct | MyUnion] = set()
     s.add(MyStruct(a="8h00"))
     s.add(MyStruct(a="8h11"))
     s.add(MyStruct(a="8h22"))
