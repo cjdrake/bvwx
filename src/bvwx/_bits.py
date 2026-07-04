@@ -1190,7 +1190,7 @@ def _rank2(fst: Vector, *rst: VectorLike) -> Array:
     return _get_array_shape(shape)(d0, d1)
 
 
-def bits(obj: Any = None) -> Array:  # noqa: PLR0911
+def bits(obj: Any = None) -> Array:
     """Create a shaped Array object using standard input formats.
 
     For example, empty input returns an ``Empty`` instance.
@@ -1229,25 +1229,27 @@ def bits(obj: Any = None) -> Array:  # noqa: PLR0911
     """
     match obj:
         case None | []:
-            return _empty
+            y = _empty
         case 0 | 1 as x:
             assert x in (0, 1)  # Help the type checker
-            return bool2scalar[x]
+            y = bool2scalar[x]
         case [0 | 1 as fst, *rst]:
-            return _bools2vec(fst, *rst)
+            y = _bools2vec(fst, *rst)
         case str() as lit:
-            return lit2bv(lit)
+            y = lit2bv(lit)
         case [str() as lit, *rst]:
             x = lit2bv(lit)
-            return _rank2(x, *rst)
+            y = _rank2(x, *rst)
         case [Scalar() as x, *rst]:
-            return _rank2(x, *rst)
+            y = _rank2(x, *rst)
         case [Vector() as x, *rst]:
-            return _rank2(x, *rst)
+            y = _rank2(x, *rst)
         case [*objs]:
-            return _stack(*[bits(obj) for obj in objs])
+            y = _stack(*[bits(obj) for obj in objs])
         case _:
             raise TypeError(f"Invalid input: {obj}")
+
+    return y
 
 
 def _stack(*xs: Array) -> Array:
