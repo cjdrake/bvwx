@@ -16,6 +16,8 @@ Added ``EnumType``, ``StructType``, and ``UnionType`` to public API.
 Replaced ``pyright`` with ``ty``.
 No waivers yet. Mostly just getting rid of old annotations.
 
+Moved ``bvwx.Array.cast`` class method to a top-level function ``bvwx.cast``.
+
 
 Version 0.21.0
 ==============
