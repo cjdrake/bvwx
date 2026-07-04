@@ -57,12 +57,12 @@ class StructType(type):
 
         # Fix / Check annotation types
         annotations: dict[str, type[Array]] = {}
-        for k, v in _annotations.items():
+        for fn, v in _annotations.items():
             ft: type[Array] = v.__origin__ if isinstance(v, GenericAlias) else v
             if not issubclass(ft, Array):
-                s = f"Field {k} expected type Array, got {ft.__name__}"
+                s = f"Field {fn} expected type Array, got {ft.__name__}"
                 raise TypeError(s)
-            annotations[k] = ft
+            annotations[fn] = ft
 
         # [(name, offset, type), ...]
         fields: list[Field] = []
