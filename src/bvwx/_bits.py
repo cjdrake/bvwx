@@ -324,6 +324,7 @@ class Array[*Shape]:
         return tuple(f(n, key) for n, key in zip(cls.shape, keys))
 
     def __init__(self, d0: int, d1: int) -> None:
+        assert d0 <= self._dmax and d1 <= self._dmax
         self._data = (d0, d1)
 
     def __hash__(self) -> int:
@@ -630,6 +631,38 @@ class Array[*Shape]:
         return "".join(lb.to_vcd_char[self._get_index(i)] for i in range(self.size - 1, -1, -1))
 
 
+def _empty_repr(self: Array) -> str:
+    return "bits([])"
+
+
+def _empty_str(self: Array) -> str:
+    return "[]"
+
+
+def _vec_repr(self: Array) -> str:
+    return f'bits("{self._str()}")'
+
+
+def _vec_str(self: Array) -> str:
+    return self._str()
+
+
+def _array_repr(self: Array) -> str:
+    return f"bits({_repr(indent='      ', x=self)})"
+
+
+def _array_str(self: Array) -> str:
+    return _str(indent=" ", x=self)
+
+
+def _vec_flatten(self: Array) -> Array:
+    return self
+
+
+def _array_flatten(self: Array) -> Array:
+    return vec_obj(size=self.size, d0=self._data[0], d1=self._data[1])
+
+
 def _array_new(shape: tuple[int, ...]) -> type[Array]:
     name = f"Array[{','.join(str(n) for n in shape)}]"
     size = math.prod(shape)
@@ -637,44 +670,18 @@ def _array_new(shape: tuple[int, ...]) -> type[Array]:
     ns: dict[str, Any] = {"__slots__": (), "shape": shape, "size": size, "_dmax": dmax}
     cls = type(name, (Array,), ns)
 
-    # Vector
     if len(shape) == 1:
-        # Empty
         if shape == (0,):
-
-            def _repr(self) -> str:
-                return "bits([])"
-
-            def _str(self) -> str:
-                return "[]"
-
-        # Scalar / Vector
+            setattr(cls, "__repr__", _empty_repr)
+            setattr(cls, "__str__", _empty_str)
         else:
-
-            def _repr(self) -> str:
-                return f'bits("{self._str()}")'
-
-            def _str(self) -> str:
-                return self._str()
-
-        def flatten(self) -> Array:
-            return self
-
-    # Array
+            setattr(cls, "__repr__", _vec_repr)
+            setattr(cls, "__str__", _vec_str)
+        setattr(cls, "flatten", _vec_flatten)
     else:
-
-        def _repr(self) -> str:
-            return f"bits({_array_repr(indent='      ', x=self)})"
-
-        def _str(self) -> str:
-            return _array_str(indent=" ", x=self)
-
-        def flatten(self) -> Array:
-            return vec_obj(size=self.size, d0=self._data[0], d1=self._data[1])
-
-    setattr(cls, "__repr__", _repr)
-    setattr(cls, "__str__", _str)
-    setattr(cls, "flatten", flatten)
+        setattr(cls, "__repr__", _array_repr)
+        setattr(cls, "__str__", _array_str)
+        setattr(cls, "flatten", _array_flatten)
 
     return cls
 
@@ -1345,7 +1352,7 @@ def _norm_slice(n: int, sl: KeySlice) -> tuple[int, int]:
     return start, stop
 
 
-def _get_sep(indent: str, x: Array) -> str:
+def _sep(indent: str, x: Array) -> str:
     # 2-D Matrix
     if len(x.shape) == 2:  # noqa: PLR2004
         return ", "
@@ -1356,19 +1363,19 @@ def _get_sep(indent: str, x: Array) -> str:
     return ",\n\n" + indent
 
 
-def _array_repr(indent: str, x: Array) -> str:
+def _repr(indent: str, x: Array) -> str:
     # 1-D Vector
     if len(x.shape) == 1:
         return f'"{x}"'
-    sep = _get_sep(indent, x)
-    f = partial(_array_repr, indent + " ")
+    sep = _sep(indent, x)
+    f = partial(_repr, indent + " ")
     return "[" + sep.join(map(f, x)) + "]"
 
 
-def _array_str(indent: str, x: Array) -> str:
+def _str(indent: str, x: Array) -> str:
     # 1-D Vector
     if len(x.shape) == 1:
         return f"{x}"
-    sep = _get_sep(indent, x)
-    f = partial(_array_str, indent + " ")
+    sep = _sep(indent, x)
+    f = partial(_str, indent + " ")
     return "[" + sep.join(map(f, x)) + "]"
