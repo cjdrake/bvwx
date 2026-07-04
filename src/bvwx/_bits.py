@@ -999,12 +999,12 @@ def bits_add[T: Array](a: T, b: Array, ci: Scalar) -> tuple[T | Vector, Scalar]:
     if a.has_w() or b.has_w() or ci.has_w():
         return t.ws(), scalarW
 
-    dmax = mask(t.size)
-    s = a._data[1] + b._data[1] + ci._data[1]
-    co = bool2scalar[s > dmax]
-    s &= dmax
+    s1 = a._data[1] + b._data[1] + ci._data[1]
+    co = bool2scalar[s1 > t._dmax]
+    s1 &= t._dmax
+    s0 = s1 ^ t._dmax
 
-    return t._cast_data(s ^ dmax, s), co
+    return t._cast_data(s0, s1), co
 
 
 def bits_inc[T: Array](a: T) -> tuple[T, Scalar]:
@@ -1014,12 +1014,12 @@ def bits_inc[T: Array](a: T) -> tuple[T, Scalar]:
     if a.has_w():
         return a.ws(), scalarW
 
-    dmax = mask(a.size)
-    s = a._data[1] + 1
-    co = bool2scalar[s > dmax]
-    s &= dmax
+    s1 = a._data[1] + 1
+    co = bool2scalar[s1 > a._dmax]
+    s1 &= a._dmax
+    s0 = s1 ^ a._dmax
 
-    return a._cast_data(s ^ dmax, s), co
+    return a._cast_data(s0, s1), co
 
 
 def bits_sub[T: Array](a: T, b: Array) -> tuple[T | Vector, Scalar]:
@@ -1039,10 +1039,10 @@ def bits_mul(a: Array, b: Array) -> Vector:
     if a.has_w() or b.has_w():
         return V.ws()
 
-    dmax = mask(V.size)
-    p = a._data[1] * b._data[1]
+    p1 = a._data[1] * b._data[1]
+    p0 = p1 ^ V._dmax
 
-    return V(p ^ dmax, p)
+    return V(p0, p1)
 
 
 def bits_div[T: Array](a: T, b: Array) -> T:
@@ -1055,10 +1055,10 @@ def bits_div[T: Array](a: T, b: Array) -> T:
     if a.has_w() or b.has_w():
         return a.ws()
 
-    dmax = mask(a.size)
-    q = a._data[1] // b._data[1]
+    q1 = a._data[1] // b._data[1]
+    q0 = q1 ^ a._dmax
 
-    return a._cast_data(q ^ dmax, q)
+    return a._cast_data(q0, q1)
 
 
 def bits_mod[T: Array](a: Array, b: T) -> T:
@@ -1071,10 +1071,10 @@ def bits_mod[T: Array](a: Array, b: T) -> T:
     if a.has_w() or b.has_w():
         return b.ws()
 
-    dmax = mask(b.size)
-    r = a._data[1] % b._data[1]
+    r1 = a._data[1] % b._data[1]
+    r0 = r1 ^ b._dmax
 
-    return b._cast_data(r ^ dmax, r)
+    return b._cast_data(r0, r1)
 
 
 def _and_or(a: Array, b: Array) -> Scalar:
@@ -1371,7 +1371,10 @@ def u2bv(n: int, size: int | None = None) -> Vector:
         s = f"Overflow: n = {n} required size ≥ {min_size}, got {size}"
         raise ValueError(s)
 
-    return vec_size(size)(n ^ mask(size), n)
+    d1 = n
+    d0 = d1 ^ mask(size)
+
+    return vec_size(size)(d0, d1)
 
 
 def i2bv(n: int, size: int | None = None) -> Vector:
