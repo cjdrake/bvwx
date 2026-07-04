@@ -1174,7 +1174,8 @@ def _bools2vec(x0: int, *xs: int) -> Vector:
         else:
             raise TypeError(f"Expected x in {{0, 1}}, got {x}")
         size += 1
-    return vec_size(size)(d1 ^ mask(size), d1)
+    d0 = d1 ^ mask(size)
+    return vec_size(size)(d0, d1)
 
 
 def _rank2(fst: Vector, *rst: VectorLike) -> Array:
@@ -1422,9 +1423,8 @@ def i2bv(n: int, size: int | None = None) -> Vector:
     return vec_size(size)(d0, d1)
 
 
-def _chunk(data: lbv, base: int, size: int) -> lbv:
-    m = mask(size)
-    return (data[0] >> base) & m, (data[1] >> base) & m
+def _chunk(data: lbv, base: int, mask: int) -> lbv:
+    return (data[0] >> base) & mask, (data[1] >> base) & mask
 
 
 def _sel(x: Array, key: tuple[tuple[int, int], ...]) -> Array:
@@ -1437,21 +1437,21 @@ def _sel(x: Array, key: tuple[tuple[int, int], ...]) -> Array:
     if start != 0 or stop != x.shape[0]:
         if len(key_r) == 0:
             size = stop - start
-            d0, d1 = _chunk(x._data, start, size)
+            d0, d1 = _chunk(x._data, start, mask(size))
             return vec_size(size)(d0, d1)
 
         if len(key_r) == 1:
             V = _get_vec_size(x.shape[1])
             vecs: list[Vector] = []
             for i in range(start, stop):
-                d0, d1 = _chunk(x._data, V.size * i, V.size)
+                d0, d1 = _chunk(x._data, V.size * i, V._dmax)
                 vecs.append(V(d0, d1))
             return _stack(*[_sel(vec, key_r) for vec in vecs])
 
         A = _get_array_shape(x.shape[1:])
         arrays: list[Array] = []
         for i in range(start, stop):
-            d0, d1 = _chunk(x._data, A.size * i, A.size)
+            d0, d1 = _chunk(x._data, A.size * i, A._dmax)
             arrays.append(A(d0, d1))
         return _stack(*[_sel(array, key_r) for array in arrays])
 
