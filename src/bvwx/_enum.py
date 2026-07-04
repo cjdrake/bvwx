@@ -31,9 +31,9 @@ def _parse_attrs(attrs: dict[str, Any]) -> tuple[dict[str, Any], Data2Key, int]:
                     s = f"Expected lit len {size}, got {size_i}"
                     raise ValueError(s)
             if key in ("X", "W"):
-                raise ValueError(f"Cannot use reserved name = '{key}'")
+                raise ValueError(f"Cannot use reserved name: {key}")
             if data in (xx, ww):
-                raise ValueError(f"Cannot use reserved value = {val}")
+                raise ValueError(f"Cannot use reserved value: {val}")
             if data in data2key:
                 raise ValueError(f"Duplicate value: {val}")
             data2key[data] = key

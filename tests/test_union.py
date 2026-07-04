@@ -111,3 +111,12 @@ def test_bad_type():
             a: Array[4]
             b: Simple
             c: int  # Error!
+
+
+def test_bad_name():
+    with pytest.raises(ValueError):
+
+        class BadName(Union):
+            a: Array[4]
+            b: Simple
+            onehot: Array[4]  # Error!

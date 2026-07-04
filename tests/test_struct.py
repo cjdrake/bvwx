@@ -119,4 +119,12 @@ def test_bad_type():
             a: Array[4]
             b: Simple
             c: int  # Error!
-            d: Array[4]
+
+
+def test_bad_name():
+    with pytest.raises(ValueError):
+
+        class BadName(Struct):
+            a: Array[4]
+            b: Simple
+            onehot: Array[4]  # Error!

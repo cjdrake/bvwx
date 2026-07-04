@@ -49,7 +49,7 @@ class UnionType(type):
         for k, v in _annotations.items():
             ft: type[Array] = v.__origin__ if isinstance(v, GenericAlias) else v
             if not issubclass(ft, Array):
-                s = f"Expected annotation type Array, got {ft.__name__}"
+                s = f"Field {k} expected type Array, got {ft.__name__}"
                 raise TypeError(s)
             annotations[k] = ft
 
@@ -103,6 +103,8 @@ class UnionType(type):
 
         # Create Union fields
         for fn, ft in fields:
+            if hasattr(cls, fn):
+                raise ValueError(f"Cannot use reserved field name: {fn}")
             setattr(cls, fn, property(fget=partial(_fget, ft)))
 
         return cls
