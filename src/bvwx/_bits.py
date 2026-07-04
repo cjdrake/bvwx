@@ -1272,6 +1272,7 @@ def i2bv(n: int, size: int | None = None) -> Array:
         d1 = (d1 ^ mask(size)) + 1
 
     d0 = d1 ^ mask(size)
+
     return vec_obj(size, d0, d1)
 
 
