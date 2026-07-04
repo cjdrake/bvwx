@@ -77,15 +77,13 @@ def parse_lit(lit: str) -> tuple[int, lbv]:
         return size, (d1 ^ dmax, d1)
 
     # Hexadecimal
-    if base == "h":
-        d1 = int(digits, base=16)
-        dmax = mask(size)
-        if d1 > dmax:
-            s = f"Expected digits in range [0, {dmax}], got {digits}"
-            raise ValueError(s)
-        return size, (d1 ^ dmax, d1)
-
-    assert False  # pragma: no cover
+    assert base == "h"
+    d1 = int(digits, base=16)
+    dmax = mask(size)
+    if d1 > dmax:
+        s = f"Expected digits in range [0, {dmax}], got {digits}"
+        raise ValueError(s)
+    return size, (d1 ^ dmax, d1)
 
 
 def not_(a: lbv) -> lbv:
