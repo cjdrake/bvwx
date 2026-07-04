@@ -46,29 +46,6 @@ from ._util import clog2, mask
 _ArrayShape: dict[tuple[int, ...], type[Array]] = {}
 
 
-def cast_data[T: Array](cls: type[T], d0: int, d1: int) -> T:
-    obj: T = object.__new__(cls)
-    obj._data = (d0, d1)
-    return obj
-
-
-def cast[T: Array](cls: type[T], x: Array) -> T:
-    """Convert Array object to an instance of this class.
-
-    For example, to cast an ``Array[2,2]`` to a ``Vector[4]``:
-
-    >>> x = bits(["2b00", "2b11"])
-    >>> cast(Array[4], x)
-    bits("4b1100")
-
-    Raises:
-        TypeError: Object size does not match this class size.
-    """
-    if x.size != cls.size:
-        raise TypeError(f"Expected size {cls.size}, got {x.size}")
-    return cls._cast_data(x._data[0], x._data[1])
-
-
 def _b2s(arg: int) -> Array:
     try:
         return bool2scalar[arg]
@@ -768,6 +745,29 @@ def empty_obj() -> Array:
     if _empty is None:
         _empty = empty()(d0=0, d1=0)
     return _empty
+
+
+def cast_data[T: Array](cls: type[T], d0: int, d1: int) -> T:
+    obj: T = object.__new__(cls)
+    obj._data = (d0, d1)
+    return obj
+
+
+def cast[T: Array](cls: type[T], x: Array) -> T:
+    """Convert Array object to an instance of this class.
+
+    For example, to cast an ``Array[2,2]`` to a ``Vector[4]``:
+
+    >>> x = bits(["2b00", "2b11"])
+    >>> cast(Array[4], x)
+    bits("4b1100")
+
+    Raises:
+        TypeError: Object size does not match this class size.
+    """
+    if x.size != cls.size:
+        raise TypeError(f"Expected size {cls.size}, got {x.size}")
+    return cls._cast_data(x._data[0], x._data[1])
 
 
 # Type Aliases
