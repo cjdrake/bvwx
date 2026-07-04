@@ -722,10 +722,10 @@ _scalars: dict[tuple[int, int], Array | None] = {
 
 def scalar_obj(d0: int, d1: int) -> Array:
     data = (d0, d1)
-    if _scalars[data] is None:
-        _scalars[data] = scalar()(d0, d1)
     x = _scalars[data]
-    assert x is not None
+    if x is None:
+        x = scalar()(d0, d1)
+        _scalars[data] = x
     return x
 
 
