@@ -25,9 +25,9 @@ Use one of the factory functions:
 
     * bits
     * stack
+    * lit2bv
     * u2bv
     * i2bv
-
 """
 
 from __future__ import annotations
