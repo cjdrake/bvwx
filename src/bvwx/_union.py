@@ -16,8 +16,7 @@ def _get_annotations(attrs: dict[str, Any]) -> dict[str, Any]:
         f = get_annotate_from_class_namespace(attrs)
         if f is not None:
             return f(Format.VALUE)
-        else:
-            raise ValueError("Empty Union is not supported")
+        raise ValueError("Empty Union is not supported")
     try:
         return attrs["__annotations__"]
     except KeyError as e:
