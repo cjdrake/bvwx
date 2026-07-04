@@ -29,7 +29,7 @@ The `-` character is a convention from the [Espresso][1] PLA file format.
 Wherever it hampers readability, we will instead use `W`.
 
 Collections of bits can be organized into arbitrary shapes using the
-multi-dimensional `Array` and one-dimensional `Vec` class factories.
+multi-dimensional `Array` class factory.
 
 `Enum`, `Struct`, and `Union` class factories can be extended to create
 user-defined abstract date types.
