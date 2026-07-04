@@ -184,7 +184,7 @@ class Enum(metaclass=EnumType):
 
     To cast an ``Enum`` to a ``Vec``, use the ``cast`` method:
 
-    >>> from bvwx import Vec
-    >>> Vec[2].cast(Color.RED)
+    >>> from bvwx import Vec, cast
+    >>> cast(Vec[2], Color.RED)
     bits("2b00")
     """

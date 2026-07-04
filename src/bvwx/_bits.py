@@ -52,6 +52,23 @@ def cast_data[T: Array](cls: type[T], d0: int, d1: int) -> T:
     return obj
 
 
+def cast[T: Array](cls: type[T], x: Array) -> T:
+    """Convert Array object to an instance of this class.
+
+    For example, to cast an ``Array[2,2]`` to a ``Vector[4]``:
+
+    >>> x = bits(["2b00", "2b11"])
+    >>> cast(Vector[4], x)
+    bits("4b1100")
+
+    Raises:
+        TypeError: Object size does not match this class size.
+    """
+    if x.size != cls.size:
+        raise TypeError(f"Expected size {cls.size}, got {x.size}")
+    return cls._cast_data(x._data[0], x._data[1])
+
+
 def _get_array_shape(shape: tuple[int, ...]) -> type[Array]:
     """Return Array[shape] type."""
     assert len(shape) > 1 and all(isinstance(n, int) and n > 1 for n in shape)
@@ -273,23 +290,6 @@ class Array(Bits):
                 s = f"For shape dimension {i}: expected n > 1, got {n}"
                 raise ValueError(s)
         return _get_array_shape(shape)
-
-    @classmethod
-    def cast(cls, x: Array) -> Self:
-        """Convert Array object to an instance of this class.
-
-        For example, to cast an ``Array[2,2]`` to a ``Vector[4]``:
-
-        >>> x = bits(["2b00", "2b11"])
-        >>> Vector[4].cast(x)
-        bits("4b1100")
-
-        Raises:
-            TypeError: Object size does not match this class size.
-        """
-        if x.size != cls.size:
-            raise TypeError(f"Expected size {cls.size}, got {x.size}")
-        return cls._cast_data(x._data[0], x._data[1])
 
     @classmethod
     def xs(cls) -> Self:

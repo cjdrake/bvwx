@@ -17,8 +17,6 @@ Data Types
     .. py:property:: size
         :type: int
 
-    .. automethod:: bvwx.Array.cast
-
     .. automethod:: bvwx.Array.xs
     .. automethod:: bvwx.Array.zeros
     .. automethod:: bvwx.Array.ones
@@ -80,6 +78,8 @@ Data Types
 
 .. autoclass:: bvwx.Union
     :show-inheritance:
+
+.. autofunction:: bvwx.cast
 
 
 Operators

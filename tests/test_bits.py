@@ -2,7 +2,7 @@
 
 import pytest
 
-from bvwx import Array, Empty, Enum, Scalar, Struct, Union, Vec, bits, u2bv
+from bvwx import Array, Empty, Enum, Scalar, Struct, Union, Vec, bits, cast, u2bv
 
 E = bits()
 F = bits(False)
@@ -47,12 +47,12 @@ def test_type_cast():
     x1 = bits("4b1001")
     x2 = bits(["2b01", "2b10"])
 
-    x3 = Vec[4].cast(x2)
+    x3 = cast(Vec[4], x2)
     assert type(x3) is Vec[4]
     assert x3 == x1
 
     with pytest.raises(TypeError):
-        Vec[3].cast(x1)
+        cast(Vec[3], x1)
 
 
 def test_bool():
