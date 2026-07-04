@@ -18,6 +18,9 @@ No waivers yet. Mostly just getting rid of old annotations.
 
 Moved ``bvwx.Array.cast`` class method to a top-level function ``bvwx.cast``.
 
+Removed ``Empty``, ``Scalar``, ``Vector``, and ``Vec`` from public API.
+Use ``Array`` class for everything.
+
 
 Version 0.21.0
 ==============
