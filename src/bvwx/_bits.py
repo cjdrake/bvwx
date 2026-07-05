@@ -1091,18 +1091,15 @@ def bits(obj: Any = None) -> Array:
         case None | []:
             y = empty_obj()
         case 0 | 1:
-            x: int = obj  # Help type checker
-            y = bool2scalar[x]
+            y = bool2scalar[obj]
         case [0 | 1 as fst, *rst]:
             y = _bools2vec(fst, *rst)
-            y = _bools2vec(fst, *rst)
         case str() as lit:
-            y = lit2bv(lit)
             y = lit2bv(lit)
         case [str() as lit, *rst]:
             x = lit2bv(lit)
             y = _rank2(x, *rst)
-        case [Array() as x, *rst] if len(x.shape) == 1:
+        case [Array() as x, *rst]:
             y = _rank2(x, *rst)
         case [*objs]:
             y = _stack(*[bits(obj) for obj in objs])
