@@ -3,7 +3,7 @@
 import sys
 from functools import partial
 from types import GenericAlias
-from typing import Any
+from typing import Any, get_origin
 
 if sys.version_info >= (3, 14):
     from annotationlib import Format, get_annotate_from_class_namespace
@@ -57,8 +57,9 @@ class StructType(type):
 
         # Fix / Check annotation types
         annotations: dict[str, type[Array]] = {}
-        for fn, v in _annotations.items():
-            ft: type[Array] = v.__origin__ if isinstance(v, GenericAlias) else v
+        for fn, val in _annotations.items():
+            # Unalias annotation
+            ft = get_origin(val) if isinstance(val, GenericAlias) else val
             if not issubclass(ft, Array):
                 s = f"Field {fn} expected type Array, got {ft.__name__}"
                 raise TypeError(s)
