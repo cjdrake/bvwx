@@ -2,7 +2,6 @@
 
 import sys
 from functools import partial
-from types import GenericAlias
 from typing import Any, get_origin
 
 if sys.version_info >= (3, 14):
@@ -47,7 +46,7 @@ class UnionType(type):
         annotations: dict[str, type[Array]] = {}
         for fn, val in _annotations.items():
             # Unalias annotation
-            ft = get_origin(val) if isinstance(val, GenericAlias) else val
+            ft = get_origin(val) or val
             if not issubclass(ft, Array):
                 s = f"Field {fn} expected type Array, got {ft.__name__}"
                 raise TypeError(s)
