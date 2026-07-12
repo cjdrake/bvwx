@@ -37,7 +37,7 @@ import random
 from collections.abc import Iterator
 from functools import partial
 from types import GenericAlias
-from typing import Any, Self
+from typing import Any, Self, get_origin
 
 from . import _lbool as lb
 from ._lbool import lbv

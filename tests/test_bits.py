@@ -1,5 +1,7 @@
 """Test Bits methods."""
 
+from typing import get_origin
+
 import pytest
 
 from bvwx import Array, Enum, Struct, Union, bits, cast, u2bv
@@ -40,11 +42,11 @@ def test_type_resolution():
 
     # Downgrade Enum to Vec
     y = bits("2b00") | Color.RED
-    assert type(y) is Array[2].__origin__
+    assert type(y) is get_origin(Array[2])
 
     # Downgrade Array to Vec
     y = Array[4, 4].rand() | Array[16].rand()
-    assert type(y) is Array[16].__origin__
+    assert type(y) is get_origin(Array[16])
 
 
 def test_type_cast():
@@ -52,7 +54,7 @@ def test_type_cast():
     x2 = bits(["2b01", "2b10"])
 
     x3 = cast(Array[4], x2)
-    assert type(x3) is Array[4].__origin__
+    assert type(x3) is get_origin(Array[4])
     assert x3 == x1
 
     with pytest.raises(TypeError):
@@ -353,19 +355,19 @@ def test_array_reshape():
     assert x.size == 24
 
     y = x.reshape((2, 3, 4))
-    # assert type(y) is a
+    assert type(y) is get_origin(a)
     assert y == x
 
     y = x.reshape((4, 3, 2))
-    assert type(y) is Array[4, 3, 2].__origin__
+    assert type(y) is get_origin(Array[4, 3, 2])
     assert y == x
 
     y = x.reshape((24,))
-    assert type(y) is v.__origin__
+    assert type(y) is get_origin(v)
     assert y == x
 
     y = x.flatten()
-    assert type(y) is v.__origin__
+    assert type(y) is get_origin(v)
     assert y == x
 
     with pytest.raises(ValueError):
@@ -379,15 +381,15 @@ def test_vec_reshape():
     assert x.size == 24
 
     y = x.reshape((2, 3, 4))
-    assert type(y) is Array[2, 3, 4].__origin__
+    assert type(y) is get_origin(Array[2, 3, 4])
     assert y == x
 
     y = x.reshape((24,))
-    assert type(y) is v.__origin__
+    assert type(y) is get_origin(v)
     assert y == x
 
     y = x.flatten()
-    assert type(y) is v.__origin__
+    assert type(y) is get_origin(v)
     assert y == x
 
     with pytest.raises(ValueError):
