@@ -1346,6 +1346,8 @@ def _norm_slice(n: int, sl: KeySlice) -> tuple[int, int]:
         stop = hi
     if stop < 0:
         stop += hi
+    # Clamp reverse slice to empty
+    stop = max(start, stop)
     return start, stop
 
 

@@ -208,6 +208,10 @@ def test_vec_getitem():
     assert X2[0:3] == "3b10X"
     assert X2[0:4] == "4b-10X"
 
+    assert X2[2:2] == E
+    assert X2[2:1] == E
+    assert X2[2:0] == E
+
     assert X2[:-3] == "1bX"
     assert X2[:-2] == "2b0X"
     assert X2[:-1] == "3b10X"
