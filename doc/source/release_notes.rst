@@ -8,6 +8,14 @@ This chapter lists new features, API changes, and bug fixes.
 For a complete history, see the Git commit log.
 
 
+Version 0.24.0
+==============
+
+Fixed an issue with Python ``__hash__`` and ``__eq__`` consistency.
+Previously, it was possible for equal arrays to have different hashes.
+This broke an important Python contract.
+
+
 Version 0.23.0
 ==============
 
