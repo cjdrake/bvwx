@@ -328,7 +328,7 @@ class Array[*Shape]:
         self._data = (d0, d1)
 
     def __hash__(self) -> int:
-        return hash(self.shape + self._data)
+        return hash((self.size,) + self._data)
 
     def __eq__(self, obj: Any) -> bool:
         if isinstance(obj, str):
