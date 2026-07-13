@@ -8,20 +8,16 @@ This chapter lists new features, API changes, and bug fixes.
 For a complete history, see the Git commit log.
 
 
-Version 0.24.0
-==============
-
-Fixed an issue with Python ``__hash__`` and ``__eq__`` consistency.
-Previously, it was possible for equal arrays to have different hashes.
-This broke an important Python contract.
-
-
 Version 0.23.0
 ==============
 
 Fixed corner case w/ ``lit2bv`` negative input, e.g. ``bits("8d-42")``.
 The ``int`` function catches most issues, but allows the ``-`` character.
 That character is not allowed in this context.
+
+Fixed an issue with Python ``__hash__`` and ``__eq__`` consistency.
+Previously, it was possible for equal arrays to have different hashes.
+This broke an important Python contract.
 
 
 Version 0.22.0
