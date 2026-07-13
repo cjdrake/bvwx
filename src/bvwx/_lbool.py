@@ -70,6 +70,8 @@ def parse_lit(lit: str) -> tuple[int, lbv]:
     # Decimal
     if base == "d":
         d1 = int(digits, base=10)
+        if d1 < 0:
+            raise ValueError(f"Expected digits ≥ 0, got {digits}")
         dmax = mask(size)
         if d1 > dmax:
             s = f"Expected digits in range [0, {dmax}], got {digits}"
@@ -79,6 +81,8 @@ def parse_lit(lit: str) -> tuple[int, lbv]:
     # Hexadecimal
     assert base == "h"
     d1 = int(digits, base=16)
+    if d1 < 0:
+        raise ValueError(f"Expected digits ≥ 0, got {digits}")
     dmax = mask(size)
     if d1 > dmax:
         s = f"Expected digits in range [0, {dmax}], got {digits}"

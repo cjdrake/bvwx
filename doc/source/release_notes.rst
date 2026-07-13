@@ -8,6 +8,14 @@ This chapter lists new features, API changes, and bug fixes.
 For a complete history, see the Git commit log.
 
 
+Version 0.23.0
+==============
+
+Fixed corner case w/ ``lit2bv`` negative input, e.g. ``bits("8d-42")``.
+The ``int`` function catches most issues, but allows the ``-`` character.
+That character is not allowed in this context.
+
+
 Version 0.22.0
 ==============
 

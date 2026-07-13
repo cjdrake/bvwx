@@ -124,6 +124,8 @@ def test_lit2bv_dec():
     # Contains illegal characters
     with pytest.raises(ValueError):
         bits("8hd3@d_b33f")
+    with pytest.raises(ValueError):
+        bits("8d-42")
 
     # Size is too small
     with pytest.raises(ValueError):
@@ -178,6 +180,8 @@ def test_lit2bv_hex():
     # Contains illegal characters
     with pytest.raises(ValueError):
         bits("8hd3@d_b33f")
+    with pytest.raises(ValueError):
+        bits("8h-42")
 
     # Size is too small
     with pytest.raises(ValueError):
