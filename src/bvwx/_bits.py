@@ -1055,6 +1055,8 @@ def _rank2(fst: Array, *rst: VectorLike) -> Array:
         _x = expect_vec_size(x, fst.size)
         d0 |= _x._data[0] << (fst.size * i)
         d1 |= _x._data[1] << (fst.size * i)
+    if fst.shape == (0,):
+        return empty_obj()
     if fst.shape == (1,):
         size = len(rst) + 1
         return vec_obj(size, d0, d1)

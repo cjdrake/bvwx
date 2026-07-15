@@ -354,6 +354,7 @@ def test_i2bv():
 
 
 def test_bits():
+    assert bits([E, E, E, E]) == E
     assert bits() == E
     assert bits(None) == E
     assert bits([]) == E
