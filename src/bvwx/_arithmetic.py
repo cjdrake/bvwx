@@ -42,7 +42,7 @@ def add(a: ArrayLike, b: ArrayLike, ci: ScalarLike | None = None) -> Array:
             ``None`` defaults to carry-in ``0``.
 
     Returns:
-        ``Array`` sum w/ size equal to ``max(a.size, b.size)``.
+        ``Array`` sum with size equal to ``max(a.size, b.size)``.
 
     Raises:
         TypeError: ``a``, ``b``, or ``ci`` are not valid ``Array`` objects.
@@ -73,7 +73,7 @@ def adc(a: ArrayLike, b: ArrayLike, ci: ScalarLike | None = None) -> Array:
             ``None`` defaults to carry-in ``0``.
 
     Returns:
-        ``Vector`` sum w/ size equal to ``max(a.size, b.size) + 1``.
+        ``Vector`` sum with size equal to ``max(a.size, b.size) + 1``.
         The most significant bit is the carry-out.
 
     Raises:
@@ -116,7 +116,7 @@ def sbc(a: ArrayLike, b: ArrayLike) -> Array:
         b: ``Array`` or string literal equal size to ``a``.
 
     Returns:
-        ``Array`` sum w/ size one larger than ``a`` and ``b``.
+        ``Array`` sum with size one larger than ``a`` and ``b``.
         The most significant bit is the carry-out.
 
     Raises:
@@ -155,7 +155,7 @@ def ngc(x: ArrayLike) -> Array:
         x: ``Array`` or string literal
 
     Returns:
-        ``Array`` w/ size one larger than ``x``.
+        ``Array`` with size one larger than ``x``.
         The most significant bit is the carry-out.
 
     Raises:
@@ -183,7 +183,7 @@ def mul(a: ArrayLike, b: ArrayLike) -> Array:
         b: ``Array`` or string literal
 
     Returns:
-        ``Vector`` product w/ size ``a.size + b.size``
+        ``Vector`` product with size ``a.size + b.size``
 
     Raises:
         TypeError: ``a`` or ``b`` are not valid ``Array`` objects.
@@ -202,7 +202,7 @@ def div(a: ArrayLike, b: ArrayLike) -> Array:
         b: ``Array`` or string literal
 
     Returns:
-        ``Vector`` quotient w/ size ``a.size``
+        ``Vector`` quotient with size ``a.size``
 
     Raises:
         TypeError: ``a`` or ``b`` are not valid ``Array`` objects.
@@ -222,7 +222,7 @@ def mod(a: ArrayLike, b: ArrayLike) -> Array:
         b: ``Array`` or string literal
 
     Returns:
-        ``Vector`` remainder w/ size ``b.size``
+        ``Vector`` remainder with size ``b.size``
 
     Raises:
         TypeError: ``a`` or ``b`` are not valid ``Array`` objects.

@@ -1157,7 +1157,7 @@ def _stack(*xs: Array) -> Array:
 
 
 def stack(*objs: ArrayLike) -> Array:
-    """Stack a sequence of Arrays w/ same shape into a higher dimensional shape.
+    """Stack a sequence of Arrays with same shape into a higher dimensional shape.
 
     For a sequence length N with shape M,
     the output shape will be M x N.

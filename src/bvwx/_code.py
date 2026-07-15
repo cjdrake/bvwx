@@ -32,7 +32,7 @@ def encode_onehot(x: ArrayLike) -> Array:
         x: ``Array`` or string literal.
 
     Returns:
-        ``Vector`` w/ ``size`` = ``clog2(x.size)``
+        ``Vector`` with ``size`` = ``clog2(x.size)``
 
     Raises:
         TypeError: ``x`` is not a valid ``Array`` object.
@@ -78,7 +78,7 @@ def encode_priority(x: ArrayLike) -> tuple[Array, Array]:
 
     Returns:
         Tuple of ``Vector`` and ``Scalar``:
-            ``Vector`` w/ ``size`` = ``clog2(x.size)``
+            ``Vector`` with ``size`` = ``clog2(x.size)``
             ``Scalar`` valid bit
 
     Raises:
@@ -141,7 +141,7 @@ def decode(x: ArrayLike) -> Array:
         x: ``Array`` or string literal.
 
     Returns:
-        One hot ``Scalar`` or ``Vector`` w/ ``size`` = ``2**x.size``
+        One hot ``Scalar`` or ``Vector`` with ``size`` = ``2**x.size``
 
     Raises:
         TypeError: ``x`` is not a valid ``Array`` object.

@@ -25,7 +25,7 @@ def _get_annotations(attrs: dict[str, Any]) -> dict[str, Any]:
 
 
 def _struct_init_source(fields: list[Field]) -> str:
-    """Return source code for Struct __init__ method w/ fields."""
+    """Return source code for Struct __init__ method with fields."""
     lines: list[str] = []
     s = ", ".join(f"{fn}=None" for fn, _, _ in fields)
     lines.append(f"def init(self, {s}):\n")

@@ -43,12 +43,12 @@ BIN_LITS = {
 
 
 def test_lit_bin():
-    # Valid inputs w/o X
+    # Valid inputs without X
     for lit, (n, d1) in BIN_LITS.items():
         x = bits(lit)
         assert len(x) == n and x._data[1] == d1
 
-    # Valid inputs w/ X
+    # Valid inputs with X
     x = bits("4bW1_0X")
     assert len(x) == 4 and x._data == (0b1010, 0b1100)
     x = bits("4b-1_0X")
