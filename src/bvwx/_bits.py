@@ -43,7 +43,7 @@ from . import _lbool as lb
 from ._lbool import lbv
 from ._util import clog2, mask
 
-_ArrayShape: dict[tuple[int, ...], type[Array]] = {}
+_ArrayClasses: dict[tuple[int, ...], type[Array]] = {}
 
 
 def _b2s(arg: int) -> Array:
@@ -704,10 +704,10 @@ def array_cls(shape: tuple[int, ...]) -> type[Array]:
     assert len(shape) == 1 and shape[0] >= 0 or all(isinstance(n, int) and n > 1 for n in shape)
 
     try:
-        return _ArrayShape[shape]
+        return _ArrayClasses[shape]
     except KeyError:
         cls = _array_new(shape)
-        _ArrayShape[shape] = cls
+        _ArrayClasses[shape] = cls
         return cls
 
 
