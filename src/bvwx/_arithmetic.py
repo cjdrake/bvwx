@@ -88,7 +88,7 @@ def adc(a: ArrayLike, b: ArrayLike, ci: ScalarLike | None = None) -> Array:
 
 
 def sub(a: ArrayLike, b: ArrayLike) -> Array:
-    """Twos complement subtraction, with NO carry-out.
+    """Two's complement subtraction, with NO carry-out.
 
     Args:
         a: ``Array`` or string literal
@@ -109,7 +109,7 @@ def sub(a: ArrayLike, b: ArrayLike) -> Array:
 
 
 def sbc(a: ArrayLike, b: ArrayLike) -> Array:
-    """Twos complement subtraction, with carry-out.
+    """Two's complement subtraction, with carry-out.
 
     Args:
         a: ``Array`` or string literal
@@ -131,7 +131,7 @@ def sbc(a: ArrayLike, b: ArrayLike) -> Array:
 
 
 def neg(x: ArrayLike) -> Array:
-    """Twos complement negation, with NO carry-out.
+    """Two's complement negation, with NO carry-out.
 
     Args:
         x: ``Array`` or string literal
@@ -149,7 +149,7 @@ def neg(x: ArrayLike) -> Array:
 
 
 def ngc(x: ArrayLike) -> Array:
-    """Twos complement negation, with carry-out.
+    """Two's complement negation, with carry-out.
 
     Args:
         x: ``Array`` or string literal
