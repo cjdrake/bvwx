@@ -2,7 +2,7 @@
 
 from typing import Any
 
-from ._bits import Array, ArrayLike, cast_data, expect_array_size, vec
+from ._bits import Array, ArrayLike, cast_data, expect_array_size, vec_cls
 from ._lbool import parse_lit
 from ._util import mask
 
@@ -75,7 +75,7 @@ class EnumType(type):
         _, data2key, size = _parse_attrs(attrs)
 
         # Get Vector[N] base class
-        V = vec(size)
+        V = vec_cls(size)
 
         # Create Enum class
         ns: dict[str, Any] = {"__slots__": (), "_data2key": data2key}

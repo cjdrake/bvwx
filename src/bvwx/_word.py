@@ -9,7 +9,7 @@ from ._bits import (
     expect_array,
     expect_uint,
     lit2bv,
-    vec,
+    vec_cls,
 )
 from ._util import mask
 
@@ -27,7 +27,7 @@ def _xt[T: Array](x: T, n: Array) -> T | Array:
     ext0 = mask(_n)
     d0 = x._data[0] | ext0 << x.size
     d1 = x._data[1]
-    return vec(x.size + _n)(d0, d1)
+    return vec_cls(x.size + _n)(d0, d1)
 
 
 def xt(x: ArrayLike, n: UintLike) -> Array:
@@ -75,7 +75,7 @@ def _sxt[T: Array](x: T, n: Array) -> T | Array:
     ext1 = mask(_n) * sign1
     d0 = x._data[0] | ext0 << x.size
     d1 = x._data[1] | ext1 << x.size
-    return vec(x.size + _n)(d0, d1)
+    return vec_cls(x.size + _n)(d0, d1)
 
 
 def sxt(x: ArrayLike, n: UintLike) -> Array:

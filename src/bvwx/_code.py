@@ -9,7 +9,7 @@ from ._bits import (
     scalar1,
     scalarW,
     scalarX,
-    vec,
+    vec_cls,
 )
 from ._util import clog2
 
@@ -44,7 +44,7 @@ def encode_onehot(x: ArrayLike) -> Array:
         raise ValueError("Expected non-empty Array")
 
     n = clog2(x.size)
-    V = vec(n)
+    V = vec_cls(n)
 
     # X/W propagation
     if x.has_x():
@@ -93,7 +93,7 @@ def encode_priority(x: ArrayLike) -> tuple[Array, Array]:
         raise ValueError("Expected non-empty Array")
 
     n = clog2(x.size)
-    V = vec(n)
+    V = vec_cls(n)
 
     # X propagation
     if x.has_x():
@@ -157,7 +157,7 @@ def decode(x: ArrayLike) -> Array:
 
     # Output has 2^N bits
     n = 1 << x.size
-    V = vec(n)
+    V = vec_cls(n)
 
     # X/W propagation
     if x.has_x():

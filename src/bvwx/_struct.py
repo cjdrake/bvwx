@@ -7,7 +7,7 @@ from typing import Any, get_origin
 if sys.version_info >= (3, 14):
     from annotationlib import Format, get_annotate_from_class_namespace
 
-from ._bits import Array, ArrayLike, expect_array_size, vec
+from ._bits import Array, ArrayLike, expect_array_size, vec_cls
 
 type Field = tuple[str, int, type[Array]]
 
@@ -74,7 +74,7 @@ class StructType(type):
             field_offset += field_type.size
 
         # Get Vector[N] base class
-        V = vec(field_offset)
+        V = vec_cls(field_offset)
 
         # Create Struct class
         ns: dict[str, Any] = {"__slots__": ()}

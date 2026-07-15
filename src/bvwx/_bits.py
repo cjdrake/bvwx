@@ -140,7 +140,7 @@ def resolve_type[T: Array](x0: T, x1: Array) -> type[T] | type[Array]:
         return t
 
     # Otherwise, downgrade to Vector
-    return vec(x0.size)
+    return vec_cls(x0.size)
 
 
 class ArrayGenericAlias(GenericAlias):
@@ -197,7 +197,7 @@ class Array[*Shape]:
             size: int = key
             if size < 0:
                 raise ValueError(f"Expected size ≥ 0, got {size}")
-            return ArrayGenericAlias(vec(size), (size,))
+            return ArrayGenericAlias(vec_cls(size), (size,))
 
         shape: tuple[int, ...] = key
         for i, n in enumerate(shape):
@@ -711,16 +711,16 @@ def array(shape: tuple[int, ...]) -> type[Array]:
         return cls
 
 
-def vec(size: int) -> type[Array]:
+def vec_cls(size: int) -> type[Array]:
     return array(shape=(size,))
 
 
 def scalar() -> type[Array]:
-    return vec(size=1)
+    return vec_cls(size=1)
 
 
 def empty() -> type[Array]:
-    return vec(size=0)
+    return vec_cls(size=0)
 
 
 def array_obj(shape: tuple[int, ...], d0: int, d1: int) -> Array:
@@ -728,7 +728,7 @@ def array_obj(shape: tuple[int, ...], d0: int, d1: int) -> Array:
 
 
 def vec_obj(size: int, d0: int, d1: int) -> Array:
-    return vec(size)(d0, d1)
+    return vec_cls(size)(d0, d1)
 
 
 _scalars: dict[lbv, Array | None] = {
@@ -862,7 +862,7 @@ def bits_add[T: Array](a: T, b: Array, ci: Array) -> tuple[T | Array, Array]:
     if a.size == b.size:
         t = resolve_type(a, b)
     else:
-        t = vec(max(a.size, b.size))
+        t = vec_cls(max(a.size, b.size))
 
     # X/W propagation
     if a.has_x() or b.has_x() or ci.has_x():
@@ -902,7 +902,7 @@ def bits_neg[T: Array](x: T) -> tuple[T, Array]:
 
 
 def bits_mul(a: Array, b: Array) -> Array:
-    V = vec(a.size + b.size)
+    V = vec_cls(a.size + b.size)
 
     # X/W propagation
     if a.has_x() or b.has_x():
@@ -1027,7 +1027,7 @@ def bits_cat(*xs: Array) -> Array:
         d0 |= x._data[0] << size
         d1 |= x._data[1] << size
         size += x.size
-    return vec(size)(d0, d1)
+    return vec_cls(size)(d0, d1)
 
 
 def _bools2vec(x0: int, *xs: int) -> Array:
@@ -1312,7 +1312,7 @@ def _sel(x: Array, key: tuple[tuple[int, int], ...]) -> Array:
             return vec_obj(size, d0, d1)
 
         if len(key_r) == 1:
-            V = vec(x.shape[1])
+            V = vec_cls(x.shape[1])
             vecs: list[Array] = []
             for i in range(start, stop):
                 d0, d1 = _chunk(x._data, V.size * i, V._dmax)

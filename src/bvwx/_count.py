@@ -1,6 +1,6 @@
 """Counting"""
 
-from ._bits import Array, ArrayLike, expect_array, vec
+from ._bits import Array, ArrayLike, expect_array, vec_cls
 from ._util import clog2
 
 
@@ -9,7 +9,7 @@ def cpop(x: ArrayLike) -> Array:
     x = expect_array(x)
 
     n = clog2(x.size + 1)
-    V = vec(n)
+    V = vec_cls(n)
 
     if x.has_x():
         return V.xs()
@@ -26,7 +26,7 @@ def clz(x: ArrayLike) -> Array:
     x = expect_array(x)
 
     n = clog2(x.size + 1)
-    V = vec(n)
+    V = vec_cls(n)
 
     if x.has_x():
         return V.xs()
@@ -43,7 +43,7 @@ def ctz(x: ArrayLike) -> Array:
     x = expect_array(x)
 
     n = clog2(x.size + 1)
-    V = vec(n)
+    V = vec_cls(n)
 
     if x.has_x():
         return V.xs()

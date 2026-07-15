@@ -7,7 +7,7 @@ from typing import Any, get_origin
 if sys.version_info >= (3, 14):
     from annotationlib import Format, get_annotate_from_class_namespace
 
-from ._bits import Array, ArrayLike, expect_array, vec
+from ._bits import Array, ArrayLike, expect_array, vec_cls
 
 
 def _get_annotations(attrs: dict[str, Any]) -> dict[str, Any]:
@@ -57,7 +57,7 @@ class UnionType(type):
 
         # Get Vector[N] base class
         size = max(field_type.size for _, field_type in fields)
-        V = vec(size)
+        V = vec_cls(size)
 
         # Create Union class
         ns: dict[str, Any] = {"__slots__": ()}
