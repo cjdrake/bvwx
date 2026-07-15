@@ -719,7 +719,7 @@ def scalar_cls() -> type[Array]:
     return vec_cls(size=1)
 
 
-def empty() -> type[Array]:
+def empty_cls() -> type[Array]:
     return vec_cls(size=0)
 
 
@@ -762,7 +762,7 @@ _empty: Array | None = None
 def empty_obj() -> Array:
     global _empty  # noqa: PLW0603
     if _empty is None:
-        _empty = empty()(d0=0, d1=0)
+        _empty = empty_cls()(d0=0, d1=0)
     return _empty
 
 
