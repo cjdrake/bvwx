@@ -29,6 +29,8 @@ def test_encode_onehot():
         encode_onehot("1b0")
     with pytest.raises(ValueError):
         encode_onehot("2b00")
+    with pytest.raises(ValueError):
+        encode_onehot(E)
 
     for x, y in ENC_OH_VALS:
         assert y == encode_onehot(x)
@@ -88,6 +90,9 @@ ENC_PRI_VALS = [
 def test_encode_priority():
     for x, y in ENC_PRI_VALS:
         assert y == encode_priority(x)
+
+    with pytest.raises(ValueError):
+        encode_priority(E)
 
 
 DEC_VALS = [

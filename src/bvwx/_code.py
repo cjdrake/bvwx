@@ -40,6 +40,9 @@ def encode_onehot(x: ArrayLike) -> Array:
     """
     x = expect_array(x)
 
+    if x.size == 0:
+        raise ValueError("Expected non-empty Array")
+
     n = clog2(x.size)
     V = vec(n)
 
@@ -85,6 +88,9 @@ def encode_priority(x: ArrayLike) -> tuple[Array, Array]:
         TypeError: ``x`` is not a valid ``Array`` object.
     """
     x = expect_array(x)
+
+    if x.size == 0:
+        raise ValueError("Expected non-empty Array")
 
     n = clog2(x.size)
     V = vec(n)
