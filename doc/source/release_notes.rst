@@ -8,6 +8,19 @@ This chapter lists new features, API changes, and bug fixes.
 For a complete history, see the Git commit log.
 
 
+Version 0.24.0
+==============
+
+Changed some ``Array`` lower dimensional names:
+
+* ``Array[0]`` ⇒ ``Empty``
+* ``Array[1]`` ⇒ ``Scalar``
+* ``Array[N]`` ⇒ ``Vector[N]``,
+* ``Array[M,N]`` ⇒ ``Matrix[M,N]``,
+
+And fixed some other, minor issues.
+
+
 Version 0.23.0
 ==============
 
