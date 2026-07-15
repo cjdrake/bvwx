@@ -715,7 +715,7 @@ def vec_cls(size: int) -> type[Array]:
     return array(shape=(size,))
 
 
-def scalar() -> type[Array]:
+def scalar_cls() -> type[Array]:
     return vec_cls(size=1)
 
 
@@ -743,7 +743,7 @@ def scalar_obj(d0: int, d1: int) -> Array:
     data = (d0, d1)
     x = _scalars[data]
     if x is None:
-        x = scalar()(d0, d1)
+        x = scalar_cls()(d0, d1)
         _scalars[data] = x
     return x
 
