@@ -204,7 +204,7 @@ class Array[*Shape]:
             if n <= 1:
                 s = f"For shape dimension {i}: expected n > 1, got {n}"
                 raise ValueError(s)
-        return ArrayGenericAlias(array(shape), shape)
+        return ArrayGenericAlias(array_cls(shape), shape)
 
     @classmethod
     def _cast_data(cls, d0: int, d1: int) -> Self:
@@ -698,7 +698,7 @@ def _array_new(shape: tuple[int, ...]) -> type[Array]:
     return cls
 
 
-def array(shape: tuple[int, ...]) -> type[Array]:
+def array_cls(shape: tuple[int, ...]) -> type[Array]:
     """Return Array[shape] type."""
     assert shape
     assert len(shape) == 1 and shape[0] >= 0 or all(isinstance(n, int) and n > 1 for n in shape)
@@ -712,7 +712,7 @@ def array(shape: tuple[int, ...]) -> type[Array]:
 
 
 def vec_cls(size: int) -> type[Array]:
-    return array(shape=(size,))
+    return array_cls(shape=(size,))
 
 
 def scalar_cls() -> type[Array]:
@@ -724,7 +724,7 @@ def empty_cls() -> type[Array]:
 
 
 def array_obj(shape: tuple[int, ...], d0: int, d1: int) -> Array:
-    return array(shape)(d0, d1)
+    return array_cls(shape)(d0, d1)
 
 
 def vec_obj(size: int, d0: int, d1: int) -> Array:
@@ -1319,7 +1319,7 @@ def _sel(x: Array, key: tuple[tuple[int, int], ...]) -> Array:
                 vecs.append(V(d0, d1))
             return _stack(*[_sel(vec, key_r) for vec in vecs])
 
-        A = array(x.shape[1:])
+        A = array_cls(x.shape[1:])
         arrays: list[Array] = []
         for i in range(start, stop):
             d0, d1 = _chunk(x._data, A.size * i, A._dmax)
