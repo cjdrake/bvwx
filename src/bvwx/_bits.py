@@ -664,7 +664,19 @@ def _array_flatten(self: Array) -> Array:
 
 
 def _array_new(shape: tuple[int, ...]) -> type[Array]:
-    name = f"Array[{','.join(str(n) for n in shape)}]"
+    assert shape
+    if shape == (0,):
+        name = "Empty"
+    elif shape == (1,):
+        name = "Scalar"
+    elif len(shape) == 1:
+        name = f"Vector[{shape[0]}]"
+    elif len(shape) == 2:  # noqa: PLR2004
+        name = f"Matrix[{shape[0]},{shape[1]}]"
+    else:
+        s = ",".join(str(n) for n in shape)
+        name = f"Array[{s}]"
+
     size = math.prod(shape)
     dmax = mask(size)
     ns: dict[str, Any] = {"__slots__": (), "shape": shape, "size": size, "_dmax": dmax}

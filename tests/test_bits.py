@@ -16,8 +16,8 @@ X = bits("1bX")
 def test_const():
     a = Array[4, 4]
 
-    assert repr(a) == "Array[4,4]"
-    assert str(a) == "Array[4,4]"
+    assert repr(a) == "Matrix[4,4]"
+    assert str(a) == "Matrix[4,4]"
 
     assert a.shape == (4, 4)
 
