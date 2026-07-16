@@ -731,7 +731,7 @@ def vec_obj(size: int, d0: int, d1: int) -> Array:
     return vec(size)(d0, d1)
 
 
-_scalars: dict[tuple[int, int], Array | None] = {
+_scalars: dict[lbv, Array | None] = {
     lb.X: None,
     lb.F: None,
     lb.T: None,
