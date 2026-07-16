@@ -675,7 +675,7 @@ def _array_new(shape: tuple[int, ...]) -> type[Array]:
         name = f"Matrix[{shape[0]},{shape[1]}]"
     else:
         s = ",".join(str(n) for n in shape)
-        name = f"Array[{s}]"
+        name = f"Tensor[{s}]"
 
     size = math.prod(shape)
     dmax = mask(size)
