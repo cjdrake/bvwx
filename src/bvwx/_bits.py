@@ -328,7 +328,7 @@ class Array[*Shape]:
         self._data = (d0, d1)
 
     def __hash__(self) -> int:
-        return hash((self.size,) + self._data)
+        return hash((self.size, *self._data))
 
     def __eq__(self, obj: Any) -> bool:
         if isinstance(obj, str):
@@ -701,7 +701,7 @@ def _array_new(shape: tuple[int, ...]) -> type[Array]:
 def array_cls(shape: tuple[int, ...]) -> type[Array]:
     """Return Array[shape] type."""
     assert shape
-    assert len(shape) == 1 and shape[0] >= 0 or all(isinstance(n, int) and n > 1 for n in shape)
+    assert (len(shape) == 1 and shape[0] >= 0) or all(isinstance(n, int) and n > 1 for n in shape)
 
     try:
         return _ArrayClasses[shape]
@@ -1060,7 +1060,7 @@ def _rank2(fst: Array, *rst: VectorLike) -> Array:
     if fst.shape == (1,):
         size = len(rst) + 1
         return vec_obj(size, d0, d1)
-    shape = (len(rst) + 1,) + fst.shape
+    shape = (len(rst) + 1, *fst.shape)
     return array_obj(shape, d0, d1)
 
 
@@ -1152,7 +1152,7 @@ def _stack(*xs: Array) -> Array:
 
     # {Vector[K], Vector[K], ...} => Array[J,K]
     # {Array[J,K], Array[J,K], ...} => Array[I,J,K]
-    shape = (len(xs),) + fst.shape
+    shape = (len(xs), *fst.shape)
     return array_obj(shape, d0, d1)
 
 
