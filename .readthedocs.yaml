@@ -14,7 +14,10 @@ build:
 # See https://docs.readthedocs.io/en/stable/guides/reproducible-builds.html
 python:
     install:
-    - requirements: doc/requirements.txt
+    - method: uv
+      command: sync
+      groups:
+      - doc
 
 # Use Sphinx to build documentation
 sphinx:
